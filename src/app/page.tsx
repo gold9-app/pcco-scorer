@@ -60,6 +60,8 @@ export default function Home() {
       <CourseDetail courseId="course-16" />
       <div className="section-divider max-w-6xl mx-auto" />
       <CourseDetail courseId="course-17" />
+      <div className="section-divider max-w-6xl mx-auto" />
+      <CourseDetail courseId="course-18" />
 
       {/* Footer — 실습 앱 링크 (작게) */}
       <footer className="py-10 px-6 text-center">

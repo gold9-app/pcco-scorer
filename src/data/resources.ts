@@ -457,4 +457,33 @@ export const resourceGroups: ResourceGroup[] = [
       },
     ],
   },
+  {
+    courseId: "course-18",
+    label: "18차",
+    title: "에이전트를 해부한다 — 누구에게 보내고, 어떻게 잇나",
+    framework: "두 축 + 라우팅·오케스트레이션",
+    items: [
+      {
+        file: "/downloads/c18/slides.pdf",
+        downloadName: "18강_에이전트를해부한다_슬라이드.pdf",
+        title: "슬라이드",
+        description: "수업에서 띄운 슬라이드 전체 (31장 — 두 축·격자·계단·루프·접수창구·패턴 4·해부도)",
+        kind: "pdf",
+      },
+      {
+        file: "/downloads/c18/glossary.docx",
+        downloadName: "18강_용어사전.docx",
+        title: "용어사전 (못 외워도 됩니다)",
+        description: "블록형 핸드북 — 1부 다섯 단어 두 축 · 2부 부품 · 3부 보내기와 잇기 · 4부 이름만. 항목마다 비유 → 무엇인가 → 왜 있나 → 오늘 어디서",
+        kind: "docx",
+      },
+      {
+        file: "/downloads/c18/design-card.docx",
+        downloadName: "18강_설계질문5카드.docx",
+        title: "설계 질문 5 카드 (선택 과제)",
+        description: "요청 종류 · 담당 일꾼 · 순서(패턴 4) · 모를 때·안 될 때 · 남길 것 — A4 1쪽. 안 해도 곤란하지 않습니다",
+        kind: "docx",
+      },
+    ],
+  },
 ];
