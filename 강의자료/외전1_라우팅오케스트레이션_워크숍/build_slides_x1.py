@@ -1,0 +1,790 @@
+# -*- coding: utf-8 -*-
+"""외전1 슬라이드 생성기 — 1280×720 · 48장 · 공항 비유 · 구조 그림 중심 (18차 CSS 계열 재사용 + 신설)"""
+import re
+src = open("../build_slides.py", encoding="utf-8").read()
+CSS = src[src.find('CSS = r"""')+10 : src.find('"""', src.find('CSS = r"""')+10)]
+helpers = src[src.find("# ───────── SVG icons") : src.find("S = []")]
+exec(helpers)  # svg_* , worker, head, slide
+
+TOTAL = 48
+def slide(n, inner, dark=False, pad=True):
+    cls = "slide dark" if dark else "slide"
+    foot = f'<div class="foot"><span></span><span>{n:02d} / {TOTAL}</span></div>'
+    return f'<section class="{cls}"><div class="pad">{inner}</div>{foot}</section>' if pad else f'<section class="{cls}">{inner}{foot}</section>'
+
+CSS += r"""
+/* 외전1 신설 */
+.airport{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.map .st{border:2.5px solid var(--line);border-radius:14px;padding:10px 12px;text-align:center;font-weight:900;font-size:15px;position:relative}
+.map .st small{display:block;font-weight:700;font-size:12px;color:var(--mute);margin-top:4px}
+.map .st.v{border-color:var(--v);background:var(--vl2)} .map .st.coral{border-color:var(--coral);background:var(--coral-l)} .map .st.mint{border-color:var(--mint);background:var(--mint-l)}
+.map .st.ink{background:var(--ink);color:#fff;border-color:var(--ink)} .map .st.ink small{color:#C4B5FD}
+.layers{display:flex;flex-direction:column;gap:10px}
+.layer{display:grid;grid-template-columns:52px 170px 1fr 220px;gap:16px;align-items:center;border:2.5px solid var(--line);border-radius:16px;padding:12px 18px}
+.layer.on{border-color:var(--v);background:var(--vl2)}
+.layer .n{width:40px;height:40px;border-radius:11px;background:var(--ink);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:17px}
+.layer.on .n{background:var(--v)}
+.layer .t{font-weight:900;font-size:19px} .layer .d{font-size:15px;color:#2A2744;line-height:1.4} .layer .a{font-size:14px;color:var(--mute);font-weight:700}
+.form{font-family:ui-monospace,Consolas,"Noto Sans Mono CJK KR",monospace;font-size:15.5px;line-height:1.75;white-space:pre;background:#F8F7FC;border:2.5px solid var(--ink);border-radius:16px;padding:16px 22px}
+.form .k{color:var(--v);font-weight:900} .form .r{color:#C2410C;font-weight:900} .form .m{color:var(--mint);font-weight:900} .form .g{color:var(--gray)}
+.pill{display:inline-block;border-radius:999px;padding:3px 12px;font-weight:900;font-size:13px;background:var(--ink);color:#fff}
+.pill.v{background:var(--v)} .pill.coral{background:var(--coral)} .pill.mint{background:var(--mint)}
+.venn{position:relative;height:300px}
+.timeline{display:flex;gap:6px;margin-top:22px}
+.timeline .tb{border-radius:12px;padding:12px 10px;color:#fff;font-weight:900;font-size:14px;text-align:center;line-height:1.3}
+.timeline .tb small{display:block;font-weight:700;font-size:12px;opacity:.85;margin-top:3px}
+"""
+
+S = []
+# ───────── 모듈 0 ─────────
+S.append(slide(1, """
+<div class="eyebrow" style="position:absolute;left:64px;top:50px">외전 1 · 독립 워크숍 · 360분 · 개인 진행</div>
+<div class="cover-big" style="font-size:54px;top:170px;right:560px">요청이 들어와서<br>결과가 나가기까지<br><span class="hl" style="font-size:36px">라우팅과 오케스트레이션<br>설계 워크숍</span></div>
+<div class="qlist" style="top:190px">
+  <div class="ql"><div class="n">1</div>배운다 — 보내는 규칙 · 잇는 규칙</div>
+  <div class="ql"><div class="n">2</div>쓴다 — 설계도 4장 (자연어)</div>
+  <div class="ql"><div class="n">3</div>올린다 — 작업대(Claude Code)에</div>
+  <div class="ql"><div class="n">4</div>돌린다 — 요청 12건 · 고친다 한 줄</div>
+</div>
+<div class="cover-sub"><b>"에이전트 설계는 코드가 아니라, 보내는 규칙과 잇는 규칙을 글로 쓰는 일이다."</b><br>전제 하나 — Claude Code를 써 봤다. 준비물 — 노트북 · claude · 빈 폴더 하나.</div>
+""", dark=True, pad=False))
+
+S.append(slide(2, head("모듈 0 · 오늘 만드는 것", '오늘 끝에 손에 남는 것 — <span class="hl">설계도 4장</span>, 그리고 그것이 돈 기록') + """
+<div class="cards c4" style="margin-top:22px">
+  <div class="card hot"><div class="k">①</div><div class="t">접수 분류표</div><div class="d">누구에게 보내나</div></div>
+  <div class="card hot"><div class="k">②</div><div class="t">일꾼 카드</div><div class="d">누가 무엇을 하나</div></div>
+  <div class="card hot"><div class="k">③</div><div class="t">지휘 대본</div><div class="d">어떤 순서로 잇나</div></div>
+  <div class="card hot"><div class="k">④</div><div class="t">실패 각본</div><div class="d">안 되면 어떻게</div></div>
+</div>
+<div class="row" style="margin-top:26px;gap:24px;align-items:stretch">
+  <div class="tree" style="flex:1;font-size:16px;line-height:1.8">내-에이전트/
+├─ CLAUDE.md        <span class="cm">← ① + ③ + ④</span>
+├─ 일꾼/            <span class="cm">← ② 한 장 = 파일 하나</span>
+├─ inbox/           <span class="cm">← 요청 12건</span>
+└─ runs/            <span class="cm">← 돈 기록</span></div>
+  <div class="note" style="margin-top:0;flex:1;display:flex;align-items:center">지금은 읽지 마세요 — 내용은 모듈 4에서. 지금 볼 건 하나: <b>코드가 한 줄도 없다.</b> 전부 한국어 문장. 그리고 그게 작업대에서 실제로 돈다.</div>
+</div>
+"""))
+
+S.append(slide(3, head("모듈 0 · 공항 대응표", '오늘의 비유는 하나 — <span class="hl">공항</span>') + """
+<div class="map" style="margin-top:18px">
+  <div class="st">승객<small>요청</small></div><div class="st">체크인<small>접수 inbox</small></div><div class="st coral">보안검색<small>가드레일</small></div><div class="st v">게이트 배정<small>라우팅 · 분류표</small></div>
+  <div class="st ink">관제탑<small>오케스트레이션 · 지휘 대본</small></div><div class="st v">조종사<small>일꾼 — 지침 한 장</small></div><div class="st">비행계획서<small>계약 — 받는 것·내는 것</small></div><div class="st">활주로 순서 / 동시 이착륙<small>줄 / 나눔</small></div>
+  <div class="st">환승<small>넘기기(핸드오프)</small></div><div class="st coral">회항 · 대체 공항<small>실패 각본 · 기본 경로</small></div><div class="st coral">관제 승인<small>사람 관문</small></div><div class="st mint">블랙박스<small>기록 runs/</small></div>
+</div>
+<div class="note" style="margin-top:22px;font-size:22px"><b>관제탑은 비행기를 몰지 않는다.</b> <span style="color:var(--mute);font-size:16px">— 오늘 세 번 듣게 될 문장. 모든 새 개념은 이 표의 어느 자리인지부터.</span></div>
+"""))
+
+S.append(slide(4, head("모듈 0 · 형식", '순강의 4모듈 → <span class="hl">실습 한 번(110분)</span> → 클로징') + """
+<div class="timeline">
+  <div class="tb" style="flex:15;background:var(--ink)">모듈 0<small>15</small></div>
+  <div class="tb" style="flex:40;background:var(--v)">모듈 1 에이전트 한 대<small>40</small></div>
+  <div class="tb" style="flex:70;background:var(--v)">모듈 2 라우팅<small>70</small></div>
+  <div class="tb" style="flex:10;background:#C9C7D6;color:#2A2744">☕<small>10</small></div>
+  <div class="tb" style="flex:80;background:var(--v2)">모듈 3 오케스트레이션<small>80</small></div>
+  <div class="tb" style="flex:30;background:var(--ink)">모듈 4 종합<small>30</small></div>
+  <div class="tb" style="flex:110;background:var(--coral)">모듈 5 실습 — 쓴다 · 올린다 · 돌린다 · 고친다<small>110</small></div>
+  <div class="tb" style="flex:15;background:var(--mint)">클로징<small>15</small></div>
+</div>
+<div class="cards c3" style="margin-top:30px">
+  <div class="card"><div class="k">듣는다 (모듈 0~4)</div><div class="t" style="font-size:20px">손들기 6 · 생각 멈춤 4</div><div class="d">생각 멈춤 = 1분, 자기 일에 대입. 적지 않아도 된다. 노트북은 모듈 5까지 닫아 둬도 된다</div></div>
+  <div class="card coral"><div class="k">쓴다 (모듈 5)</div><div class="t" style="font-size:20px">한 번에, 110분</div><div class="d" style="color:#2A2744">라우팅만 배우고 쓰면 반쪽, 오케스트레이션만 배우고 쓰면 반쪽 — 다 모여야 돈다</div></div>
+  <div class="card"><div class="k">전제</div><div class="t" style="font-size:20px">없음 — 같은 출발선</div><div class="d">이전에 무엇을 들었든. 오늘은 공항 하나로 간다</div></div>
+</div>
+"""))
+
+# ───────── 모듈 1 ─────────
+S.append(slide(5, head("모듈 1 · LLM", 'LLM — 글을 받아 판단해 글을 낸다. <span class="hl">손이 없다</span>') + f"""
+<div class="row" style="margin-top:50px;justify-content:center;gap:30px">
+  <div class="env" style="font-size:18px;padding:14px 20px">"환불은 어떻게 하나요?"</div><div class="arrow">→</div>
+  <div class="box v" style="padding:26px 34px;font-size:22px"><div class="ico" style="margin:0 auto 10px;background:#fff">{svg_bubble()}</div>LLM<small>그때그때 판단</small></div><div class="arrow">→</div>
+  <div class="env" style="font-size:18px;padding:14px 20px">"7일 이내 미사용이면…"</div>
+  <div style="margin-left:30px;text-align:center"><div class="ico" style="margin:0 auto;background:var(--red-l)">{svg_hand('#E5484D')}</div><div style="font-size:15px;font-weight:900;color:var(--red);margin-top:6px">손 없음</div></div>
+</div>
+<div class="cards c3" style="margin-top:50px">
+  <div class="card"><div class="k">판단은 한다</div><div class="t" style="font-size:19px">같은 걸 물어도 조금씩 다른 답</div></div>
+  <div class="card"><div class="k">손이 없다</div><div class="t" style="font-size:19px">파일을 열지도, 실행하지도 못한다</div></div>
+  <div class="card"><div class="k">한 번 답하면 끝</div><div class="t" style="font-size:19px">틀렸는지 자기가 확인하지 않는다</div></div>
+</div>
+"""))
+
+S.append(slide(6, head("모듈 1 · 손", '손 — <span class="hl">읽기 · 쓰기 · 실행</span>. Claude Code 화면에서 매번 보던 것') + f"""
+<div class="row" style="margin-top:40px;justify-content:center;gap:40px;align-items:flex-start">
+  <div class="box v" style="padding:26px 34px;font-size:22px"><div class="ico" style="margin:0 auto 10px;background:#fff">{svg_bubble()}</div>LLM<small>판단</small></div>
+  <div class="col" style="gap:12px">
+    <div class="row" style="gap:12px"><div class="ico" style="margin:0">{svg_rule()}</div><div class="box" style="padding:8px 16px;font-size:16px">읽기</div></div>
+    <div class="row" style="gap:12px"><div class="ico" style="margin:0">{svg_hand()}</div><div class="box" style="padding:8px 16px;font-size:16px">쓰기</div></div>
+    <div class="row" style="gap:12px"><div class="ico" style="margin:0">{svg_gear()}</div><div class="box" style="padding:8px 16px;font-size:16px">실행</div></div>
+  </div>
+  <div class="tree" style="font-size:15px;line-height:1.9;border-color:var(--line)"><span class="cm">⏺</span> 읽는 중… policy.md
+<span class="cm">⏺</span> 쓰는 중… runs/기록.md
+<span class="cm">⏺</span> 실행하는 중…</div>
+</div>
+<div class="note" style="margin-top:36px">모델이 "지금 이 파일을 읽겠다"고 <b>정하면</b>, 작업대가 대신 읽어 모델에게 돌려준다. 손이 생기면 세상을 만질 수 있다 — 그런데 손만으로는 아직 부족하다.</div>
+"""))
+
+S.append(slide(7, head("모듈 1 · 루프", '루프 — 결과를 보고 다음 행동을 스스로 정한다. <span class="hl">에러도 결과다</span>') + """
+<div style="display:grid;grid-template-columns:440px 1fr;gap:30px;margin-top:10px;align-items:center">
+<svg viewBox="0 0 440 430" width="440" height="430" font-family="Noto Sans CJK KR" font-weight="900" font-size="15">
+  <defs><marker id="a2" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="12" refY="9" orient="auto"><path d="M0,0 L18,9 L0,18z" fill="#5B3DF5"/></marker></defs>
+  <circle cx="220" cy="200" r="140" fill="none" stroke="#EDE9FE" stroke-width="22"/>
+  <path d="M263.3 66.8 A140 140 0 0 1 353.2 156.7" fill="none" stroke="#5B3DF5" stroke-width="6" marker-end="url(#a2)"/>
+  <path d="M353.2 243.3 A140 140 0 0 1 263.3 333.2" fill="none" stroke="#5B3DF5" stroke-width="6" marker-end="url(#a2)"/>
+  <path d="M176.7 333.2 A140 140 0 0 1 86.8 243.3" fill="none" stroke="#5B3DF5" stroke-width="6" marker-end="url(#a2)"/>
+  <path d="M86.8 156.7 A140 140 0 0 1 176.7 66.8" fill="none" stroke="#5B3DF5" stroke-width="6" marker-end="url(#a2)"/>
+  <g fill="#15132A"><rect x="150" y="36" width="140" height="46" rx="12"/><rect x="322" y="177" width="116" height="46" rx="12"/><rect x="140" y="317" width="160" height="46" rx="12"/><rect x="0" y="177" width="124" height="46" rx="12"/></g>
+  <g fill="#fff" text-anchor="middle" font-size="16"><text x="220" y="65">① 시킨다</text><text x="380" y="206" font-size="14">② 손을 쓴다</text><text x="220" y="346">③ 결과를 본다</text><text x="62" y="206" font-size="13.5">④ 다음을 정한다</text></g>
+  <text x="220" y="192" text-anchor="middle" fill="#5B3DF5" font-size="16">읽음→고침→실행</text><text x="220" y="216" text-anchor="middle" fill="#E5484D" font-size="13.5">에러 → 다시</text><text x="220" y="236" text-anchor="middle" fill="#9A98AE" font-size="11.5">에러도 결과다</text>
+  <line x1="220" y1="364" x2="220" y2="392" stroke="#19B393" stroke-width="4"/>
+  <rect x="120" y="392" width="200" height="32" rx="9" fill="#19B393"/><text x="220" y="414" text-anchor="middle" fill="#fff" font-size="14">"됐다" → 고리를 빠져나온다</text>
+</svg>
+<div class="col" style="gap:14px">
+  <div class="card hot"><div class="k">에러도 결과</div><div class="t" style="font-size:20px">멈추지 않고, 보고, 고친다</div><div class="d" style="color:#2A2744">명령은 한 번 쓰고 끝. 고리가 돌아야 에이전트</div></div>
+  <div class="card coral"><div class="k">루프에도 멈추는 규칙</div><div class="t" style="font-size:20px">몇 바퀴까지 · 돈 얼마까지</div><div class="d" style="color:#2A2744">없으면 돈이 돈다 — 모듈 3에서 '예산'이라는 이름으로 다시</div></div>
+</div>
+</div>
+"""))
+
+S.append(slide(8, head("모듈 1 · 정의 + 4부품 + 작업대", '<span style="font-size:34px">에이전트 = <span class="hl">목표를 받고, 손을 써서, 결과를 보고,</span><br><span class="hl">다음 행동을 스스로 정하는</span> AI</span>') + f"""
+<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:28px;margin-top:14px;align-items:start">
+<div class="cards c2" style="margin-top:0;gap:12px">
+  <div class="card" style="padding:14px 18px"><div class="k">머리</div><div class="t" style="font-size:19px">모델</div></div>
+  <div class="card" style="padding:14px 18px"><div class="k">손</div><div class="t" style="font-size:19px">도구</div></div>
+  <div class="card" style="padding:14px 18px"><div class="k">규칙</div><div class="t" style="font-size:19px">지침</div></div>
+  <div class="card" style="padding:14px 18px"><div class="k">루프</div><div class="t" style="font-size:19px">보고, 다음을 정한다</div></div>
+</div>
+<table class="tb" style="margin-top:0;font-size:16px">
+<tr><th style="width:220px"></th><th>작업대 = Claude Code</th><th style="background:var(--v)">설계 (내 것)</th></tr>
+<tr><td class="h">머리 · 손 · 루프</td><td style="font-weight:800;color:var(--gray)">빌려 준다</td><td class="hot" style="color:var(--gray);font-weight:400">—</td></tr>
+<tr><td class="h" style="background:var(--coral-l);color:#C2410C">규칙 · 일꾼 · 보내는 표 · 남기는 곳</td><td style="color:var(--gray)">—</td><td class="hot" style="background:var(--coral-l);color:#C2410C;font-size:18px">설계하는 사람의 몫 — 전부 글</td></tr>
+</table>
+</div>
+<div class="note" style="margin-top:18px">작업대는 도구, 설계는 내 것. <b>그래서 오늘 코드가 없다</b> — 쓰는 건 규칙·일꾼·보내는 표·남기는 곳, 전부 문장.</div>
+"""))
+
+S.append(slide(9, head("모듈 1 · 한 대의 한계", '한 대에 다 시키면 생기는 <span class="hl">병 넷</span>') + """
+<div class="cards c4" style="margin-top:30px">
+  <div class="card"><div class="k" style="color:var(--red)">①</div><div class="t">담는 양의 한계</div><div class="d">컨텍스트 — 넘치면 앞에 읽은 걸 잊는다</div></div>
+  <div class="card"><div class="k" style="color:var(--red)">②</div><div class="t">규칙끼리 충돌</div><div class="d">"항상 존댓말" vs "내부 메모는 반말" — 매번 다르게 고른다</div></div>
+  <div class="card"><div class="k" style="color:var(--red)">③</div><div class="t">긴 일에서 흐려진다</div><div class="d">앞은 잘하고 뒤로 갈수록 — 3번째 단계쯤에서</div></div>
+  <div class="card"><div class="k" style="color:var(--red)">④</div><div class="t">어디서 틀렸는지 모른다</div><div class="d">한 덩어리라 어느 부분이 문제인지 못 짚는다</div></div>
+</div>
+<div class="note coral" style="margin-top:40px;font-size:20px">✋ Claude Code에 긴 일 시켰다가 뒤에 가서 이상해진 경험 있는 분? — 그게 ③.</div>
+"""))
+
+S.append(slide(10, head("모듈 1 · 나눈다", '나눈다 — <span class="hl">일꾼 한 명 = 한 가지 일 = 지침 한 장</span>') + f"""
+<div class="row" style="margin-top:44px;justify-content:center;gap:40px">
+  <div class="box coral" style="padding:40px 30px;font-size:20px;width:260px">한 대<small style="font-size:14px">지침 한 장에 전부</small><div style="margin-top:10px;font-size:13px;color:var(--red);font-weight:900">병 ①②③④</div></div>
+  <div class="arrow" style="font-size:44px">→</div>
+  <div class="row" style="gap:18px">{worker("안내 일꾼","지침 한 장")}{worker("조회 일꾼","지침 한 장")}{worker("변경 일꾼","지침 한 장")}</div>
+</div>
+<div class="cards c4" style="margin-top:40px;gap:12px">
+  <div class="card" style="padding:14px"><div class="k" style="color:var(--mint)">①</div><div class="d" style="color:#2A2744">각자 머리가 작다 — 안 넘친다</div></div>
+  <div class="card" style="padding:14px"><div class="k" style="color:var(--mint)">②</div><div class="d" style="color:#2A2744">규칙이 짧다 — 안 싸운다</div></div>
+  <div class="card" style="padding:14px"><div class="k" style="color:var(--mint)">③</div><div class="d" style="color:#2A2744">일이 짧다 — 안 흐려진다</div></div>
+  <div class="card" style="padding:14px"><div class="k" style="color:var(--mint)">④</div><div class="d" style="color:#2A2744">틀리면 어느 일꾼인지 보인다</div></div>
+</div>
+<div class="note sm" style="margin-top:18px">조종사 한 명이 비행기 한 대. 그런데 — <b>나누는 순간 전에 없던 문제가 둘 생긴다.</b></div>
+"""))
+
+S.append(slide(11, head("모듈 1 · 두 문제 ⭐ + Q1 · 생각 멈춤 ①", '나누면 생기는 두 문제 — <span class="hl">누구에게 보내나</span> · <span class="hl">어떻게 잇나</span>', coral=True) + f"""
+<div style="display:grid;grid-template-columns:500px 1fr;gap:30px;margin-top:10px;align-items:center">
+  <div class="row" style="gap:16px;justify-content:center">
+    <div class="env">요청 한 건</div>
+    <div class="col" style="align-items:center;gap:2px"><div style="font-size:34px;font-weight:900;color:var(--coral);line-height:1">?</div><div style="font-size:13px;font-weight:900;color:var(--coral)">누구에게?</div><div class="arrow" style="color:var(--coral)">→</div></div>
+    <div class="col" style="gap:8px">{worker("안내")}{worker("조회")}{worker("변경")}</div>
+    <div class="col" style="align-items:center;gap:2px"><div style="font-size:34px;font-weight:900;color:var(--coral);line-height:1">?</div><div style="font-size:13px;font-weight:900;color:var(--coral);text-align:center">어떤 순서로?<br>누가 책임?</div></div>
+  </div>
+  <div>
+    <div class="row" style="gap:12px"><span class="pill v">게이트 배정</span><span style="font-size:22px;font-weight:900">= 라우팅</span></div>
+    <div class="row" style="gap:12px;margin-top:10px"><span class="pill">관제탑</span><span style="font-size:22px;font-weight:900">= 오케스트레이션</span></div>
+    <div class="big" style="font-size:24px;margin-top:20px">"에이전트 설계는 코드가 아니라,<br><span style="color:var(--v)">보내는 규칙과 잇는 규칙을 글로 쓰는 일</span>이다."</div>
+  </div>
+</div>
+<div class="cards c2" style="margin-top:18px">
+  <div class="card coral"><div class="k">✋ Q1</div><div class="t" style="font-size:18px">Claude Code 대화창 하나에 그냥 다 시키면 안 되나요?</div><div class="d" style="color:#2A2744">→ 됩니다, 일이 작을 땐. 커지면 병 넷</div></div>
+  <div class="card"><div class="k">⏸ 생각 멈춤 ① (1분)</div><div class="t" style="font-size:18px">내 일에서 한 대로 시켰다가 흐려진 경험 하나</div><div class="d">적지 않아도 됩니다</div></div>
+</div>
+"""))
+
+# ───────── 모듈 2 ─────────
+S.append(slide(12, head("모듈 2 · 라우팅 정의", '라우팅 — 들어온 것을 보고 <span class="hl">어디로 보낼지</span> 정하는 일', '게이트 배정 직원은 비행기를 몰지 않는다 — 보기만 하고 보낸다') + f"""
+<div class="row" style="margin-top:22px;justify-content:center;gap:30px">
+  <div class="col" style="gap:10px"><div class="env">환불은 어떻게 하나요?</div><div class="env">주문 1234 어디쯤이에요?</div><div class="env">취소해 주세요</div></div>
+  <div class="arrow">→</div>
+  <div class="box v" style="width:230px;padding:22px 16px"><div style="width:52px;height:52px;border-radius:14px;background:#fff;margin:0 auto 10px;display:flex;align-items:center;justify-content:center">{svg_search()}</div>게이트 배정<small>보기만 하고 보낸다</small></div>
+  <div class="col" style="gap:4px;align-items:center"><div class="arrow" style="transform:rotate(-30deg)">→</div><div class="arrow">→</div><div class="arrow" style="transform:rotate(30deg)">→</div></div>
+  <div class="col" style="gap:14px">{worker("안내 일꾼","12번 게이트")}{worker("조회 일꾼","14번 게이트")}{worker("변경 일꾼","16번 게이트")}</div>
+</div>
+<div class="cards c2" style="margin-top:16px">
+  <div class="card"><div class="k">산출물</div><div class="t" style="font-size:19px">접수 분류표 한 장</div><div class="d">오늘 끝에 쓸 첫 장</div></div>
+  <div class="card coral"><div class="k">게이트 직원이 비행기를 몰기 시작하면</div><div class="t" style="font-size:19px">"이건 간단하니 내가 답할게" → 한 덩어리로 회귀</div><div class="d" style="color:#2A2744">라우터는 얇게 — 판단은 "어디로"까지만</div></div>
+</div>
+"""))
+
+S.append(slide(13, head("모듈 2 · 라우팅 5층 ⭐", '라우팅은 <span class="hl">다섯 층</span>에서 일어난다 — 오늘은 ①과 ⑤') + """
+<div class="layers" style="margin-top:14px">
+  <div class="layer on"><div class="n">①</div><div class="t">요청 → 일꾼</div><div class="d">어떤 종류의 요청을 누가 맡나 — <b>오늘의 본체</b></div><div class="a">게이트 배정</div></div>
+  <div class="layer"><div class="n">②</div><div class="t">의도 → 세부 절차</div><div class="d">같은 종류 안에서 — 신규인가 수정인가. 종류가 7개 넘으면 이 층으로</div><div class="a">국내선 · 국제선</div></div>
+  <div class="layer"><div class="n">③</div><div class="t">행동 → 도구</div><div class="d">"읽을까, 실행할까" — 작업대가 매 턴 하는 것</div><div class="a">활주로 · 유도로</div></div>
+  <div class="layer"><div class="n">④</div><div class="t">난이도 → 모델</div><div class="d">쉬운 건 작은 머리, 어려운 건 큰 머리 — 비용. 오늘은 한 줄만</div><div class="a">소형기 · 대형기</div></div>
+  <div class="layer on"><div class="n">⑤</div><div class="t">못 하는 것 → 사람</div><div class="d">에스컬레이션 — 오늘 아주 많이 나온다</div><div class="a">관제 승인</div></div>
+</div>
+<div class="note sm" style="margin-top:14px">라우팅은 특별한 장치가 아니라 <b>"고르는 일 전부"</b>의 이름.</div>
+"""))
+
+S.append(slide(14, head("모듈 2 · 분류 체계 3원칙 ⭐", '분류표의 세 원칙 — <span class="hl">겹치지 않게 · 빠짐없이 · 그리고 기타</span>') + """
+<div style="display:grid;grid-template-columns:480px 1fr;gap:30px;margin-top:10px;align-items:center">
+<svg viewBox="0 0 480 320" width="480" height="320" font-family="Noto Sans CJK KR" font-weight="900">
+  <rect x="10" y="10" width="460" height="300" rx="18" fill="#F8F7FC" stroke="#C9C7D6" stroke-width="3" stroke-dasharray="8 6"/>
+  <text x="40" y="44" font-size="14" fill="#9A98AE">올 수 있는 요청 전부</text>
+  <g stroke="#5B3DF5" stroke-width="3"><rect x="40" y="70" width="130" height="200" rx="16" fill="#EDE9FE"/><rect x="180" y="70" width="130" height="200" rx="16" fill="#EDE9FE"/><rect x="320" y="70" width="110" height="200" rx="16" fill="#EDE9FE"/></g>
+  <g fill="#3B21C8" font-size="17" text-anchor="middle"><text x="105" y="175">안내</text><text x="245" y="175">조회</text><text x="375" y="175">변경</text></g>
+  <rect x="40" y="276" width="390" height="26" rx="8" fill="#FFEDE8" stroke="#FF6B4A" stroke-width="2.5"/><text x="235" y="294" text-anchor="middle" font-size="13" fill="#C2410C">기타 → 사람</text>
+  <g font-size="12" fill="#6E6B85"><text x="172" y="60" text-anchor="middle">겹치지 않게 ↔</text><text x="312" y="60" text-anchor="middle">↔</text></g>
+</svg>
+<div class="col" style="gap:12px">
+  <div class="card"><div class="k">① 겹치지 않게</div><div class="d" style="color:#2A2744;font-size:15px">한 요청이 두 종류에 동시에 맞으면 요청이 아니라 <b>표가 틀린 것</b></div></div>
+  <div class="card"><div class="k">② 빠짐없이</div><div class="d" style="color:#2A2744;font-size:15px">올 수 있는 요청을 다 덮게. 종류는 <b>3~7</b>, 넘으면 2층으로</div></div>
+  <div class="card coral"><div class="k">③ 그리고 기타</div><div class="d" style="color:#2A2744;font-size:15px">못 덮은 것의 기본 경로 — <b>끝은 사람</b></div></div>
+</div>
+</div>
+<div class="big" style="margin-top:14px;text-align:center;font-size:30px">"<span style="color:var(--coral)">기타가 없는 분류표</span>는 분류표가 아니다."</div>
+"""))
+
+S.append(slide(15, head("모듈 2 · 정·포·제·예 ⭐", '분류 기준 문장 쓰는 법 — <span class="hl">정의 · 포함 · 제외 · 예시</span>') + """
+<div style="display:grid;grid-template-columns:1fr 380px;gap:28px;margin-top:12px;align-items:start">
+<div class="form">[종류 1] <span class="k">안내 요청</span>
+  <span class="k">정의</span>: 이미 정해진 규정·절차·정보를 알려 달라는 것
+  <span class="k">포함</span>: 환불 절차, 배송 기간, 영업시간, 요금표
+  <span class="r">제외</span>: 내 주문 상태 (→ 종류 2 조회)
+        규정과 다르게 해 달라 (→ 종류 3 변경)
+  <span class="k">예시</span>: "환불은 어떻게 하나요?" / "배송 며칠 걸려요?"
+  → 담당: <span class="m">안내 일꾼</span></div>
+<div class="col" style="gap:12px">
+  <div class="card coral"><div class="k">✕ 키워드 하나로 가르면</div><div class="d" style="color:#2A2744;font-size:15px">"'환불'이 있으면 안내" → "환불해 주세요"(변경)까지 안내로 간다</div></div>
+  <div class="card hot"><div class="k">제외 칸이 경계를 긋는다</div><div class="d" style="color:#2A2744;font-size:15px">안내의 제외 → 조회, 조회의 제외 → 변경 — <b>제외가 서로를 가리키면</b> 원칙 ①이 지켜진 것</div></div>
+  <div class="card"><div class="k">예시 2문장</div><div class="d" style="font-size:15px">분류 AI의 기준점 — 실제 말투로</div></div>
+</div>
+</div>
+"""))
+
+S.append(slide(16, head("모듈 2 · 보내는 방식 3", '무엇이 분류표를 읽고 보내나 — <span class="hl">규칙 · 분류 AI · 과거 사례</span>') + f"""
+<div class="cards c3" style="margin-top:18px">
+  <div class="card"><div class="ico">{svg_gear()}</div><div class="k">① 규칙</div><div class="t">형식 · 키워드</div><div class="d">"제목에 [환불]이 있으면" · "첨부가 엑셀이면"<br><b style="color:var(--mint)">싸고 빠르고 항상 같다</b> / <b style="color:var(--red)">융통성 없음</b></div></div>
+  <div class="card hot"><div class="ico" style="background:#fff">{svg_search()}</div><div class="k">② 분류 AI</div><div class="t">정·포·제·예를 읽고 한 줄 판단</div><div class="d"><b style="color:var(--mint)">융통성</b> / <b style="color:var(--red)">가끔 틀리고 매번 조금 다르다</b><br>오늘 작업대에서 도는 방식</div></div>
+  <div class="card gray"><div class="ico" style="background:#eee">{svg_drawer('#9A98AE')}</div><div class="k">③ 과거 사례</div><div class="t">그때 보낸 곳으로</div><div class="d">사례가 쌓여야 — 오늘은 이름만</div></div>
+</div>
+<div class="row" style="margin-top:36px;justify-content:center;gap:14px">
+  <div class="box" style="padding:12px 20px">규칙으로 거른다</div><div class="arrow">→</div><div class="box v" style="padding:12px 20px">남은 것을 AI가</div><div class="arrow">→</div><div class="box gray" style="padding:12px 20px">사례가 쌓이면 사례로</div>
+</div>
+<div class="note sm" style="margin-top:28px">그래서 <b>정·포·제·예</b>가 중요하다 — 분류 AI가 읽는 것이 바로 그 문장.</div>
+"""))
+
+S.append(slide(17, head("모듈 2 · 판단 재료 4", '종류 말고도 보는 것 넷 — <span class="hl">확신도 · 위험 · 비용 · 시간</span>') + """
+<div class="cards c4" style="margin-top:26px">
+  <div class="card"><div class="k">확신도</div><div class="t" style="font-size:19px">애매하면 사람</div><div class="d">일꾼의 내는 것에 '확신도(상·중·하)'가 있는 이유</div></div>
+  <div class="card coral"><div class="k">위험</div><div class="t" style="font-size:19px">돈 · 밖 · 되돌릴 수 없음</div><div class="d" style="color:#2A2744">이면 사람이 한 번 — 모듈 3 '관문'</div></div>
+  <div class="card"><div class="k">비용</div><div class="t" style="font-size:19px">큰 머리는 필요할 때만</div><div class="d">5층의 ④</div></div>
+  <div class="card"><div class="k">시간</div><div class="t" style="font-size:19px">급하면 짧은 길</div><div class="d">'급해요'는 <b>종류가 아니다</b> — 재료</div></div>
+</div>
+<div class="note" style="margin-top:40px">"급한 요청"이라는 <b>종류</b>를 만들면 모든 종류가 둘로 갈라진다. 급함은 종류가 아니라 <b>시간 재료</b> — Q3에서 다시.</div>
+"""))
+
+S.append(slide(18, head("모듈 2 · 애매함 처리 3 ⭐", '애매할 때 — <span class="hl">되묻기 · 추정 · 쪼개기</span>') + """
+<div class="cards c3" style="margin-top:20px">
+  <div class="card"><div class="k">되묻기</div><div class="t">질문 한 개, 한 번만</div><div class="d">"주문번호를 알려 주시겠어요?" — 두 번 물으면 사람이 짜증 난다</div></div>
+  <div class="card"><div class="k">추정</div><div class="t">가장 흔한 쪽으로 보내되</div><div class="d">기록에 <b>'추정'</b> 표시 — 나중에 엇나갔는지 볼 수 있게</div></div>
+  <div class="card"><div class="k">쪼개기</div><div class="t">섞인 요청은 둘로</div><div class="d">둘 다 보낸다 — 순서는 지휘 대본이 정한다</div></div>
+</div>
+<div class="big" style="margin-top:36px;text-align:center;font-size:30px">되돌릴 수 있으면 <span style="color:var(--v)">추정</span>, 아니면 <span style="color:var(--coral)">되묻기</span>.</div>
+<div class="row" style="margin-top:22px;justify-content:center;gap:14px"><span class="chip mint">안내 — 틀려도 고치면 된다 → 추정</span><span class="chip coral">취소 · 환불 · 발송 — 되돌릴 수 없다 → 되묻기</span></div>
+"""))
+
+S.append(slide(19, head("모듈 2 · 섞임 · 재라우팅 · 핸드오프", '섞인 요청은 <span class="hl">쪼개고</span>, 잘못 간 요청은 <span class="hl">돌려보낸다</span>') + f"""
+<div class="cards c2" style="margin-top:20px">
+  <div class="card"><div class="row" style="gap:10px;margin-bottom:12px"><div class="env mix">환불 절차도, 내 주문 9012 상태도</div></div><div class="k">섞임 — 분류표에 줄 하나</div><div class="form" style="font-size:14px;padding:10px 14px;margin-top:8px">[섞임] 1+2 → S-4 (동시에)
+       2+3 → S-5 (조회 먼저 → 변경)
+       1+3 → S-3 먼저, 끝난 뒤 S-1</div></div>
+  <div class="card"><div class="row" style="gap:10px;margin-bottom:12px">{worker("조회 일꾼","")}<span style="font-size:15px;font-weight:900;color:var(--red)">"내 일<br>아닌데요"</span><span style="font-size:26px;color:var(--red);font-weight:900">↩</span></div><div class="k">잘못 간 요청 — 일꾼 카드 마지막 칸</div><div class="form" style="font-size:14px;padding:10px 14px;margin-top:8px">내 일 아님: 취소·변경을 원하면
+  "재라우팅 요청"으로 돌려보낸다
+→ 분류표로 되돌려 1회 → 그래도 아니면 사람</div></div>
+</div>
+<div class="note sm" style="margin-top:20px">환승 안내가 없으면 조회 일꾼이 어설프게 취소를 해 버린다.</div>
+"""))
+
+S.append(slide(20, head("모듈 2 · 가드레일", '보안검색 — <span class="hl">분류 전에</span> 거르는 것') + """
+<div class="row" style="margin-top:40px;justify-content:center;gap:20px">
+  <div class="col" style="gap:8px"><div class="env">환불은 어떻게 하나요?</div><div class="env q">담당자 개인 번호 알려 주세요</div><div class="env">주문 1234 어디쯤?</div></div>
+  <div class="arrow">→</div>
+  <div class="box coral" style="padding:22px 20px;width:220px">보안검색<small>가드레일</small></div>
+  <div class="col" style="gap:8px"><div class="row" style="gap:8px"><div class="arrow" style="font-size:24px;color:var(--mint)">→</div><div class="box mint" style="padding:8px 14px;font-size:14px">통과 → 게이트 배정</div></div><div class="row" style="gap:8px"><div class="arrow" style="font-size:24px;color:var(--red)">→</div><div class="box" style="padding:8px 14px;font-size:14px;border-color:var(--red);color:var(--red)">거절 문구 1줄 + runs/ "거절"</div></div></div>
+</div>
+<div class="form" style="margin-top:36px;font-size:15px">[가드레일] 욕설·협박 · 타인 개인정보 요구 · 우리 서비스와 무관한 요청
+  → 정중한 거절 문구 1줄, runs/에 "거절 + 사유" 기록</div>
+<div class="note sm" style="margin-top:16px">분류표 <b>맨 위</b>에 둔다. 없으면 분류 AI가 "담당자 번호"를 안내 요청으로 보낸다.</div>
+"""))
+
+S.append(slide(21, head("모듈 2 · 안티패턴 4 + Q2 · Q3", '라우팅 안티패턴 넷', coral=True) + """
+<div class="cards c4" style="margin-top:22px">
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 라우터가 일을 한다</div><div class="d" style="color:#2A2744">"이건 간단하니 내가 답할게" → 한 덩어리로 회귀</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 종류 과다</div><div class="d" style="color:#2A2744">7개 넘으면 2층(의도 → 세부)으로</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 기타 없음</div><div class="d" style="color:#2A2744">모르는 요청이 아무 일꾼에게</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 키워드만</div><div class="d" style="color:#2A2744">정의·제외 없이 단어 하나로</div></div>
+</div>
+<div class="cards c2" style="margin-top:34px">
+  <div class="card coral"><div class="k">✋ Q2</div><div class="t" style="font-size:20px">요청 종류는 몇 개가 적당할까요?</div><div class="d" style="color:#2A2744">셋? 다섯? 열? → <b>3~7</b></div></div>
+  <div class="card coral"><div class="k">✋ Q3</div><div class="t" style="font-size:20px">'급해요'는 종류인가요?</div><div class="d" style="color:#2A2744">→ 아니오 — <b>시간 재료</b>. 종류를 둘로 쪼개지 않는다</div></div>
+</div>
+"""))
+
+def journey(steps):
+    h = '<div class="row" style="gap:0;margin-top:22px;align-items:stretch">'
+    for i,(n,t,d,c,flag) in enumerate(steps):
+        h += f'<div style="flex:1;position:relative"><div class="box {c}" style="height:100%;padding:12px 10px;display:flex;flex-direction:column;border-radius:16px"><div style="font-size:12px;letter-spacing:.1em;color:var(--mute)">{n}</div><div style="font-size:18px;margin-top:4px">{t}</div><div style="font-size:13px;font-weight:700;color:var(--mute);margin-top:6px;line-height:1.4">{d}</div></div>{flag}</div>'
+        if i < len(steps)-1: h += '<div class="arrow" style="padding:0 4px;align-self:center;font-size:26px">→</div>'
+    return h + '</div>'
+flag = lambda txt: f'<div style="position:absolute;top:-16px;right:8px;background:var(--coral);color:#fff;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:900">⚑ {txt}</div>'
+
+S.append(slide(22, head("모듈 2 · 여정 ① ⭐", '요청 한 건의 여정 — <span class="hl">접수 → 가드레일 → 분류 → 담당 → 결과 → 기록</span>') + f"""
+<div class="env" style="margin-top:12px;font-size:17px">💬 "환불은 어떻게 하나요?"</div>
+{journey([
+ ("① 접수","inbox","",""," "),
+ ("② 가드레일","통과","위험·개인정보 아님","mint",""),
+ ("③ 분류","분류표를 본다","정·포·제·예 — <b>문장</b>. '정해진 절차를 알려 달라' → 안내","v",flag("문장을 봤다")),
+ ("④ 담당","안내 일꾼","받는 것만 안다 — 원문 + 규정집","v",flag("받는 것만 안다")),
+ ("⑤ 결과","3문장 + 근거","","",""),
+ ("⑥ 기록","runs/ 한 줄","담당·받은 것·낸 것","mint",""),
+])}
+<div class="cards c2" style="margin-top:26px">
+  <div class="card"><div class="k">챙길 것 1</div><div class="t" style="font-size:19px">③에서 본 것은 <span style="color:var(--v)">문장</span></div><div class="d">코드가 아니다 — 정·포·제·예</div></div>
+  <div class="card"><div class="k">챙길 것 2</div><div class="t" style="font-size:19px">④의 일꾼은 <span style="color:var(--v)">받는 것만 안다</span></div><div class="d">내 대화를 모른다 — 모듈 3에서 중요해진다</div></div>
+</div>
+"""))
+
+S.append(slide(23, head("모듈 2 · 생각 멈춤 ②", '⏸ 내 일에 오는 요청 종류 3개 — 그리고 <span class="hl">기타는 누구에게</span>') + """
+<div class="form" style="margin-top:30px;font-size:19px;line-height:2">[종류 1] ______________
+[종류 2] ______________
+[종류 3] ______________
+[기타] → 사람 — 누구? ______________</div>
+<div class="row" style="margin-top:30px;gap:14px;justify-content:center"><span class="chip gray">고객센터: 안내 · 조회 · 변경</span><span class="chip gray">총무: 증명서 · 규정 · 비품</span><span class="chip gray">콘텐츠: 신규 · 수정 · 일정</span></div>
+<div class="ask" style="text-align:center;margin-top:26px">1분. 적지 않아도 됩니다 — 모듈 5 분류표의 씨앗.</div>
+"""))
+
+S.append(slide(24, head("모듈 2 · 요약", '라우팅 한 장 — <span class="hl">접수 분류표 하나</span>가 산출물') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:14px;align-items:start">
+<div class="form" style="font-size:14.5px">[가드레일] …            <span class="g">← 보안검색</span>
+[종류 1] 정의 / 포함 / 제외 / 예시 → 담당   <span class="g">← 정·포·제·예</span>
+[종류 2] …                <span class="g">← 겹치지 않게 (제외)</span>
+[종류 3] …                <span class="g">← 빠짐없이 (3~7)</span>
+[기타] → 사람             <span class="g">← 기본 경로</span>
+[섞임] 조합 → S-n         <span class="g">← 쪼개기</span>
+[되묻기] 질문 1개 1회      <span class="g">← 애매함 처리</span></div>
+<div class="col" style="gap:10px">
+  <div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip">5층</span><span class="chip">3원칙</span><span class="chip">정·포·제·예</span><span class="chip">방식 3</span><span class="chip">재료 4</span><span class="chip">애매함 3</span><span class="chip">섞임 · 핸드오프</span><span class="chip">가드레일</span><span class="chip coral">안티패턴 4</span></div>
+  <div class="note" style="margin-top:8px">배운 게 많아 보여도 산출물은 <b>종이 한 장</b>. 전부 이 한 장에 들어간다.</div>
+  <div class="note coral sm" style="margin-top:0">☕ 10분 — 돌아오면 두 번째 문제, <b>어떻게 잇나</b>.</div>
+</div>
+</div>
+"""))
+
+# ───────── 모듈 3 ─────────
+S.append(slide(25, head("모듈 3 · 오케스트레이션 정의", '오케스트레이션 — <span class="hl">순서 · 상태 · 호출</span>로 잇고 책임지는 것') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:16px;align-items:center">
+  <svg viewBox="0 0 520 360" width="520" height="360" font-family="Noto Sans CJK KR" font-weight="900">
+    <g stroke="#5B3DF5" stroke-width="4" stroke-dasharray="8 7"><line x1="260" y1="150" x2="90" y2="290"/><line x1="260" y1="150" x2="260" y2="300"/><line x1="260" y1="150" x2="430" y2="290"/></g>
+    <rect x="200" y="40" width="120" height="110" rx="14" fill="#15132A"/><rect x="215" y="55" width="90" height="36" rx="8" fill="#C4B5FD"/><text x="260" y="128" text-anchor="middle" fill="#fff" font-size="18">관제탑</text>
+    <rect x="340" y="30" width="170" height="92" rx="12" fill="#fff" stroke="#15132A" stroke-width="3"/>
+    <text x="355" y="56" font-size="15">① 순서 — 누가 먼저</text><text x="355" y="82" font-size="15">② 상태 — 어디까지</text><text x="355" y="108" font-size="15">③ 호출 — 다음 누구</text>
+    <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="40" y="290" width="100" height="56" rx="14"/><rect x="210" y="300" width="100" height="56" rx="14"/><rect x="380" y="290" width="100" height="56" rx="14"/></g>
+    <g fill="#3B21C8" font-size="16" text-anchor="middle"><text x="90" y="325">조종사 A</text><text x="260" y="335">조종사 B</text><text x="430" y="325">조종사 C</text></g>
+    <text x="260" y="205" text-anchor="middle" font-size="14" fill="#E5484D">비행기를 몰지 않는다</text>
+  </svg>
+  <div class="col" style="gap:14px">
+    <div class="card hot"><div class="k">관제탑이 하는 일은 셋뿐</div><div class="t" style="font-size:21px">순서 · 상태 · 호출</div><div class="d" style="color:#2A2744">조종은 조종사가. 판단은 일꾼이</div></div>
+    <div class="card"><div class="k">산출물</div><div class="t" style="font-size:19px">지휘 대본 + 실패 각본</div></div>
+    <div class="note sm" style="margin-top:0">두 번째 — <b>관제탑은 비행기를 몰지 않는다.</b></div>
+  </div>
+</div>
+"""))
+
+def pat_svg(kind):
+    P = {
+    "seq": """<svg viewBox="0 0 300 100" width="300" height="100"><defs><marker id="p" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#5B3DF5"/></marker></defs>
+      <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="10" y="30" width="70" height="40" rx="10"/><rect x="115" y="30" width="70" height="40" rx="10"/><rect x="220" y="30" width="70" height="40" rx="10"/></g>
+      <line x1="82" y1="50" x2="110" y2="50" stroke="#5B3DF5" stroke-width="4" marker-end="url(#p)"/><line x1="187" y1="50" x2="215" y2="50" stroke="#5B3DF5" stroke-width="4" marker-end="url(#p)"/>
+      <g font-size="15" font-weight="900" fill="#3B21C8" text-anchor="middle" font-family="Noto Sans CJK KR"><text x="45" y="55">A</text><text x="150" y="55">B</text><text x="255" y="55">C</text></g></svg>""",
+    "par": """<svg viewBox="0 0 300 100" width="300" height="100"><defs><marker id="p2" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#5B3DF5"/></marker></defs>
+      <rect x="5" y="30" width="55" height="40" rx="10" fill="#fff" stroke="#15132A" stroke-width="3"/><rect x="240" y="30" width="55" height="40" rx="10" fill="#fff" stroke="#15132A" stroke-width="3"/>
+      <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="120" y="2" width="60" height="26" rx="8"/><rect x="120" y="37" width="60" height="26" rx="8"/><rect x="120" y="72" width="60" height="26" rx="8"/></g>
+      <g stroke="#5B3DF5" stroke-width="3.5" marker-end="url(#p2)" fill="none"><path d="M62 50 L115 15"/><path d="M62 50 L115 50"/><path d="M62 50 L115 85"/><path d="M182 15 L235 45"/><path d="M182 50 L235 50"/><path d="M182 85 L235 55"/></g></svg>""",
+    "sup": """<svg viewBox="0 0 300 100" width="300" height="100"><defs><marker id="p3" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#19B393"/></marker></defs>
+      <rect x="120" y="4" width="60" height="30" rx="8" fill="#5B3DF5"/><text x="150" y="25" text-anchor="middle" fill="#fff" font-size="12" font-weight="900" font-family="Noto Sans CJK KR">관제탑</text>
+      <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="20" y="66" width="70" height="30" rx="8"/><rect x="115" y="66" width="70" height="30" rx="8"/><rect x="210" y="66" width="70" height="30" rx="8"/></g>
+      <g stroke="#9A98AE" stroke-width="2.5" stroke-dasharray="5 4"><line x1="135" y1="36" x2="60" y2="64"/><line x1="150" y1="36" x2="150" y2="64"/><line x1="165" y1="36" x2="240" y2="64"/></g>
+      <g stroke="#19B393" stroke-width="3.5" marker-end="url(#p3)"><line x1="70" y1="64" x2="140" y2="40"/><line x1="160" y1="64" x2="160" y2="40"/><line x1="250" y1="64" x2="172" y2="40"/></g></svg>""",
+    "eval": """<svg viewBox="0 0 300 100" width="300" height="100"><defs><marker id="p4" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#5B3DF5"/></marker><marker id="p5" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#E5484D"/></marker></defs>
+      <rect x="15" y="30" width="95" height="40" rx="10" fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"/><rect x="160" y="30" width="95" height="40" rx="10" fill="#FFEDE8" stroke="#FF6B4A" stroke-width="3"/>
+      <path d="M112 42 L155 42" stroke="#5B3DF5" stroke-width="3.5" marker-end="url(#p4)"/><path d="M158 60 L115 60" stroke="#E5484D" stroke-width="3.5" marker-end="url(#p5)"/><path d="M257 50 L290 50" stroke="#19B393" stroke-width="3.5" marker-end="url(#p4)"/>
+      <g font-size="13" font-weight="900" text-anchor="middle" font-family="Noto Sans CJK KR"><text x="62" y="55" fill="#3B21C8">만드는 쪽</text><text x="207" y="55" fill="#C2410C">보는 쪽</text></g></svg>""",
+    "branch": """<svg viewBox="0 0 300 100" width="300" height="100"><defs><marker id="p6" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#5B3DF5"/></marker></defs>
+      <polygon points="80,50 125,20 170,50 125,80" fill="#FFEDE8" stroke="#FF6B4A" stroke-width="3"/><text x="125" y="55" text-anchor="middle" font-size="12" font-weight="900" fill="#C2410C" font-family="Noto Sans CJK KR">결과?</text>
+      <rect x="5" y="30" width="55" height="40" rx="10" fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"/><line x1="62" y1="50" x2="78" y2="50" stroke="#5B3DF5" stroke-width="3.5"/>
+      <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="220" y="5" width="70" height="30" rx="8"/><rect x="220" y="65" width="70" height="30" rx="8"/></g>
+      <g stroke="#5B3DF5" stroke-width="3.5" marker-end="url(#p6)" fill="none"><path d="M170 50 L215 22"/><path d="M170 50 L215 78"/></g>
+      <g font-size="11" font-weight="900" fill="#3B21C8" text-anchor="middle" font-family="Noto Sans CJK KR"><text x="255" y="25">출고 전 → 취소</text><text x="255" y="85">출고 후 → 환불</text></g></svg>""",
+    }
+    return P[kind]
+pats = [("줄","순차","앞 결과가 있어야 다음","활주로 순서","seq"),("나눔","병렬","동시에 → 합침","동시 이착륙","par"),("감독","계층","맡기고 결과만","관제탑 ↔ 조종사","sup"),("되돌림","평가 루프","만드는 쪽 ≠ 보는 쪽, 통과할 때까지","점검 → 재점검","eval"),("갈림","분기","결과에 따라 다른 길","기상 따라 경로 변경","branch")]
+ph = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">'
+for kr,en,d,ex,k in pats:
+    ph += f'<div class="card" style="padding:10px 14px"><div class="row" style="gap:8px"><span class="chip ink" style="font-size:17px">{kr}</span><span class="chip gray">{en}</span></div><div style="margin-top:6px">{pat_svg(k)}</div><div class="d" style="font-size:14px;color:#2A2744;margin-top:2px">{d} · <span style="color:var(--mute)">{ex}</span></div></div>'
+ph += '<div class="note" style="margin-top:0;font-size:17px;line-height:1.6">다섯 중 좋은 게 있는 게 아니다 —<br><b>일의 모양이 패턴을 정한다.</b><br>섞어 쓴다.</div></div>'
+S.append(slide(26, head("모듈 3 · 패턴 5 ⭐", '잇는 모양 다섯 — <span class="hl">줄 · 나눔 · 감독 · 되돌림 · 갈림</span>') + ph))
+
+S.append(slide(27, head("모듈 3 · 고르는 법 + 조합", '일의 모양이 패턴을 정한다 — <span class="hl">고르는 질문 5</span>, 그리고 섞는다') + """
+<div style="display:grid;grid-template-columns:1fr 420px;gap:28px;margin-top:14px;align-items:start">
+<div class="col" style="gap:9px">
+  <div class="row" style="gap:14px"><div class="box" style="flex:1;text-align:left;font-size:17px;padding:10px 18px">앞 결과가 있어야 다음이 되나?</div><span class="chip ink" style="font-size:18px;width:110px;text-align:center">줄</span></div>
+  <div class="row" style="gap:14px"><div class="box" style="flex:1;text-align:left;font-size:17px;padding:10px 18px">서로 안 기다려도 되나?</div><span class="chip ink" style="font-size:18px;width:110px;text-align:center">나눔</span></div>
+  <div class="row" style="gap:14px"><div class="box" style="flex:1;text-align:left;font-size:17px;padding:10px 18px">과정을 볼 필요 없나?</div><span class="chip ink" style="font-size:18px;width:110px;text-align:center">감독</span></div>
+  <div class="row" style="gap:14px"><div class="box" style="flex:1;text-align:left;font-size:17px;padding:10px 18px">통과 기준이 있나?</div><span class="chip ink" style="font-size:18px;width:110px;text-align:center">되돌림</span></div>
+  <div class="row" style="gap:14px"><div class="box" style="flex:1;text-align:left;font-size:17px;padding:10px 18px">결과에 따라 다음이 달라지나?</div><span class="chip ink" style="font-size:18px;width:110px;text-align:center">갈림</span></div>
+</div>
+<div class="col" style="gap:12px">
+  <div class="card hot"><div class="k">섞는다 — 완성 예시 S-3</div><div class="form" style="font-size:13.5px;padding:10px 12px;margin-top:6px;border-width:2px">변경 일꾼이 초안
+→ 검토 일꾼이 <span class="k">통과할 때까지</span> (최대 2바퀴)
+→ <span class="r">사람 확인 후</span> 끝</div><div class="d" style="color:#2A2744;margin-top:6px">줄 안에 되돌림, 그 뒤 관문</div></div>
+  <div class="card coral"><div class="k">안 물으면</div><div class="d" style="color:#2A2744">전부 줄로 세운다 — 안 기다려도 될 일을 기다린다</div></div>
+</div>
+</div>
+"""))
+
+S.append(slide(28, head("모듈 3 · 계약 3칸 ⭐", '비행계획서 — <span class="hl">받는 것 · 내는 것 · 완료 조건</span>') + f"""
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:12px;align-items:start">
+<div class="form" style="font-size:14.5px">이름: <span class="k">조회 일꾼</span>
+맡는 일: 주문번호로 상태를 찾아 한 줄로
+<span class="k">받는 것</span>: 요청 원문 + 주문번호 + orders.md
+<span class="k">내는 것(양식)</span>: 제목 / 상태 한 줄 / 조회 시각
+            / 확신도 / 미처리 사항
+<span class="k">완료 조건</span>: 상태 한 줄이 있다
+내 일 아님: 주문번호가 없으면 "사람 확인 필요"</div>
+<div class="col" style="gap:10px">
+  <div class="card"><div class="k">받는 것</div><div class="t" style="font-size:18px">이 일꾼이 아는 <span style="color:var(--v)">전부</span></div><div class="d">여기 없는 건 모른다</div></div>
+  <div class="card hot"><div class="k">내는 것의 양식</div><div class="t" style="font-size:18px">다음 일꾼이 <span style="color:var(--v)">읽는다</span></div><div class="d" style="color:#2A2744">조회의 '상태 한 줄'을 변경 일꾼이 받는다 — 양식이 없으면 못 읽는다</div></div>
+  <div class="card"><div class="k">완료 조건</div><div class="t" style="font-size:18px">이게 있어야 <span style="color:var(--v)">"됐다"</span></div><div class="d">없으면 일꾼도 관제탑도 끝을 모른다</div></div>
+</div>
+</div>
+<div class="row" style="margin-top:14px;justify-content:center;gap:12px">{worker("조회 일꾼","")}<div class="box mint" style="padding:8px 14px;font-size:13px">상태 한 줄<br><small>양식</small></div><div class="arrow">→</div>{worker("변경 일꾼","")}</div>
+"""))
+
+S.append(slide(29, head("모듈 3 · 상태와 기억 ⭐ + Q4", '✋ 일꾼이 <span class="hl">내 대화 내용</span>을 알까요?', coral=True) + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:12px;align-items:center">
+  <svg viewBox="0 0 560 400" width="560" height="400" font-family="Noto Sans CJK KR" font-weight="900">
+    <rect x="100" y="40" width="100" height="88" rx="12" fill="#15132A"/><text x="150" y="92" text-anchor="middle" fill="#fff" font-size="16">관제탑</text>
+    <path d="M215 40 h190 a12 12 0 0 1 12 12 v44 a12 12 0 0 1 -12 12 h-160 l-24 16 v-16 h-6 a12 12 0 0 1 -12 -12 v-44 a12 12 0 0 1 12 -12z" fill="#fff" stroke="#15132A" stroke-width="2.5"/>
+    <text x="310" y="66" text-anchor="middle" font-size="13">아까 내가 한 얘기…</text><text x="310" y="88" text-anchor="middle" font-size="13">읽은 파일 · 지난 대화</text>
+    <g stroke="#E5484D" stroke-width="4"><line x1="130" y1="150" x2="170" y2="190"/><line x1="170" y1="150" x2="130" y2="190"/></g>
+    <text x="150" y="215" text-anchor="middle" font-size="13" fill="#E5484D">일꾼에게 전달되지 않는다</text>
+    <text x="400" y="190" text-anchor="middle" font-size="13" fill="#9A98AE">공유하는 큰 머리 — 없음</text>
+    <g fill="#fff" stroke="#15132A" stroke-width="2"><rect x="20" y="250" width="150" height="36" rx="8"/><rect x="205" y="250" width="150" height="36" rx="8"/><rect x="390" y="250" width="150" height="36" rx="8"/></g>
+    <g font-size="12" text-anchor="middle"><text x="95" y="273">받는 것 + 내 지침</text><text x="280" y="273">받는 것 + 내 지침</text><text x="465" y="273">받는 것 + 내 지침</text></g>
+    <g fill="#EDE9FE" stroke="#5B3DF5" stroke-width="3"><rect x="20" y="296" width="150" height="62" rx="14"/><rect x="205" y="296" width="150" height="62" rx="14"/><rect x="390" y="296" width="150" height="62" rx="14"/></g>
+    <g fill="#3B21C8" font-size="17" text-anchor="middle"><text x="95" y="333">안내 일꾼</text><text x="280" y="333">조회 일꾼</text><text x="465" y="333">변경 일꾼</text></g>
+    <g stroke="#19B393" stroke-width="4"><line x1="172" y1="327" x2="203" y2="327"/><line x1="357" y1="327" x2="388" y2="327"/></g>
+    <g fill="#E3F8F2" stroke="#19B393" stroke-width="2"><rect x="170" y="308" width="36" height="38" rx="5"/><rect x="355" y="308" width="36" height="38" rx="5"/></g>
+    <g font-size="10" fill="#0E7A64" text-anchor="middle"><text x="188" y="331">파일</text><text x="373" y="331">파일</text></g>
+    <text x="280" y="388" text-anchor="middle" font-size="14" fill="#0E7A64">일꾼 사이는 파일 — 양식(계약)대로</text>
+  </svg>
+  <div class="col" style="gap:12px">
+    <div class="big" style="font-size:40px;color:var(--red)">모른다.</div>
+    <div style="font-size:17px;line-height:1.55;color:#2A2744">각자 머리가 따로다. 받는 것에 적힌 것만 안다. "아까 말했는데 왜 몰라?"가 정상.</div>
+    <div class="card"><div class="k">상태</div><div class="t" style="font-size:18px">어디까지 됐나 — <span style="color:var(--v)">관제탑</span>이 든다</div></div>
+    <div class="card hot"><div class="k">기억</div><div class="t" style="font-size:18px">일꾼이 알아야 할 것 — <span style="color:var(--v)">받는 것</span>에 적어 넘긴다</div><div class="d" style="color:#2A2744">문장으로, 아니면 파일로. "그 결과 파일을 넘긴다"고 대본에 적어야 넘어간다</div></div>
+  </div>
+</div>
+"""))
+
+S.append(slide(30, head("모듈 3 · 실패 설계 4 ⭐", '회항 절차는 이륙 전에 — <span class="hl">재시도 · 되돌리기 · 멈춤 · 부분 성공</span>') + """
+<div class="cards c4" style="margin-top:18px">
+  <div class="card"><div class="k">재시도</div><div class="t" style="font-size:19px">몇 번, 뭘 바꿔서</div><div class="d">"양식대로 다시" 1회</div></div>
+  <div class="card"><div class="k">되돌리기</div><div class="t" style="font-size:19px">앞 단계로</div><div class="d">분류표로 되돌려 다시 분류</div></div>
+  <div class="card coral"><div class="k">멈춤</div><div class="t" style="font-size:19px">사람에게</div><div class="d" style="color:#2A2744">runs/에 어디서 멈췄나</div></div>
+  <div class="card"><div class="k">부분 성공</div><div class="t" style="font-size:19px">된 것만 내고 '미완' 표시</div></div>
+</div>
+<div class="form" style="margin-top:20px;font-size:14.5px">F-1 양식 불일치     → 같은 일꾼에게 "양식대로 다시" 1회 → 아니면 F-9      <span class="g">재시도</span>
+F-2 "내 일 아님"     → 분류표로 되돌려 1회 → 아니면 F-9                 <span class="g">되돌리기</span>
+F-3 바퀴 상한 도달   → 마지막 초안 "미검토" 표시 → F-9                  <span class="g">부분 성공</span>
+<span class="r">F-9 사람에게</span>        → runs/에 "사람 확인 필요 + 멈춘 단계 + 원문" 남기고 멈춘다  <span class="g">멈춤</span></div>
+<div class="note sm" style="margin-top:14px">모든 S-줄의 "아니면"이 F를 가리킨다. 마지막은 항상 F-9. <b>미리 안 적으면 관제탑이 그 자리에서 판단한다</b> — 두꺼워지고, 기록 없이 멈춘다.</div>
+"""))
+
+S.append(slide(31, head("모듈 3 · 종료 조건과 예산", '끝은 언제인가 — <span class="hl">바퀴 상한 · 비용 상한 · 시간 상한</span>') + """
+<div class="row" style="margin-top:40px;justify-content:center;gap:40px;align-items:center">
+  <div style="position:relative">""" + pat_svg("eval").replace('width="300" height="100"','width="420" height="140"') + """<div style="position:absolute;top:-10px;left:150px;background:var(--coral);color:#fff;border-radius:8px;padding:2px 10px;font-size:13px;font-weight:900">최대 2바퀴</div></div>
+  <div class="form" style="font-size:15px">관제탑 규칙:
+  - <span class="r">바퀴 상한 2</span>
+  - <span class="r">되묻기는 요청당 1회</span>
+  - (비용·시간 상한은 운영에서)</div>
+</div>
+<div class="note" style="margin-top:40px">상한에 닿으면 실패 각본 <b>F-3</b> — 된 데까지 내고 미완 표시. 루프에도 멈추는 규칙이 있다(모듈 1) — 없으면 돈이 돈다.</div>
+"""))
+
+S.append(slide(32, head("모듈 3 · 사람 관문 3", '관제 승인 — <span class="hl">돈 · 밖 · 되돌릴 수 없음</span> 앞에 사람') + """
+<div class="row" style="margin-top:44px;justify-content:center;gap:0">
+  <div class="box v" style="padding:12px 16px">초안</div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="col" style="align-items:center;gap:6px"><div class="tl"><i class="r"></i><i></i><i></i></div><div style="font-size:13px;font-weight:900;color:var(--red)">돈</div></div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="box v" style="padding:12px 16px">발주</div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="box v" style="padding:12px 16px">답변 초안</div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="col" style="align-items:center;gap:6px"><div class="tl"><i class="r"></i><i></i><i></i></div><div style="font-size:13px;font-weight:900;color:var(--red)">밖</div></div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="box v" style="padding:12px 16px">고객 발송</div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="col" style="align-items:center;gap:6px"><div class="tl"><i class="r"></i><i></i><i></i></div><div style="font-size:13px;font-weight:900;color:var(--red)">되돌릴 수 없음</div></div><div class="arrow" style="padding:0 8px">→</div>
+  <div class="box v" style="padding:12px 16px">취소 · 삭제</div>
+</div>
+<div class="row" style="margin-top:40px;justify-content:center"><div class="form" style="font-size:16px">S-3: 변경 일꾼이 초안 → 검토 일꾼이 통과할 때까지 → <span class="r">사람 확인 후</span> 끝
+<span class="g">→ 거기서 멈추고 runs/에 "사람 확인 필요"가 남는다. 변경 일꾼이 '초안만' 만드는 이유.</span></div></div>
+<div class="note sm" style="margin-top:22px">기타의 끝(사람)과 <b>같은 사람</b>. 모를 때도 사람, 위험할 때도 사람 — 사람은 빠지는 게 아니라 자리가 정해진다.</div>
+"""))
+
+S.append(slide(33, head("모듈 3 · 기록과 관찰", '블랙박스 — <span class="hl">누가 받았고 · 뭘 받았고 · 뭘 냈고 · 어디서 멈췄나</span>') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:20px;align-items:start">
+<div class="tree" style="font-size:16px;line-height:1.9">runs/
+└─ 2026-10-15_A-10/
+   └─ 기록.md
+      <span class="cm">담당: 조회 일꾼 · 받은 것: 원문+3456 · 낸 것: 출고 전</span>
+      <span class="cm">담당: 변경 일꾼 · 받은 것: 조회 결과 · 낸 것: 취소 초안</span>
+      <span class="cm">담당: 검토 일꾼 · 낸 것: 통과</span>
+      <span class="cm">멈춤: 사람 확인 필요 (S-3)</span></div>
+<div class="col" style="gap:12px">
+  <div class="card hot"><div class="k">한 단계마다 한 줄</div><div class="t" style="font-size:19px">관제탑 규칙에 적는다</div></div>
+  <div class="card coral"><div class="k">기록 없는 에이전트는</div><div class="t" style="font-size:19px">고칠 수 없다</div><div class="d" style="color:#2A2744">엇나간 지점을 찾아야 표의 어느 줄을 고칠지 안다 — 실습의 '고치기'가 전부 여기서 시작</div></div>
+</div>
+</div>
+"""))
+
+S.append(slide(34, head("모듈 3 · 얇은 관제탑", '관제탑은 얇게 — <span class="hl">순서·상태·호출만</span>. 판단은 조종사가, 규칙은 지침이') + """
+<div class="cards c2" style="margin-top:20px">
+  <div class="card hot" style="padding:22px"><div class="k">얇은 관제탑</div>
+    <div class="form" style="font-size:13.5px;padding:10px 14px;margin-top:8px;border-width:2px">관제탑 규칙: 직접 처리 X · 단계마다 기록 · 바퀴 상한 2
+S-1: 안내 일꾼 → 양식대로면 끝, 아니면 F-1
+S-3: 변경 → 검토 통과할 때까지 → 사람 확인 후</div>
+    <div class="d" style="margin-top:10px;font-size:15px;color:#2A2744"><b>판단은 일꾼이, 규칙은 지침이.</b> 세 줄짜리 관제탑은 엔진을 바꾸기 쉽다</div></div>
+  <div class="card" style="padding:22px;border-color:#FFB8A5"><div class="k" style="color:var(--red)">두꺼운 관제탑</div>
+    <div class="form" style="font-size:13.5px;padding:10px 14px;margin-top:8px;border-width:2px;border-color:var(--red)">S-1: 안내 일꾼 → <span class="r">답변은 친절하게, 3문장,</span>
+     <span class="r">환불이면 7일 규정 언급, 배송이면…</span>
+     <span class="r">예외: 명절엔 +2일, VIP면 사과 먼저…</span></div>
+    <div class="d" style="margin-top:10px;font-size:15px;color:#2A2744">예외를 관제탑에 덧붙이다 보면 책 한 권 — <b style="color:var(--red)">병 넷 그대로 회귀.</b> 그 줄은 일꾼 지침이나 분류표로 내려보낸다</div></div>
+</div>
+<div class="note" style="margin-top:18px;font-size:21px">세 번째 — <b>관제탑은 비행기를 몰지 않는다.</b></div>
+"""))
+
+S.append(slide(35, head("모듈 3 · 안티패턴 4", '오케스트레이션 안티패턴 넷', coral=True) + """
+<div class="cards c4" style="margin-top:30px">
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 두꺼운 관제탑</div><div class="d" style="color:#2A2744">대본에 판단 문장 — "~이면 좋게", "~를 잘"</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 숨은 상태</div><div class="d" style="color:#2A2744">어디까지 됐는지 파일에 안 남기고 머릿속에만 — 끊기면 처음부터</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 끝없는 루프</div><div class="d" style="color:#2A2744">바퀴 상한 없음 — 돈이 돈다</div></div>
+  <div class="card" style="border-color:#FFB8A5"><div class="k" style="color:var(--red)">✕ 전부 줄</div><div class="d" style="color:#2A2744">안 기다려도 될 일을 기다린다 — 조회와 안내는 동시에</div></div>
+</div>
+<div class="note sm" style="margin-top:40px">실습 순회에서 가장 많이 나오는 둘 — <b>두꺼운 관제탑</b>(대본에 판단 문장) · <b>끝없는 루프</b>(통과할 때까지 뒤에 '최대 n바퀴' 없음).</div>
+"""))
+
+S.append(slide(36, head("모듈 3 · 여정 ② ⭐", '엇나간 요청의 여정 — <span class="hl">섞임 → 사람 → 표 한 줄 → 줄 패턴 → 두 이름</span>', coral=True) + f"""
+<div class="env mix" style="margin-top:10px;font-size:16px">💬 "주문 3456 확인하고 취소해 주세요" — [섞임] 줄이 없는 설계도라면</div>
+{journey([
+ ("① 접수","inbox","","",""),
+ ("② 분류","표에 없다","조회이자 변경 — 섞임","coral",flag("기타")),
+ ("③ 사람","표에 한 줄","\"2+3 → 조회 먼저 → 변경\" = <b>줄</b>","coral",flag("사람 관문")),
+ ("④ 다시","조회 → 파일 → 변경","계약 양식대로 넘긴다","v",""),
+ ("⑤ 검토·관문","통과 → 사람 확인","S-3 이어서","v",""),
+ ("⑥ 기록","두 이름","조회 일꾼 · 변경 일꾼 · 멈춤","mint",""),
+])}
+<div class="big" style="margin-top:22px;text-align:center;font-size:30px">고친 건 코드가 아니라 <span style="color:var(--v)">표의 한 줄</span>.</div>
+<div class="note sm" style="margin-top:14px;text-align:center">오늘 실습의 마지막 10분이 정확히 이것 — 기록을 보고, 한 줄 고치고, 그 요청만 다시.</div>
+"""))
+
+S.append(slide(37, head("모듈 3 · 생각 멈춤 ③ + Q5", '✋ 내 일은 어느 모양? — ⏸ 사람이 꼭 봐야 할 자리 하나') + """
+<div class="row" style="margin-top:36px;justify-content:center;gap:14px"><span class="chip ink" style="font-size:22px;padding:10px 24px">줄</span><span class="chip ink" style="font-size:22px;padding:10px 24px">나눔</span><span class="chip ink" style="font-size:22px;padding:10px 24px">감독</span><span class="chip ink" style="font-size:22px;padding:10px 24px">되돌림</span><span class="chip ink" style="font-size:22px;padding:10px 24px">갈림</span></div>
+<div style="text-align:center;margin-top:12px;font-size:15px;color:var(--mute)">섞여 있다 → 가장 큰 뼈대 하나만</div>
+<div class="form" style="margin-top:40px;font-size:20px;line-height:2">사람 확인 후: ______________________________
+<span class="g">(돈 나가기 전 · 밖으로 나가기 전 · 되돌릴 수 없기 전 — 중 하나)</span></div>
+<div class="ask" style="text-align:center;margin-top:26px">1분.</div>
+"""))
+
+S.append(slide(38, head("모듈 3 · 요약", '오케스트레이션 두 장 — <span class="hl">지휘 대본 + 실패 각본</span>이 산출물') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:14px;align-items:start">
+<div class="form" style="font-size:13.5px">관제탑 규칙: 직접 X · 기록 · 상한    <span class="g">← 얇은 관제탑 · 예산</span>
+S-1 … → 끝, 아니면 F-1            <span class="g">← 줄 · 실패</span>
+S-3 … 통과할 때까지 → 사람 확인 후  <span class="g">← 되돌림 · 관문</span>
+S-4 … 동시에 → 합쳐서             <span class="g">← 나눔</span>
+S-5 … 먼저 → 결과 파일을 …에게     <span class="g">← 계약 · 기억</span>
+S-6 … 결과가 …이면 S-_            <span class="g">← 갈림</span></div>
+<div class="form" style="font-size:13.5px">F-1 재시도 1회 → F-9
+F-2 되돌리기 1회 → F-9
+F-3 부분 성공 → F-9
+F-9 사람 — runs/에 남기고 멈춘다   <span class="g">← 기록</span></div>
+</div>
+<div class="row" style="margin-top:16px;gap:8px;flex-wrap:wrap;justify-content:center"><span class="chip">순서·상태·호출</span><span class="chip">패턴 5</span><span class="chip">계약 3칸</span><span class="chip">머리 공유 안 함</span><span class="chip">실패 4</span><span class="chip">예산</span><span class="chip">관문 3</span><span class="chip">기록</span><span class="chip">얇은 관제탑</span></div>
+<div class="note coral sm" style="margin-top:16px;text-align:center">🍱 점심 — 돌아오면 네 장을 한꺼번에 읽는다.</div>
+"""))
+
+# ───────── 모듈 4 ─────────
+S.append(slide(39, head("모듈 4 · 서식 4장", '설계도 4장 서식 — 자유롭게 쓰지 않는다. <span class="hl">서식이 통로</span>') + """
+<div class="cards c4" style="margin-top:14px;gap:12px">
+  <div class="card" style="padding:14px"><div class="k">① 접수 분류표</div><div class="d" style="color:#2A2744;font-size:13.5px">[가드레일]<br>[종류] 정·포·제·예 → 담당<br>[기타] → 사람<br>[섞임] 조합 → S-n<br>[되묻기] 1개 1회</div></div>
+  <div class="card" style="padding:14px"><div class="k">② 일꾼 카드</div><div class="d" style="color:#2A2744;font-size:13.5px">맡는 일 한 줄<br>받는 것<br>내는 것(양식)<br>완료 조건<br>내 일 아님</div></div>
+  <div class="card" style="padding:14px"><div class="k">③ 지휘 대본</div><div class="d" style="color:#2A2744;font-size:13.5px">관제탑 규칙 3줄<br>S-n 번호 문장<br>예약어 셋</div></div>
+  <div class="card" style="padding:14px"><div class="k">④ 실패 각본</div><div class="d" style="color:#2A2744;font-size:13.5px">F-n 번호 문장<br>재시도·되돌리기·부분 성공<br>F-9 사람</div></div>
+</div>
+<div class="row" style="margin-top:22px;justify-content:center;gap:14px"><span class="pill v" style="font-size:18px;padding:8px 20px">동시에</span><span style="font-size:14px;color:var(--mute)">나눔</span><span class="pill v" style="font-size:18px;padding:8px 20px">통과할 때까지</span><span style="font-size:14px;color:var(--mute)">되돌림</span><span class="pill coral" style="font-size:18px;padding:8px 20px">사람 확인 후</span><span style="font-size:14px;color:var(--mute)">관문</span></div>
+<div class="note" style="margin-top:22px">칸 옆에 <b>"왜 이 칸인가"</b>가 적혀 있다 — 오늘 배운 이유가 전부 거기. 상한: 종류 3~5 · 일꾼 3~5 · 대본 5~8줄.</div>
+"""))
+
+S.append(slide(40, head("모듈 4 · 완성 예시 통독 ①", '완성 예시 A — <span class="hl">접수 분류표 · 일꾼 카드 4장</span>') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:10px;align-items:start">
+<div class="form" style="font-size:12.5px;line-height:1.6">[가드레일] 욕설·협박 · 타인 개인정보 · 무관 → 거절 1줄 + 기록
+[종류 1] <span class="k">안내</span> — 정해진 규정·절차·정보  제외: 내 주문 상태(→2) / 규정과 다르게(→3)
+[종류 2] <span class="k">조회</span> — 그 사람의 주문·결제·배송  제외: 변경까지(→3) / 일반 기간(→1)
+[종류 3] <span class="k">변경·불만</span> — 바꾸거나 취소·환불·불만  제외: 절차 질문(→1)
+[기타] → 사람 · [섞임] 1+2→S-4 / 2+3→S-5 / 1+3→S-3 먼저
+[되묻기] 조회인데 주문번호 없으면 1회</div>
+<div class="form" style="font-size:12.5px;line-height:1.6"><span class="k">안내 일꾼</span> — policy.md에서 3문장 · 내는 것: 제목/답변/근거/확신도/미처리
+  완료: 근거 항목명 · 내 일 아님: 규정집에 없으면 → 기타
+<span class="k">조회 일꾼</span> — orders.md에서 상태 한 줄 · 완료: 상태 한 줄
+<span class="k">변경 일꾼</span> — 처리 초안 + 답변 초안, <span class="r">실행 X</span> · 내는 것에 위험 표시
+<span class="k">검토 일꾼</span> — 규정 어긋남·약속 금지 검사 · 내는 것: 통과 / 수정 요청</div>
+</div>
+<div class="cards c3" style="margin-top:16px;gap:12px">
+  <div class="card" style="padding:12px 16px"><div class="k">짚을 것 1</div><div class="d" style="color:#2A2744">제외가 서로를 가리킨다 — 안 겹친다</div></div>
+  <div class="card" style="padding:12px 16px"><div class="k">짚을 것 2</div><div class="d" style="color:#2A2744">변경 일꾼은 <b>초안만</b> — 실행은 사람 확인 후</div></div>
+  <div class="card" style="padding:12px 16px"><div class="k">짚을 것 3</div><div class="d" style="color:#2A2744">검토 일꾼의 내는 것은 <b>둘 중 하나</b></div></div>
+</div>
+"""))
+
+S.append(slide(41, head("모듈 4 · 완성 예시 통독 ②", '완성 예시 A — <span class="hl">지휘 대본 · 실패 각본</span>') + """
+<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin-top:12px;align-items:start">
+<div class="form" style="font-size:13.5px">관제탑 규칙: 직접 답하지 않는다 · 단계마다 runs/ 한 줄 · 바퀴 상한 2 · 되묻기 1회
+
+S-1 (안내): 안내 일꾼 → 양식대로면 끝, 아니면 F-1
+S-2 (조회): 조회 일꾼 → 끝 / 주문번호 없으면 되묻기 1회 → F-9
+S-3 (변경): 변경 일꾼이 초안 → 검토 일꾼이 <span class="k">통과할 때까지</span>(최대 2바퀴)
+            → <span class="r">사람 확인 후</span> 끝
+S-4 (안내+조회): 안내 일꾼과 조회 일꾼에게 <span class="k">동시에</span> → 합쳐서 끝
+S-5 (조회+변경): 조회 먼저 → 그 내는 것을 변경 일꾼에게 → S-3</div>
+<div class="form" style="font-size:13.5px">F-1 양식 불일치 → "양식대로 다시" 1회 → F-9
+F-2 "내 일 아님" → 분류표로 1회 → F-9
+F-3 바퀴 상한 → "미검토" 표시 → F-9
+F-4 되묻기 답 없음 → 안내 초안 → F-9
+<span class="r">F-9 사람에게</span> → runs/ "사람 확인 필요
+     + 멈춘 단계 + 원문" 남기고 멈춘다</div>
+</div>
+<div class="note sm" style="margin-top:16px">예약어 셋이 전부 나온다. 모든 S의 "아니면"이 F를 가리킨다. 마지막은 F-9.</div>
+"""))
+
+S.append(slide(42, head("모듈 4 · 요청 3건 따라가기", '정상 · 섞임 · 실패 — <span class="hl">설계도 어느 칸이 언제</span> 쓰이나') + """
+<div class="col" style="gap:14px;margin-top:18px">
+  <div class="row" style="gap:12px"><span class="pill mint" style="width:70px;text-align:center">정상</span><div class="env" style="width:300px">환불은 어떻게 하나요?</div><div class="arrow" style="font-size:22px">→</div><div style="font-size:15px;font-weight:700;color:#2A2744">가드레일 통과 → 안내 → S-1 → 안내 일꾼 → 양식대로 → 끝 → 기록</div></div>
+  <div class="row" style="gap:12px"><span class="pill coral" style="width:70px;text-align:center">섞임</span><div class="env mix" style="width:300px">주문 3456 확인하고 취소해 주세요</div><div class="arrow" style="font-size:22px">→</div><div style="font-size:15px;font-weight:700;color:#2A2744">섞임 2+3 → S-5 → 조회 먼저 → 결과 파일 → 변경 → 검토 통과할 때까지 → <b style="color:var(--red)">사람 확인 후 멈춤</b></div></div>
+  <div class="row" style="gap:12px"><span class="pill" style="width:70px;text-align:center;background:var(--red)">실패</span><div class="env q" style="width:300px">결제됐는지 확인해 주세요</div><div class="arrow" style="font-size:22px">→</div><div style="font-size:15px;font-weight:700;color:#2A2744">조회인데 주문번호 없음 → 되묻기 1회 → 답 없음 → <b>F-4</b> 안내 초안 → <b>F-9</b></div></div>
+</div>
+<div class="row" style="margin-top:34px;gap:10px;justify-content:center;flex-wrap:wrap"><span class="chip">① 분류표</span><span class="chip">② 일꾼 카드</span><span class="chip">③ 지휘 대본</span><span class="chip">④ 실패 각본</span><span style="font-size:14px;color:var(--mute)">— 네 장 어느 칸이 언제 쓰이는지 손가락으로</span></div>
+"""))
+
+S.append(slide(43, head("모듈 4 · 옮기기 대응표 + Q6 · 생각 멈춤 ④", '설계도 → 작업대 — <span class="hl">옮기기는 복사</span>') + """
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:12px;align-items:start">
+<table class="tb" style="margin-top:0;font-size:15px">
+<tr><th>설계도</th><th>작업대 파일</th></tr>
+<tr><td>① 분류표 + ③ 대본 + ④ 각본 + 관제탑 규칙</td><td><b>CLAUDE.md</b></td></tr>
+<tr><td>② 일꾼 카드</td><td><b>일꾼/&lt;이름&gt;.md</b> 한 장씩</td></tr>
+<tr><td>요청 · 기록 · 자료</td><td><b>inbox/ · runs/ · 자료/</b></td></tr>
+</table>
+<div class="col" style="gap:10px">
+  <div class="form" style="font-size:13.5px">시키는 문장 ①: inbox/ 의 요청을 CLAUDE.md 의 보내는 표와
+  지휘 대본대로 처리해. 직접 처리하지 말고 담당 일꾼 파일의
+  지침대로. 결과는 runs/ 에.
+시키는 문장 ②: runs/ 를 읽고, 보내는 표와 다르게 간 요청이
+  있으면 어느 줄 때문인지 알려줘. 고치지는 마.</div>
+</div>
+</div>
+<div class="cards c2" style="margin-top:16px">
+  <div class="card coral"><div class="k">✋ Q6</div><div class="t" style="font-size:18px">이 설계도에서 기타는 어디로 가나요?</div><div class="d" style="color:#2A2744">→ 사람 — runs/에 남기고 멈춤</div></div>
+  <div class="card"><div class="k">⏸ 생각 멈춤 ④ (1분)</div><div class="t" style="font-size:18px">소재 고르기 — A 고객 문의 / B 사내 요청 / C 콘텐츠 의뢰 / 내 업무</div><div class="d">내 업무는 종류 3 · 일꾼 3 · 대본 5줄 안에서</div></div>
+</div>
+"""))
+
+# ───────── 모듈 5 ─────────
+S.append(slide(44, head("모듈 5 · 실습 브리핑", '실습 110분 — <span class="hl">쓴다 · 탁상 점검 · 올린다 · 돌린다 · 고친다</span>', coral=True) + """
+<div class="timeline" style="margin-top:18px">
+  <div class="tb" style="flex:20;background:var(--v)">① 분류표<small>20</small></div>
+  <div class="tb" style="flex:15;background:var(--v)">② 일꾼 카드<small>15</small></div>
+  <div class="tb" style="flex:20;background:var(--v)">③ 대본 + ④ 각본<small>20</small></div>
+  <div class="tb" style="flex:10;background:var(--ink)">탁상 점검<small>10</small></div>
+  <div class="tb" style="flex:15;background:var(--coral)">올리기<small>15</small></div>
+  <div class="tb" style="flex:15;background:var(--coral)">돌리기<small>15</small></div>
+  <div class="tb" style="flex:10;background:var(--mint)">고치기 · 제출<small>10</small></div>
+</div>
+<div class="cards c3" style="margin-top:24px">
+  <div class="card"><div class="k">받는 것</div><div class="t" style="font-size:18px">02 템플릿 · 03 완성 예시 · 05 가이드 · 04 요청 덱 12장</div><div class="d">덱 = 정상 8 · 섞임 2 · 기타 2. 내 업무 소재는 12건을 직접 적는다(섞임 2·기타 2 포함)</div></div>
+  <div class="card hot"><div class="k">제출 (슬랙)</div><div class="t" style="font-size:18px">4장 + runs/ 캡처 + 고친 한 줄</div><div class="d" style="color:#2A2744">판정 = 덱 12장 중 설계도대로 간 수 (1차 → 2차)</div></div>
+  <div class="card coral"><div class="k">긴급 경로</div><div class="t" style="font-size:18px">작업대가 막히면 탁상 점검 결과가 제출물</div><div class="d" style="color:#2A2744">설계가 산출물, 실행은 검증. 실행은 집에서</div></div>
+</div>
+<div class="note sm" style="margin-top:16px">강사는 <b>묻기만</b> 합니다 — 답을 대신 쓰지 않습니다.</div>
+"""))
+
+S.append(slide(45, head("모듈 5 · 쓰기 55분 + 탁상 점검 10분", '설계도 4장 쓰기 — <span class="hl">스스로 점검 질문 9</span>') + """
+<div class="cards c4" style="margin-top:16px;gap:12px">
+  <div class="card" style="padding:14px"><div class="k">① 분류표</div><div class="d" style="color:#2A2744;font-size:14px;line-height:1.6">이 둘은 겹치지 않는가?<br>기타는 어디로?<br>예시 두 문장 있는가?</div></div>
+  <div class="card" style="padding:14px"><div class="k">② 일꾼 카드</div><div class="d" style="color:#2A2744;font-size:14px;line-height:1.6">내는 것 양식을 다음 일꾼이 읽을 수 있는가?<br>완료 조건은?<br>내 일 아님은?</div></div>
+  <div class="card" style="padding:14px"><div class="k">③ 지휘 대본</div><div class="d" style="color:#2A2744;font-size:14px;line-height:1.6">관제탑이 비행기를 몰고 있지 않은가?<br>바퀴 상한은?<br>사람 확인 후가 돈·밖·비가역 앞에?</div></div>
+  <div class="card" style="padding:14px"><div class="k">④ 실패 각본</div><div class="d" style="color:#2A2744;font-size:14px;line-height:1.6">모든 S의 "아니면"이 어느 F?<br>F-9로 끝나는가?</div></div>
+</div>
+<div class="row" style="margin-top:22px;gap:20px;align-items:stretch">
+  <div class="timerbox" style="margin-top:0;font-size:26px">55:00 <small>쓰기</small></div>
+  <div class="note sm" style="margin-top:0;flex:1"><b>탁상 점검(45분 경과 시)</b> — 덱 12장을 한 장씩 내 분류표에 대 보고 어디로 가는지 적는다. 기타로 간 게 몇 장인지도. 코드 없이 구멍이 먼저 보인다 — 이게 1차 기록.</div>
+</div>
+"""))
+
+S.append(slide(46, head("모듈 5 · 올리기 · 돌리기 · 고치기 · 제출", '옮긴다 → inbox에 덱 → 돌린다 → runs 보고 → <span class="hl">한 줄 고친다</span> → 제출') + """
+<div class="cards c3" style="margin-top:14px;gap:12px">
+  <div class="card"><div class="row" style="gap:8px"><span class="pill coral">15분</span><span class="k" style="font-size:16px">올리기</span></div><div class="d" style="color:#2A2744;margin-top:8px">05 가이드대로 <b>복사</b> — 빈 폴더에 CLAUDE.md(①③④+규칙) · 일꾼/ · 자료/ · inbox/ · runs/. 새로 쓰지 않는다</div></div>
+  <div class="card"><div class="row" style="gap:8px"><span class="pill coral">15분</span><span class="k" style="font-size:16px">돌리기</span></div><div class="d" style="color:#2A2744;margin-top:8px">inbox/에 덱 12장 → 시키는 문장 ① → runs/ 열어 탁상 기록과 비교 → <b>엇나간 수</b> 세기</div></div>
+  <div class="card hot"><div class="row" style="gap:8px"><span class="pill mint">10분</span><span class="k" style="font-size:16px">고치기 · 제출</span></div><div class="d" style="color:#2A2744;margin-top:8px">엇나간 1건 → 원인은 셋 중 하나(분류 문장 / 대본 줄 / 일꾼 칸) → <b>한 줄만</b> 고치고 그 요청만 다시 → 슬랙에 4장 + runs 캡처 + 고친 한 줄</div></div>
+</div>
+<table class="tb" style="margin-top:16px;font-size:14px">
+<tr><th>막혔을 때</th><th>고치는 줄</th></tr>
+<tr><td>관제탑이 직접 답해 버린다</td><td>관제탑 규칙 첫 줄을 더 강하게 + 일꾼 파일 경로 명시</td></tr>
+<tr><td>모르는 요청이 아무 일꾼에게</td><td>[기타] 줄 + "runs/에 남기고 멈춘다"</td></tr>
+<tr><td>한 요청이 두 일꾼에게</td><td>제외 칸</td></tr>
+<tr><td>runs/에 아무것도 없다</td><td>"한 단계 끝날 때마다 runs/에 한 줄"</td></tr>
+</table>
+"""))
+
+# ───────── 클로징 ─────────
+S.append(slide(47, head("클로징 · 즉석 점검 + 체크리스트 10", '강사 즉석 점검 2명 — 덱 한 장 넣어 보기 · <span class="hl">설계 체크리스트 10</span>') + """
+<div style="display:grid;grid-template-columns:1fr 1.3fr;gap:26px;margin-top:12px;align-items:start">
+<div class="card coral" style="padding:18px"><div class="k">즉석 점검</div><div class="t" style="font-size:18px">지원자 폴더 → 섞임 또는 기타 카드 1장 → 돌린다</div><div class="d" style="color:#2A2744">어디로 갔나 · runs에 뭐가 남았나 · 칭찬 1 · 보완 1(어느 칸)</div></div>
+<div class="form" style="font-size:13px;line-height:1.7">☐ 1 기타가 있고, 끝은 사람인가
+☐ 2 종류끼리 겹치지 않는가 — 제외가 서로를 가리키는가
+☐ 3 종류마다 예시 2문장
+☐ 4 일꾼마다 내는 것 양식 — 다음 일꾼이 읽는가
+☐ 5 일꾼마다 완료 조건
+☐ 6 일꾼마다 "내 일 아님"
+☐ 7 대본에 판단 문장이 없는가
+☐ 8 바퀴 상한 · 되묻기 횟수
+☐ 9 사람 확인 후 — 돈·밖·비가역 앞
+☐ 10 단계마다 runs/ 한 줄</div>
+</div>
+<div class="note sm" style="margin-top:14px">내일 요청이 들어오면 이 열 개부터.</div>
+"""))
+
+S.append(slide(48, """
+<div class="eyebrow" style="position:absolute;left:64px;top:50px">클로징</div>
+<div class="center" style="top:200px">
+  <div class="q" style="font-size:40px">"에이전트 설계는 코드가 아니라,<br><span class="hl">보내는 규칙과 잇는 규칙을 글로 쓰는 일</span>이다."</div>
+  <div class="s">오늘 네 장 쓰셨고, 올리셨고, 돌리셨고, 한 줄 고치셨습니다.<br><b style="color:#fff">이 네 장이 그대로 여러분 작업대의 규칙 파일입니다. 내일 요청이 들어오면 거기서 시작하세요.</b><br><span style="font-size:16px">다음 — 작업대 밖으로, 무인으로 옮기기. 그건 다른 날.</span></div>
+</div>
+""", dark=True, pad=False))
+
+html = f'<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>외전1 · 라우팅과 오케스트레이션 설계 워크숍 — 슬라이드</title><style>{CSS}</style></head><body><div class="deck">' + "\n".join(S) + '</div></body></html>'
+open("08_외전1 슬라이드.html","w",encoding="utf-8").write(html)
+print("slides:", len(S))

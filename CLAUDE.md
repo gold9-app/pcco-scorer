@@ -411,6 +411,24 @@ public/                    # 정적 파일
 3. **자료실 — `public/downloads/c17/` + resources.ts 그룹**
    - 수강생용만: `slides.pdf` · `setup-guide.pdf` · `ux-design-card.docx` · `reference-cards.docx` · `reference-cards.zip`. courseId `course-17`, label "17차". v1 파일(ux-checklist·calendar-blueprints·workshop-kit) 삭제. 러닝시트·강사원본·인수인계·기획안 배포 금지
 
+### 외전 1 (독립 워크숍 — 요청이 들어와서 결과가 나가기까지 / 라우팅과 오케스트레이션 설계 워크숍 / 360분·개인·실습 마지막) — 랜딩 extra-1·자료실 x1 반영 (2026-10-15, v1)
+
+1. **성격 — 시리즈 밖 독립 워크숍("외전")**
+   - 이전 강의(1~18차)를 전제하지 않는다. **시리즈 용어·교보재(채점기·영상 공장·5글자 약어) 0.** 관통 비유 = **공항** 하나(체크인·보안검색·게이트 배정·관제탑·조종사·비행계획서·회항·블랙박스). 대상 = **Claude Code를 써 본 사람**(코딩 불문). **360분 1일**(강의 235 + 실습 110 + 휴식 15, 점심 별도 · 분할 시 모듈 0~2 / 3~5). **개인 진행.** 핵심 "에이전트 설계는 코드가 아니라, 보내는 규칙과 잇는 규칙을 글로 쓰는 일이다"
+   - **실습은 마지막 한 번(110분)**: 설계도 4장(접수 분류표 · 일꾼 카드 · 지휘 대본 · 실패 각본)을 **정해진 한국어 서식**(예약어 셋: 동시에·통과할 때까지·사람 확인 후)으로 쓰고 → 탁상 점검(요청 덱 12장) → 작업대에 **복사**(CLAUDE.md + 일꾼/ + inbox/ + runs/) → 돌리기 → runs/ 보고 **표의 한 줄** 고치기 → 슬랙 제출. 긴급 경로 = 탁상 결과가 제출물
+   - 깊이: 라우팅 5층 · 분류표 3원칙(겹치지 않게·빠짐없이·기타) · **정·포·제·예** · 방식 3 · 판단 재료 4 · 애매함 3 · 가드레일 · 안티패턴 4 / 오케스트레이션 순서·상태·호출 · **패턴 5**(줄·나눔·감독·되돌림·갈림) · 계약 3칸 · 머리 공유 안 함 · 실패 설계 4 · 예산 · 관문 3 · 기록 · 얇은 관제탑 · 안티패턴 4. 세 번 반복 문장: "관제탑은 비행기를 몰지 않는다" / "기타가 없는 분류표는 분류표가 아니다" / "고친 건 코드가 아니라 표의 한 줄"
+   - 코드 노출 없음, **규칙 파일(CLAUDE.md·일꾼 .md)은 보여주고 쓴다**(대상이 Claude Code 사용자). "종료·수료" 금지
+   - 강의자료: `강의자료/외전1_라우팅오케스트레이션_워크숍/` (00 인수인계 · 01 기획안 · 02 템플릿 4장 md+docx · 03 완성예시A md+docx(규정집·주문목록·덱 A) · 04 요청덱 A·B·C txt + zip + **정답표(강사용)** · 05 옮기기가이드 md+docx · 06 체크리스트10 md+pdf · 07 용어카드 md+docx · 08 슬라이드 48장 html+pdf · 09 러닝시트 49쪽 html+pdf · 10 강사원본(리허설 기록 양식·순회 질문 15·퀴즈 해설·깊이 설명·FAQ 10) · 생성기 `build_slides_x1.py`·`build_sheet_x1.py`(18차 폴더의 `build_slides.py`·`build_sheet.py`에서 CSS·헬퍼를 읽는다 — 폴더 이동 시 상대 경로 주의)·`build_decks.py`·`make_docx_x1.js`)
+
+2. **랜딩 — 외전 섹션 (시리즈 번호와 분리)**
+   - `src/data/content.ts`: `courses[]`에 `id: "extra-1"`, **`label: "외전 1"`**(신규 필드 — CourseDetail 헤더가 `label ?? "N차 강의"`로 분기) · `frameworks[]` **공항 대응표 + 설계도 4장**(게·조·관·회·블) · `courseDetails[]` extra-1
+   - `src/components/CourseDetail.tsx`: 헤더 `{(course as any).label ?? \`${courseIndex + 1}차 강의\`} 복습하기` — 외전은 "외전 1 복습하기"
+   - `src/app/page.tsx`: course-18 뒤에 "EXTRA · 외전" 구분 헤더 + `<CourseDetail courseId="extra-1" />`. Hero·WhatYouLearn은 `courses` 전체를 돌므로 외전이 맨 끝에 자동 노출(level 텍스트로 구분)
+   - 앞으로 외전을 더 추가하면 `extra-2`… + `label: "외전 2"`
+
+3. **자료실 — `public/downloads/x1/` + resources.ts 그룹**
+   - 수강생용만: `slides.pdf` · `templates.docx` · `example-a.docx` · `request-decks.zip` · `migration-guide.docx` · `checklist.pdf` · `glossary.docx`. courseId `extra-1`, label "외전 1". **정답표·러닝시트·강사원본·인수인계·기획안·생성기 배포 금지**
+
 ### 18차 강의 (전체 강의·합반 — 에이전트를 해부한다 / 라우팅과 오케스트레이션 / 순강의·채점 미사용) — 랜딩 course-18·자료실 c18 반영 (2026-10-13, v1)
 
 1. **강의 개요 — 새 형식 2회차, 순강의 150분(실습 없음)**

@@ -486,4 +486,19 @@ export const resourceGroups: ResourceGroup[] = [
       },
     ],
   },
+  {
+    courseId: "extra-1",
+    label: "외전 1",
+    title: "요청이 들어와서 결과가 나가기까지 — 라우팅과 오케스트레이션 설계 워크숍",
+    framework: "공항 대응표 + 설계도 4장",
+    items: [
+      { file: "/downloads/x1/slides.pdf", downloadName: "외전1_라우팅오케스트레이션_슬라이드.pdf", title: "슬라이드", description: "워크숍 슬라이드 전체 (48장 — 공항 대응표 · 라우팅 5층 · 정포제예 · 패턴 5 · 계약 · 실패 각본 · 설계도 4장 서식)", kind: "pdf" },
+      { file: "/downloads/x1/templates.docx", downloadName: "외전1_설계도템플릿4장.docx", title: "설계도 템플릿 4장", description: "접수 분류표 · 일꾼 카드 · 지휘 대본 · 실패 각본 — 서식 + 칸마다 '왜 이 칸인가' + 스스로 점검", kind: "docx" },
+      { file: "/downloads/x1/example-a.docx", downloadName: "외전1_완성예시A_고객문의.docx", title: "완성 예시 A — 고객 문의 접수 에이전트", description: "설계도 4장 + 규정집 10항목 + 주문 목록 + 요청 덱 A — 베끼는 게 아니라 서식을 빌리는 것", kind: "docx" },
+      { file: "/downloads/x1/request-decks.zip", downloadName: "외전1_요청덱_ABC.zip", title: "요청 덱 A·B·C (12장 × 3)", description: "inbox/에 그대로 넣을 txt — 고객 문의 / 사내 요청 / 콘텐츠 의뢰. 정상 8 · 섞임 2 · 기타 2", kind: "zip" },
+      { file: "/downloads/x1/migration-guide.docx", downloadName: "외전1_옮기기가이드.docx", title: "옮기기 가이드 — 설계도 → 작업대", description: "대응표 · 폴더 모양 · CLAUDE.md/일꾼 파일 뼈대 · 시키는 문장 2 · 고치기 한 바퀴 · 막혔을 때", kind: "docx" },
+      { file: "/downloads/x1/checklist.pdf", downloadName: "외전1_설계체크리스트10.pdf", title: "설계 체크리스트 10", description: "내일 요청이 들어오면 이 열 개부터 — A4 1쪽", kind: "pdf" },
+      { file: "/downloads/x1/glossary.docx", downloadName: "외전1_용어카드.docx", title: "용어 카드", description: "공항 대응표 13행 + 용어 20 한 줄 + 예약어 셋", kind: "docx" },
+    ],
+  },
 ];
