@@ -1,48 +1,39 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 import { heroContent } from "@/data/content";
-import { useStage } from "./stageStore";
 
 /**
- * 히어로 — 3D 노트북이 서 있는 첫 화면의 DOM 쪽.
- * 캔버스는 뒤(GlassStage)에 고정돼 있고, 이 섹션은 그 위에 글만 얹는다.
- * pointer-events-none 이라 탭·드래그가 캔버스로 간다.
- * 핵심 메시지는 노트북 화면 안(Laptop 의 Html)에 뜬다 — 여기엔 타이틀과 안내만.
+ * 히어로 — 스크롤 연출 구간의 DOM 쪽.
+ * 높이 260svh 의 빈 구간 위에 100svh 가 sticky 로 붙어 있고, 3D 는 그 뒤(GlassStage)에서 이 구간의 진행도로 움직인다.
+ * 글은 두 줄뿐: 왼쪽 위 시리즈 이름, 아래 "스크롤" 안내. 핵심 메시지는 노트북 화면 안에 뜬다.
  */
 export default function HeroSection() {
-  const { open } = useStage();
+  const [hint, setHint] = useState(true);
+
+  useEffect(() => {
+    const onScroll = () => setHint(window.scrollY < 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <section className="pointer-events-none relative h-[100svh] min-h-[560px] w-full">
-      <div className="absolute inset-0 flex flex-col justify-between px-5 py-5 sm:px-8 sm:py-7">
-        <div>
-          <p className="text-[11px] sm:text-xs font-semibold tracking-[0.22em] uppercase text-text-muted">
-            {heroContent.title}
-          </p>
-          <p className="text-[11px] sm:text-xs text-text-dim mt-1">강사 {heroContent.instructor}</p>
+    <section data-hero className="relative h-[260svh]" aria-label="소개">
+      <div className="pointer-events-none sticky top-0 h-[100svh] min-h-[560px]">
+        <div className="absolute inset-0 flex flex-col justify-between px-5 py-5 sm:px-8 sm:py-7">
+          <div>
+            <p className="text-sm font-semibold text-ink">{heroContent.title}</p>
+            <p className="text-xs text-ink-3 mt-0.5">강사 {heroContent.instructor}</p>
+          </div>
+          <div className={`flex items-center gap-3 text-xs text-ink-3 transition-opacity duration-500 ${hint ? "opacity-100" : "opacity-0"}`}>
+            <span className="scroll-dot" aria-hidden />
+            <span>스크롤해서 열어보기</span>
+          </div>
         </div>
-
-        <div className="flex items-end justify-between gap-6">
-          <p
-            className={`text-sm sm:text-base text-text-secondary break-keep max-w-sm transition-opacity duration-700 ${
-              open ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {heroContent.motto}
-          </p>
-          <p className="text-[11px] sm:text-xs text-text-muted whitespace-nowrap">
-            {open ? "스크롤해서 내려가기 · 드래그로 돌리기" : "노트북을 탭해서 열기"}
-          </p>
-        </div>
-      </div>
-
-      <div
-        className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-text-dim transition-opacity duration-700 ${
-          open ? "opacity-70 animate-bounce" : "opacity-0"
-        }`}
-      >
-        <ChevronDown className="w-5 h-5" />
+        {/* 화면 리더용 — 3D 안의 메시지와 같은 글 */}
+        <h1 className="sr-only">{heroContent.subtitle}</h1>
+        <p className="sr-only">{heroContent.tagline}</p>
       </div>
     </section>
   );

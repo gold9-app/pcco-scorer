@@ -1,40 +1,34 @@
 "use client";
 
-import { useControls, folder } from "leva";
-import { CAMERA, SPRING, LAPTOP, CONTROLS, LIGHTS, MATERIAL, RENDER, TETRIS } from "./sceneConfig";
+import { useControls } from "leva";
+import { CAMERA, LAPTOP, TETRIS, LIGHTS, MATERIAL, RENDER } from "./sceneConfig";
 
-/**
- * leva 패널 — sceneConfig 의 기본치를 초기값으로 노출.
- * 패널에서 만진 값은 저장되지 않는다. 마음에 드는 값은 sceneConfig.ts 에 옮겨 적을 것.
- */
+/** leva 패널 — sceneConfig 기본치를 노출. 마음에 드는 값은 sceneConfig.ts 에 옮겨 적는다 */
 export function useSceneControls() {
   const camera = useControls("카메라", {
-    distance: { value: CAMERA.distance, min: 3, max: 12, step: 0.1 },
-    elevation: { value: CAMERA.elevation, min: -10, max: 80, step: 1 },
-    azimuth: { value: CAMERA.azimuth, min: -90, max: 90, step: 1 },
+    distance: { value: CAMERA.distance, min: 3, max: 14, step: 0.1 },
     fov: { value: CAMERA.fov, min: 15, max: 60, step: 1 },
   });
 
   const laptop = useControls("노트북", {
-    openAngle: { value: LAPTOP.openAngle, min: 0, max: 150, step: 1 },
-    liftHeight: { value: LAPTOP.liftHeight, min: 0, max: 0.6, step: 0.01 },
-    liftTilt: { value: LAPTOP.liftTilt, min: -20, max: 20, step: 0.5 },
+    openAngle: { value: LAPTOP.openAngle, min: 60, max: 150, step: 1 },
+    restY: { value: LAPTOP.restY, min: -2.5, max: 1, step: 0.05 },
+    restTiltX: { value: LAPTOP.restTiltX, min: -10, max: 45, step: 1 },
+    restTiltY: { value: LAPTOP.restTiltY, min: -60, max: 60, step: 1 },
+    fillOverscan: { value: LAPTOP.fillOverscan, min: 0.9, max: 1.4, step: 0.01 },
   });
 
-  const spring = useControls("스프링", {
-    뚜껑: folder({
-      lidTension: { value: SPRING.lid.tension, min: 20, max: 400, step: 5 },
-      lidFriction: { value: SPRING.lid.friction, min: 5, max: 80, step: 1 },
-    }),
-    떠오름: folder({
-      liftTension: { value: SPRING.lift.tension, min: 20, max: 400, step: 5 },
-      liftFriction: { value: SPRING.lift.friction, min: 5, max: 80, step: 1 },
-    }),
-  });
-
-  const controls = useControls("드래그 회전", {
-    damping: { value: CONTROLS.damping, min: 0.02, max: 0.6, step: 0.01 },
-    snap: CONTROLS.snap,
+  const tetris = useControls("테트리스", {
+    cellScale: { value: TETRIS.cellScale, min: 0.6, max: 1.4, step: 0.05 },
+    depth: { value: TETRIS.depth, min: -4, max: 0.5, step: 0.1 },
+    follow: { value: TETRIS.follow, min: 2, max: 20, step: 0.5 },
+    overlap: { value: TETRIS.overlap, min: 0, max: 1.5, step: 0.05 },
+    tilt: { value: TETRIS.tilt, min: 0, max: 3, step: 0.1 },
+    gap: { value: TETRIS.gap, min: 0.7, max: 1, step: 0.01 },
+    opacity: { value: TETRIS.opacity, min: 0.2, max: 1, step: 0.02 },
+    transmission: { value: TETRIS.transmission, min: 0, max: 1, step: 0.01 },
+    thickness: { value: TETRIS.thickness, min: 0, max: 2, step: 0.05 },
+    roughness: { value: TETRIS.roughness, min: 0, max: 1, step: 0.01 },
   });
 
   const lights = useControls("조명", {
@@ -45,7 +39,7 @@ export function useSceneControls() {
     envIntensity: { value: RENDER.envIntensity, min: 0, max: 3, step: 0.05 },
   });
 
-  const material = useControls("재질 (임시 유리)", {
+  const material = useControls("노트북 유리", {
     transmission: { value: MATERIAL.transmission, min: 0, max: 1, step: 0.01 },
     thickness: { value: MATERIAL.thickness, min: 0, max: 3, step: 0.05 },
     roughness: { value: MATERIAL.roughness, min: 0, max: 1, step: 0.01 },
@@ -53,16 +47,7 @@ export function useSceneControls() {
     clearcoat: { value: MATERIAL.clearcoat, min: 0, max: 1, step: 0.05 },
   });
 
-  const tetris = useControls("테트리스", {
-    cellScale: { value: TETRIS.cellScale, min: 0.6, max: 1.6, step: 0.05 },
-    follow: { value: TETRIS.follow, min: 2, max: 20, step: 0.5 },
-    tilt: { value: TETRIS.tilt, min: 0, max: 3, step: 0.1 },
-    transmission: { value: TETRIS.transmission, min: 0, max: 1, step: 0.01 },
-    thickness: { value: TETRIS.thickness, min: 0, max: 2, step: 0.05 },
-    roughness: { value: TETRIS.roughness, min: 0, max: 1, step: 0.01 },
-  });
-
-  return { camera, laptop, spring, controls, lights, material, tetris };
+  return { camera, laptop, tetris, lights, material };
 }
 
 export type SceneControls = ReturnType<typeof useSceneControls>;

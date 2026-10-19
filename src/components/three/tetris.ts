@@ -1,62 +1,96 @@
 /**
- * 유리 테트리스 — 블록 정의와 "딱 맞는" 배치
+ * 유리 테트리스 — 뷰포트 전체를 우물로 쓴다.
  *
- * 무대 양옆에 4×4 우물이 하나씩. 블록 8개(히어로 1 + 섹션 7)가 왼쪽·오른쪽으로 번갈아 떨어져
- * 마지막 CTA 에서 양쪽 다 빈칸 없이 꽉 찬다 — 핵심 메시지 "철저하게 내 것으로(딱 맞게)" 의 시각적 증명.
- *
- * 좌표: col 0~3 (왼→오), row 0~3 (아래→위). 각 블록은 아래 블록·바닥 위에 놓이는 순서로 떨어진다.
+ * 4열 묶음은 I·O·J·L 네 조각으로 4×4 를 빈틈없이 채우는 배치(PACK4)와 그 좌우 반전을 번갈아 쓰고,
+ * 남는 2열은 O 두 개로 채운다. 열 수 4·6·8 어디서나 "딱 맞게" 채워진다.
+ * 좌표: col 왼→오, row 아래→위. 조각 순서 = 낙하 순서 (아래 조각이 먼저).
  */
 
-export type Side = "left" | "right";
 export type Cell = [col: number, row: number];
+export type Shape = "I" | "O" | "J" | "L";
 
 export interface Piece {
-  /** 낙하 순서 (0 = 노트북 열릴 때) */
   index: number;
-  side: Side;
-  /** 테트로미노 이름 — 색·설명용 */
-  name: "I" | "O" | "J" | "L";
+  name: Shape;
   cells: Cell[];
-  /** 유리 틴트 (청량한 아이스 톤) */
   tint: string;
-  /** 떨어질 때 살짝 기우는 방향 */
   tilt: number;
 }
 
-// 왼쪽 4×4 — I(세로) · O · J · L 로 완벽 채움
-const LEFT: Omit<Piece, "index" | "side">[] = [
-  { name: "I", cells: [[0, 0], [0, 1], [0, 2], [0, 3]], tint: "#bfe9ff", tilt: 0.06 },
-  { name: "O", cells: [[1, 0], [2, 0], [1, 1], [2, 1]], tint: "#c9f2ea", tilt: -0.05 },
-  { name: "J", cells: [[3, 0], [3, 1], [3, 2], [2, 2]], tint: "#d9d4ff", tilt: 0.05 },
-  { name: "L", cells: [[1, 2], [1, 3], [2, 3], [3, 3]], tint: "#ffd9c2", tilt: -0.04 },
+interface Proto {
+  name: Shape;
+  cells: Cell[];
+}
+
+// 4×4 완전 채움 (아래→위 낙하 가능 순서)
+const PACK4: Proto[] = [
+  { name: "I", cells: [[0, 0], [0, 1], [0, 2], [0, 3]] },
+  { name: "O", cells: [[1, 0], [2, 0], [1, 1], [2, 1]] },
+  { name: "J", cells: [[3, 0], [3, 1], [3, 2], [2, 2]] },
+  { name: "L", cells: [[1, 2], [1, 3], [2, 3], [3, 3]] },
+];
+const MIRROR4: Proto[] = PACK4.map((p) => ({ name: p.name, cells: p.cells.map(([c, r]) => [3 - c, r] as Cell) }));
+const TWO_O: Proto[] = [
+  { name: "O", cells: [[0, 0], [1, 0], [0, 1], [1, 1]] },
+  { name: "O", cells: [[0, 2], [1, 2], [0, 3], [1, 3]] },
 ];
 
-// 오른쪽 = 왼쪽을 좌우 반전 (col → 3 - col)
-const RIGHT = LEFT.map((p) => ({
-  ...p,
-  cells: p.cells.map(([c, r]) => [3 - c, r] as Cell),
-  tilt: -p.tilt,
-}));
+/** 청량한 유리 틴트 — 아이스블루 · 민트 · 라일락 · 살구 */
+export const TINTS = ["#bfe3f7", "#c6efe6", "#d8d6f5", "#ffd6be"];
 
-/** 낙하 순서대로: L I → R I → L O → R O → L J → R J → L L → R L */
-export const PIECES: Piece[] = LEFT.flatMap((l, i) => [
-  { ...l, index: i * 2, side: "left" as const },
-  { ...RIGHT[i], index: i * 2 + 1, side: "right" as const },
-]);
+/**
+ * cols 열 × rows 행(4의 배수로 올림)을 채우는 조각 목록.
+ * 띠(4행)마다 4열 묶음의 배치를 번갈아 반전시켜 같은 무늬가 반복되지 않게 한다.
+ */
+export function buildWell(cols: number, rows: number): Piece[] {
+  const bands = Math.ceil(rows / 4);
+  const groups4 = Math.floor(cols / 4);
+  const rest = cols - groups4 * 4; // 0 또는 2 (cols 는 짝수 전제)
+  const pieces: Piece[] = [];
+  let idx = 0;
 
-export const WELL_COLS = 4;
-export const WELL_ROWS = 4;
-export const PIECE_COUNT = PIECES.length; // 8
+  for (let b = 0; b < bands; b++) {
+    const r0 = b * 4;
+    const slots: { x0: number; protos: Proto[] }[] = [];
+    // 띠마다 2열 O 묶음의 위치를 좌/우로 바꿔 무늬를 깬다
+    const restLeft = rest === 2 && b % 2 === 1;
+    let x = restLeft ? 2 : 0;
+    if (restLeft) slots.push({ x0: 0, protos: TWO_O });
+    for (let g = 0; g < groups4; g++) {
+      slots.push({ x0: x, protos: (g + b) % 2 === 0 ? PACK4 : MIRROR4 });
+      x += 4;
+    }
+    if (rest === 2 && !restLeft) slots.push({ x0: x, protos: TWO_O });
 
-/** 배치 검증 — 16칸이 빠짐·겹침 없이 채워지는지 (개발 중 콘솔 확인용) */
-export function validatePacking(side: Side): boolean {
-  const seen = new Set<string>();
-  for (const p of PIECES.filter((p) => p.side === side)) {
-    for (const [c, r] of p.cells) {
-      const k = `${c},${r}`;
-      if (seen.has(k) || c < 0 || c >= WELL_COLS || r < 0 || r >= WELL_ROWS) return false;
-      seen.add(k);
+    // 같은 띠 안에서는 낙하 순서를 섞어 좌→우로만 쌓이지 않게 한다 (각 묶음의 k번째 조각끼리 번갈아)
+    const maxLen = Math.max(...slots.map((s) => s.protos.length));
+    for (let k = 0; k < maxLen; k++) {
+      for (const s of slots) {
+        const p = s.protos[k];
+        if (!p) continue;
+        pieces.push({
+          index: idx,
+          name: p.name,
+          cells: p.cells.map(([c, r]) => [c + s.x0, r + r0] as Cell),
+          tint: TINTS[(idx * 7 + b) % TINTS.length],
+          tilt: (idx % 2 === 0 ? 1 : -1) * (0.04 + (idx % 3) * 0.015),
+        });
+        idx++;
+      }
     }
   }
-  return seen.size === WELL_COLS * WELL_ROWS;
+  return pieces;
+}
+
+/** 검증 — 모든 칸이 한 번씩만 채워지는지 */
+export function validateWell(cols: number, rows: number): boolean {
+  const pieces = buildWell(cols, rows);
+  const seen = new Set<string>();
+  for (const p of pieces)
+    for (const [c, r] of p.cells) {
+      const k = `${c},${r}`;
+      if (seen.has(k) || c < 0 || c >= cols || r < 0) return false;
+      seen.add(k);
+    }
+  return seen.size === cols * Math.ceil(rows / 4) * 4;
 }

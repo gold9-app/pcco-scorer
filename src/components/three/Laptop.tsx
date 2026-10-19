@@ -1,52 +1,113 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useRef } from "react";
+import * as THREE from "three";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Html, RoundedBox } from "@react-three/drei";
-import { a, useSpring } from "@react-spring/three";
+
 import { LAPTOP } from "./sceneConfig";
-import { stageStore, useStage } from "./stageStore";
+import { smoothstep, type ScrollInfo } from "./useScrollProgress";
 import { heroContent } from "@/data/content";
 import type { SceneControls } from "./useSceneControls";
 
 /**
- * 핵심 오브젝트 — 유리 노트북 (임시 지오메트리)
+ * 유리 노트북 — 스크롤이 연출한다 (히어로 구간 0→1)
+ *   0.04~0.42  뚜껑이 열린다
+ *   0.28~0.48  화면에 핵심 메시지가 떠오른다
+ *   0.50~1.00  노트북이 카메라 쪽으로 다가오며 화면이 뷰포트를 가득 채운다 → 그 화면색이 곧 페이지 배경
+ *   1.00       숨김. 이후는 본문 + 유리 테트리스
  *
- *  <lift>   본체. 열리면 살짝 떠오르며 기울어진다
- *    ├ base      아래판 + 키보드·트랙패드
- *    └ <hinge>   뒷모서리 피벗. rotation.x 로 뚜껑이 열린다
- *        ├ lid     윗판 (유리)
- *        ├ screen  뚜껑 안쪽 면
- *        └ <Html>  화면 위 핵심 메시지 — 열리면 나타난다
- *
- * 닫힌 채 시작한다. 탭하면 열리고(stageStore.open), 그 순간 테트리스 첫 블록이 떨어진다.
- * Step 2 에서 GLB 로 바꿀 때도 lift / hinge 구조는 유지하고 mesh 만 교체.
+ * 구조:  <root>  위치·자세 (휴식 자세 ↔ 화면 채움 자세 보간)
+ *          ├ base
+ *          └ <hinge> rotation.x = 열림각
+ *              ├ lid · screen · <Html> 메시지
  */
 
 const deg = (d: number) => (d * Math.PI) / 180;
+const PAGE_BG = "#eef3f7";
 
-export default function Laptop({ controls }: { controls: SceneControls }) {
-  const { laptop, spring, material } = controls;
-  const { open } = useStage();
-  const [hover, setHover] = useState(false);
+interface Props {
+  scroll: React.RefObject<ScrollInfo>;
+  controls: SceneControls;
+}
 
-  useEffect(() => {
-    document.body.style.cursor = hover ? "pointer" : "auto";
-    return () => {
-      document.body.style.cursor = "auto";
-    };
-  }, [hover]);
-
-  const lid = useSpring({
-    rotX: open ? -deg(laptop.openAngle) : 0,
-    config: { mass: 1, tension: spring.lidTension, friction: spring.lidFriction },
-  });
-  const lift = useSpring({
-    posY: open ? laptop.liftHeight : 0,
-    rotX: open ? deg(laptop.liftTilt) : 0,
-    config: { mass: 1, tension: spring.liftTension, friction: spring.liftFriction },
-  });
+export default function Laptop({ scroll, controls }: Props) {
+  const { laptop, material } = controls;
+  const root = useRef<THREE.Group>(null);
+  const hinge = useRef<THREE.Group>(null);
+  const msg = useRef<HTMLDivElement>(null);
+  const hs = useRef(0); // 부드럽게 따라가는 hero 진행도
+  const { camera } = useThree();
 
   const { width: W, depth: D, baseThickness: BT, lidThickness: LT, cornerRadius: R } = LAPTOP;
+
+  // 재사용 객체 (프레임마다 할당하지 않기 위해)
+  const tmp = useMemo(
+    () => ({
+      restPos: new THREE.Vector3(),
+      restQ: new THREE.Quaternion(),
+      tgtPos: new THREE.Vector3(),
+      tgtQ: new THREE.Quaternion(),
+      m: new THREE.Matrix4(),
+      e: new THREE.Euler(),
+      s: new THREE.Vector3(),
+      n: new THREE.Vector3(),
+      u: new THREE.Vector3(),
+      r: new THREE.Vector3(1, 0, 0),
+    }),
+    []
+  );
+
+  useFrame((_, dt) => {
+    const g = root.current;
+    const hg = hinge.current;
+    if (!g || !hg) return;
+    const info = scroll.current;
+
+    hs.current += (info.hero - hs.current) * (1 - Math.exp(-dt * 9));
+    const h = hs.current;
+
+    // 1) 뚜껑
+    const openT = smoothstep(h, 0.04, 0.42);
+    const theta = deg(laptop.openAngle) * openT;
+    hg.rotation.x = -theta;
+
+    // 2) 메시지
+    if (msg.current) {
+      const o = smoothstep(h, 0.28, 0.48) * (1 - smoothstep(h, 0.86, 0.97));
+      msg.current.style.opacity = o.toFixed(3);
+      msg.current.style.transform = `translateY(${(1 - smoothstep(h, 0.28, 0.48)) * 10}px)`;
+    }
+
+    // 3) 자세 — 휴식 ↔ 화면 채움
+    const { restPos, restQ, tgtPos, tgtQ, m, e, s, n, u, r } = tmp;
+
+    // 휴식 자세: 살짝 내려다보이게 기울이고, 포인터 패럴랙스
+    restPos.set(0, laptop.restY, 0);
+    e.set(deg(laptop.restTiltX) + info.pointer.y * 0.03, deg(laptop.restTiltY) + info.pointer.x * 0.05, 0);
+    restQ.setFromEuler(e);
+
+    // 채움 자세: 화면(열림각 기준)이 카메라를 정면으로 보며 뷰포트 높이를 덮도록
+    const full = deg(laptop.openAngle);
+    const sin = Math.sin(full), cos = Math.cos(full);
+    // 노트북 로컬 좌표에서의 화면 중심·법선·위쪽
+    s.set(0, BT + (D / 2) * sin, -D / 2 + (D / 2) * cos);
+    n.set(0, -cos, sin);
+    u.set(0, sin, cos);
+    // 로컬 기저(r,u,n) → 월드 기저(x,y,z): R = L^T
+    m.makeBasis(r, u, n).transpose();
+    tgtQ.setFromRotationMatrix(m);
+    const fovRad = deg((camera as THREE.PerspectiveCamera).fov);
+    const screenH = D * 0.84;
+    const dist = screenH / (2 * Math.tan(fovRad / 2) * laptop.fillOverscan);
+    // 화면 중심이 카메라 앞 dist 에 오도록
+    tgtPos.set(0, 0, camera.position.z - dist).sub(s.applyQuaternion(tgtQ));
+
+    const z = smoothstep(h, 0.5, 1);
+    g.position.lerpVectors(restPos, tgtPos, z);
+    g.quaternion.slerpQuaternions(restQ, tgtQ, z);
+    g.visible = h < 0.995;
+  });
 
   const glass = (
     <meshPhysicalMaterial
@@ -61,45 +122,30 @@ export default function Laptop({ controls }: { controls: SceneControls }) {
   );
 
   return (
-    <a.group
-      position-y={lift.posY}
-      rotation-x={lift.rotX}
-      onClick={(e) => {
-        e.stopPropagation();
-        stageStore.toggleOpen();
-      }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHover(true);
-      }}
-      onPointerOut={() => setHover(false)}
-    >
-      {/* 아래판 */}
+    <group ref={root}>
       <group name="base">
         <RoundedBox args={[W, BT, D]} radius={R} smoothness={4} position={[0, BT / 2, 0]} castShadow receiveShadow>
           {glass}
         </RoundedBox>
         <mesh position={[0, BT - 0.02, 0.12]} rotation-x={-Math.PI / 2} receiveShadow>
           <planeGeometry args={[W * 0.86, D * 0.56]} />
-          <meshStandardMaterial color="#1c1d22" roughness={0.9} metalness={0.1} />
+          <meshStandardMaterial color="#1b2430" roughness={0.9} metalness={0.1} />
         </mesh>
         <mesh position={[0, BT - 0.015, D * 0.33]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[W * 0.3, D * 0.2]} />
-          <meshStandardMaterial color="#2b2c33" roughness={0.6} />
+          <meshStandardMaterial color="#2a3542" roughness={0.6} />
         </mesh>
       </group>
 
-      {/* 뚜껑 — 뒷모서리 힌지 */}
-      <a.group name="hinge" position={[0, BT, -D / 2]} rotation-x={lid.rotX}>
+      <group ref={hinge} name="hinge" position={[0, BT, -D / 2]}>
         <RoundedBox args={[W, LT, D]} radius={R} smoothness={4} position={[0, LT / 2, D / 2]} castShadow>
           {glass}
         </RoundedBox>
-        {/* 화면 — 닫히면 아래를, 열리면 정면을 본다 */}
+        {/* 화면 — 페이지 배경과 같은 색. 끝까지 다가오면 화면이 곧 페이지가 된다 */}
         <mesh name="screen" position={[0, -0.003, D / 2]} rotation-x={Math.PI / 2}>
           <planeGeometry args={[W * 0.9, D * 0.84]} />
-          <meshStandardMaterial color="#f6f8fb" emissive="#ffffff" emissiveIntensity={0.35} roughness={0.35} />
+          <meshStandardMaterial color={PAGE_BG} emissive={PAGE_BG} emissiveIntensity={0.55} roughness={0.5} />
         </mesh>
-        {/* 핵심 메시지 — 화면 면에 붙은 HTML. 닫혀 있을 땐 뒷면이라 backface 로 숨는다 */}
         <Html
           transform
           position={[0, -0.006, D / 2]}
@@ -107,30 +153,17 @@ export default function Laptop({ controls }: { controls: SceneControls }) {
           distanceFactor={2.2}
           style={{ pointerEvents: "none", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         >
-          <div
-            style={{
-              width: 520,
-              padding: "28px 32px",
-              textAlign: "center",
-              color: "#141414",
-              opacity: open ? 1 : 0,
-              transform: open ? "translateY(0)" : "translateY(8px)",
-              transition: "opacity .6s ease .35s, transform .6s ease .35s",
-              fontFamily: "inherit",
-            }}
-          >
-            <p style={{ fontSize: 13, letterSpacing: "0.22em", opacity: 0.55, marginBottom: 14 }}>
-              {heroContent.title.toUpperCase()}
-            </p>
-            <h1 style={{ fontSize: 38, lineHeight: 1.2, fontWeight: 700, letterSpacing: "-0.01em", wordBreak: "keep-all" }}>
+          <div ref={msg} style={{ width: 560, padding: "28px 36px", color: "#0f1720", opacity: 0, fontFamily: "inherit" }}>
+            <p style={{ fontSize: 14, fontWeight: 600, opacity: 0.55, marginBottom: 12 }}>{heroContent.title}</p>
+            <h1 style={{ fontSize: 42, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-0.02em", wordBreak: "keep-all" }}>
               {heroContent.subtitle}
             </h1>
-            <p style={{ fontSize: 15, lineHeight: 1.6, opacity: 0.7, marginTop: 16, wordBreak: "keep-all" }}>
+            <p style={{ fontSize: 16, lineHeight: 1.65, opacity: 0.72, marginTop: 18, wordBreak: "keep-all", maxWidth: 440 }}>
               {heroContent.tagline}
             </p>
           </div>
         </Html>
-      </a.group>
-    </a.group>
+      </group>
+    </group>
   );
 }
