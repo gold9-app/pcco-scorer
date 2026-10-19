@@ -1,4 +1,4 @@
-import Hero from "@/components/Hero";
+import HeroScene from "@/components/three/HeroScene";
 import PainPoints from "@/components/PainPoints";
 import BeforeAfter from "@/components/BeforeAfter";
 import WhatYouLearn from "@/components/WhatYouLearn";
@@ -17,7 +17,8 @@ export default function Home() {
   return (
     <main className="relative">
       <HashRedirect />
-      <Hero />
+      {/* Step 1: 3D 히어로 (유리 노트북). 옛 Hero.tsx 는 Step 4 콘텐츠 배치 때 정리 */}
+      <HeroScene />
       <div className="section-divider max-w-6xl mx-auto" />
       <PainPoints />
       <div className="section-divider max-w-6xl mx-auto" />
