@@ -168,10 +168,10 @@ export default function Hero() {
 
                       {/* CTA */}
                       <a
-                        href={`#${course.id}`}
+                        href={`/course/${course.id}`}
                         className="inline-flex items-center gap-2 text-accent-primary hover:text-accent-secondary transition-colors font-semibold text-xs sm:text-sm group"
                       >
-                        <span className="whitespace-nowrap">자세히 보기</span>
+                        <span className="whitespace-nowrap">복습 페이지</span>
                         <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                       </a>
                     </motion.div>

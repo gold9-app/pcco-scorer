@@ -7,10 +7,12 @@ import { useState } from "react";
 
 interface CourseDetailProps {
   courseId: string;
+  /** /course/{id} 복습 페이지에서는 처음부터 펼친다 */
+  defaultOpen?: boolean;
 }
 
-export default function CourseDetail({ courseId }: CourseDetailProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function CourseDetail({ courseId, defaultOpen = false }: CourseDetailProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const course = courses.find((c) => c.id === courseId);
   const detail = courseDetails.find((d) => d.id === courseId) as any;
   const courseIndex = courses.findIndex((c) => c.id === courseId);

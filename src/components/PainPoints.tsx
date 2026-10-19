@@ -17,10 +17,10 @@ export default function PainPoints() {
           className="text-center mb-12 sm:mb-16 px-4"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 tracking-tight text-premium">
-            이런 적 있으신가요?
+            어디서 시작할까요?
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-text-muted">
-            같은 AI, 왜 결과가 다를까요?
+            세 사람이 세 곳에서 시작합니다. 당신은 어느 쪽에 가까운가요.
           </p>
         </motion.div>
 

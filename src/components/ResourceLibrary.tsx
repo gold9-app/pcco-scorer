@@ -112,7 +112,7 @@ export default function ResourceLibrary({ groups }: { groups: SizedResourceGroup
                 </h2>
                 {group.hasDetail && (
                   <Link
-                    href={`/#${group.courseId}`}
+                    href={`/course/${group.courseId}`}
                     className="text-xs sm:text-sm text-accent-primary hover:text-accent-secondary transition-colors font-semibold"
                   >
                     이 강의 복습 내용 보기 →

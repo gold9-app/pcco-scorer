@@ -6,11 +6,17 @@ import FrameworkCards from "@/components/FrameworkCards";
 import USP from "@/components/USP";
 import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
-import CourseDetail from "@/components/CourseDetail";
+import HashRedirect from "@/components/HashRedirect";
 
+/**
+ * 랜딩 — 신규 수강 검토자용.
+ * 차수별 복습(CourseDetail)은 2026-10-19 부터 /course/{id} 로 분리. 옛 #course-N 앵커는 HashRedirect 가 처리.
+ * 섹션 구조(지도·시작점·카드 필터)는 디자인 단계에서 교체 예정 — 지금은 카피만 갱신된 상태.
+ */
 export default function Home() {
   return (
     <main className="relative">
+      <HashRedirect />
       <Hero />
       <div className="section-divider max-w-6xl mx-auto" />
       <PainPoints />
@@ -26,51 +32,6 @@ export default function Home() {
       <FAQ />
       <div className="section-divider max-w-6xl mx-auto" />
       <CTA />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-1" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-2" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-3" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-4" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-5" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-6" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-7" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-8" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-9" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-10" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-11" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-12" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-13" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-14" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-15" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-16" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-17" />
-      <div className="section-divider max-w-6xl mx-auto" />
-      <CourseDetail courseId="course-18" />
-
-      {/* 외전 — 독립 워크숍 */}
-      <div className="section-divider max-w-6xl mx-auto" />
-      <div className="max-w-6xl mx-auto px-6 pt-10 pb-2">
-        <p className="text-xs tracking-[0.2em] text-text-muted/70 font-bold">EXTRA · 외전</p>
-        <h2 className="text-2xl sm:text-3xl font-bold mt-2">외전 — 시리즈 밖, 하루로 완결되는 독립 워크숍</h2>
-        <p className="text-sm sm:text-base text-text-muted mt-2">이전 강의를 듣지 않았어도 들을 수 있습니다.</p>
-      </div>
-      <CourseDetail courseId="extra-1" />
     </main>
   );
 }

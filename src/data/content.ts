@@ -1,47 +1,123 @@
 // 강의 홍보 페이지 컨텐츠 데이터
 
+/**
+ * 시리즈 단계·반 구분 (2026-10-19 랜딩 리뉴얼)
+ * phase: 시리즈 지도의 가로축 — ask(시키는 법 1~3) → build(만드는 법 4~9) → diagnose(10) → track(11~16 분반) → merge(17~18 합반) · extra(외전)
+ * track: 반 — common(공통) · basic(초급반) · intermediate(중급반) · merged(합반) · extra(외전)
+ * 새 강의를 추가할 때 courses[] 항목에 phase·track 두 필드만 넣으면 지도·필터·목록이 자동 반영된다.
+ */
+export type Phase = "ask" | "build" | "diagnose" | "track" | "merge" | "extra";
+export type Track = "common" | "basic" | "intermediate" | "merged" | "extra";
+
 export const heroContent = {
   title: "AI 활용 실전 시리즈",
-  subtitle: "생각을 구조화하는 사람이 AI를 지배한다",
-  tagline: "AI 시대 진짜 경쟁력은 AI의 성능이 아니라 당신의 설계력입니다",
+  subtitle: "철저하게 내 것으로 만드는 AI 능력",
+  tagline:
+    "AI를 쓰는 법이 아니라, 내 것으로 만드는 법. 진단으로 반을 나누고, 반마다 다른 길을 갑니다. 프롬프트 한 줄에서 에이전트 설계까지 — 코딩 경험 없이.",
+  motto: "생각을 구조화하는 사람이 AI를 지배한다",
   instructor: "정금구",
-  ctas: [
-    { text: "1차 강의 보기", href: "#course-1", variant: "primary" },
-    { text: "2차 강의 보기", href: "#course-2", variant: "secondary" },
-    { text: "3차 강의 보기", href: "#course-3", variant: "secondary" },
-    { text: "4차 강의 보기", href: "#course-4", variant: "secondary" },
-    { text: "5차 강의 보기", href: "#course-5", variant: "secondary" },
-    { text: "6차 강의 보기", href: "#course-6", variant: "secondary" },
-    { text: "7차 강의 보기", href: "#course-7", variant: "secondary" },
-    { text: "8차 강의 보기", href: "#course-8", variant: "secondary" },
-    { text: "9차 강의 보기", href: "#course-9", variant: "secondary" },
-    { text: "10차 강의 보기", href: "#course-10", variant: "secondary" },
-    { text: "실습 앱 사용하기", href: "https://pcco-scorer-production.up.railway.app", variant: "outline", external: true }
-  ]
+  stats: [
+    { value: "18회", label: "운영한 강의" },
+    { value: "15개", label: "프레임워크" },
+    { value: "3곳", label: "시작점" },
+  ],
 };
 
-export const painPoints = [
+/** 시리즈 지도 — 단계 순서대로. courseIds 는 courses[] 의 phase/track 으로 계산한다 (getPhaseCourses) */
+export const phases: {
+  id: Phase;
+  track?: Track;
+  label: string;
+  name: string;
+  oneLiner: string;
+  range: string;
+}[] = [
   {
-    quote: "ChatGPT 써봤는데, 그냥 검색이랑 별 차이 없던데?",
-    description: "같은 AI를 써도 결과가 완전히 다른 이유"
+    id: "ask",
+    label: "1단계",
+    name: "시키는 법 — 프롬프트 3부작",
+    oneLiner: "문장 한 줄(R-PCCO) → 한 번 세팅하고 평생 쓰는 지침(I-MRKO) → 이미지도 제어 시스템(SSDHR)",
+    range: "1~3차",
   },
   {
-    quote: "주간 보고서 쓸 때마다 '너는 10년차 기획자야...' 매번 복붙하고 있다",
-    description: "반복되는 프롬프트를 한 번에 설정하는 법"
+    id: "build",
+    label: "2단계",
+    name: "만드는 법 — 바이브 코딩 시리즈",
+    oneLiner: "묘사하면 앱이 된다 → 자동화를 설계한다 → 내 컴퓨터의 도구 → 폰에 설치 → 설계도 → 내 컴퓨터를 꺼도 살아있는 서비스",
+    range: "4~9차",
   },
   {
-    quote: "팀원은 AI로 1시간 만에 끝내는데, 나는 3시간 걸린다",
-    description: "AI 결과의 품질을 결정하는 단 하나의 차이"
+    id: "diagnose",
+    label: "진단",
+    name: "거꾸로 만들기 — 수준을 본다",
+    oneLiner: "완성된 프로그램을 쓰고 뜯어 프롬프트 하나로 되돌린다. 여기서 반이 갈린다",
+    range: "10차",
   },
   {
-    quote: "GPTs 만들어봤는데, 그냥 기본 ChatGPT랑 다를 게 없더라",
-    description: "범용 AI를 내 전용 AI로 바꾸는 설정의 기술"
-  }
+    id: "track",
+    track: "basic",
+    label: "3단계 · 초급반",
+    name: "시키는 법을 몸에",
+    oneLiner: "그린다 → 쓴다 → 굳힌다",
+    range: "11·13·15차",
+  },
+  {
+    id: "track",
+    track: "intermediate",
+    label: "3단계 · 중급반",
+    name: "설계도를 손에",
+    oneLiner: "구조 → 화면 → 데이터",
+    range: "12·14·16차",
+  },
+  {
+    id: "merge",
+    label: "4단계 · 합반",
+    name: "작업실에서",
+    oneLiner: "내 앱을 주소로 → 에이전트를 해부한다",
+    range: "17·18차",
+  },
+  {
+    id: "extra",
+    label: "외전",
+    name: "하루로 완결되는 독립 워크숍",
+    oneLiner: "이전 강의 없이, Claude Code 경험만 있으면 — 설계도 4장을 쓰고 실제로 돌린다",
+    range: "360분 1일",
+  },
 ];
+
+/** 시작점 3곳 — "나에게 맞는 시작점" 섹션 */
+export const entryPoints = [
+  {
+    quote: "AI 써봤는데 그냥 검색이랑 비슷하던데",
+    start: "1차부터",
+    courseId: "course-1",
+    description: "같은 AI로 다른 결과가 나오는 이유부터 — 문장 한 줄의 구조",
+  },
+  {
+    quote: "프롬프트는 좀 쓰는데, 내 수준이 어디인지 모르겠다",
+    start: "10차 진단부터",
+    courseId: "course-10",
+    description: "완성된 프로그램을 뜯어 프롬프트로 되돌리면 수준이 보인다 — 그 결과로 반을 배정",
+  },
+  {
+    quote: "Claude Code 써봤다. 에이전트가 뭔지 제대로 알고 싶다",
+    start: "외전 하루",
+    courseId: "extra-1",
+    description: "이전 강의 없이 하루로 완결 — 설계도 4장을 쓰고 실제로 돌린다",
+  },
+];
+
+/** PainPoints 섹션 — 리뉴얼 후 "나에게 맞는 시작점"으로 사용 (entryPoints 와 동일 내용, 컴포넌트 shape 유지) */
+export const painPoints = entryPoints.map((e) => ({
+  quote: e.quote,
+  description: `${e.start} — ${e.description}`,
+}));
 
 export const courses = [
   {
     id: "course-1",
+    phase: "ask" as Phase,
+    track: "common" as Track,
     title: "AI의 프롬프트란?",
     subtitle: "AI 결과를 바꾸는 단 하나의 차이",
     duration: "105분",
@@ -82,6 +158,8 @@ export const courses = [
   },
   {
     id: "course-2",
+    phase: "ask" as Phase,
+    track: "common" as Track,
     title: "AI의 지침이란?",
     subtitle: "한 번 세팅하고 평생 쓰는 AI 만들기",
     duration: "148분",
@@ -138,6 +216,8 @@ export const courses = [
   },
   {
     id: "course-3",
+    phase: "ask" as Phase,
+    track: "common" as Track,
     title: "이미지 프롬프트 설계 가이드",
     subtitle: "설명이 아니라 제어 시스템",
     duration: "90분",
@@ -193,6 +273,8 @@ export const courses = [
   },
   {
     id: "course-4",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "바이브 코딩이란?",
     subtitle: "AI한테 묘사하면 앱이 된다 — 바이브 코딩 5요소 입문",
     duration: "125분",
@@ -248,6 +330,8 @@ export const courses = [
   },
   {
     id: "course-5",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "AI 자동화 이해",
     subtitle: "AI에게 일을 제대로 시키는 법 — 빈껍데기를 결과물로 바꾸는 설계",
     duration: "120분",
@@ -301,6 +385,8 @@ export const courses = [
   },
   {
     id: "course-6",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "Claude Code 실전",
     subtitle: "묘사하면 내 컴퓨터에서 도는 도구가 된다 — 만들고·쪼개고·배포까지",
     duration: "118분 (+배포 보너스)",
@@ -359,6 +445,8 @@ export const courses = [
   },
   {
     id: "course-7",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "Claude Code로 잘 짠 앱을 '내 앱'으로 (PWA)",
     subtitle: "레이어로 잘 짜인 PWA를 받아 → 구조를 읽고 → 내 입맛대로 고쳐 → 폰에 배포",
     duration: "112분",
@@ -416,6 +504,8 @@ export const courses = [
   },
   {
     id: "course-8",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "자동화 설계 — 실전 공장을 해부하다 (PILOT)",
     subtitle: "실제로 돌아가는 영상 자동화 공장을 해부해 → 설계 원리 5개를 뽑고 → 내 자동화 설계도를 그린다",
     duration: "120분",
@@ -474,6 +564,8 @@ export const courses = [
   },
   {
     id: "course-9",
+    phase: "build" as Phase,
+    track: "common" as Track,
     title: "진짜 서비스 만들기 — 심리테스트 공유 서비스",
     subtitle: "내가 기획한 심리테스트를 GitHub(기억)·Vercel(무대)·Supabase(창고)에 입주시켜, 내 컴퓨터를 꺼도 살아있는 서비스로 만든다",
     duration: "180분 (이론 65 + 실습 105 + 마무리 10 · 2회 분할 가능)",
@@ -535,6 +627,8 @@ export const courses = [
   },
   {
     id: "course-10",
+    phase: "diagnose" as Phase,
+    track: "common" as Track,
     title: "거꾸로 만들기 — 한 방 프롬프트 역설계",
     subtitle: "오늘은 만들지 않는다. 완성된 프로그램을 직접 써보고, 그 프로그램을 통째로 재현하는 프롬프트 하나를 써낸다",
     duration: "120분 (체험·관찰 40 + 작성 45 + 셀프 체크·마무리 35)",
@@ -590,6 +684,8 @@ export const courses = [
   },
   {
     id: "course-11",
+    phase: "track" as Phase,
+    track: "basic" as Track,
     title: "그린다 — 머릿속에 구조를 그리는 법",
     subtitle: "초급반 1강. 오늘은 문장을 쓰지 않는다 — 만들고 싶은 것을 네 칸으로 그린다",
     duration: "120분 (강의 60 + 실습 60)",
@@ -646,6 +742,8 @@ export const courses = [
   },
   {
     id: "course-12",
+    phase: "track" as Phase,
+    track: "intermediate" as Track,
     title: "구조를 그린다 — 개발 세계의 지도",
     subtitle: "중급반 1강. 매주 점수를 받던 채점기의 속을 펼친다 — 폴더는 왜 갈라졌고, 파일은 왜 그 자리에 있나",
     duration: "약 160분 (강의 130여 분 + 숙제 브리핑 + 휴식 10)",
@@ -698,6 +796,8 @@ export const courses = [
   },
   {
     id: "course-13",
+    phase: "track" as Phase,
+    track: "basic" as Track,
     title: "쓴다 — 구조도를 프롬프트로 옮기는 법",
     subtitle: "초급반 2강. 백지에서 시작하지 않는다 — 11차에 그린 네 칸을 변환표 4줄로 문장으로 옮기고, claude.ai에 띄운다",
     duration: "120분 (강의 47 + 실습 73)",
@@ -754,6 +854,8 @@ export const courses = [
   },
   {
     id: "course-14",
+    phase: "track" as Phase,
+    track: "intermediate" as Track,
     title: "화면을 그린다 — 보이는 것의 해부",
     subtitle: "중급반 2강. 매주 눌렀던 채점 화면 한 장을 뼈대·옷·움직임·부품으로 네 번 뜯는다 — 화면 하나는 그림 여러 장이다",
     duration: "약 160분 (강의 130여 분 + 숙제 브리핑 + 휴식 10)",
@@ -807,6 +909,8 @@ export const courses = [
   },
   {
     id: "course-15",
+    phase: "track" as Phase,
+    track: "basic" as Track,
     title: "굳힌다 — 반복을 지침으로",
     subtitle: "초급반 3강. 매주 다시 하는 일을 AI에게 한 번만 설명해두는 법 — 재료만 바뀌는 일은 지침이 된다",
     duration: "120분 (강의 77 + 실습 43)",
@@ -863,6 +967,8 @@ export const courses = [
   },
   {
     id: "course-16",
+    phase: "track" as Phase,
+    track: "intermediate" as Track,
     title: "데이터를 그린다 — 창고의 해부",
     subtitle: "중급반 3강. 매주 남긴 점수가 어디에 어떻게 남았는지 — 리더보드 한 장을 표·열·규칙·열쇠로 네 번 뜯는다. 데이터는 쌓이는 게 아니라 지켜지는 것",
     duration: "약 160분 (강의 140여 분 + 숙제 브리핑 + 휴식 10)",
@@ -917,6 +1023,8 @@ export const courses = [
   },
   {
     id: "course-17",
+    phase: "merge" as Phase,
+    track: "merged" as Track,
     title: "내 캘린더를 주소로 — github.io 위의 PWA, 그리고 UX",
     subtitle: "전체 강의(초급·중급 합반). 업무용 일정체크 캘린더를 각자 설계해 Claude Code로 만들고, github.io 주소로 띄우고, 손님처럼 눌러 보며 고치고, 폰 홈 화면에 앱으로 설치한다. 템플릿은 없다 — 설계 질문 다섯 개와 참고 카드, 그리고 묻기만 하는 강사",
     duration: "160분 (강의 60 + 실습 78 + 클로징 12 + 휴식 10)",
@@ -974,6 +1082,8 @@ export const courses = [
   },
   {
     id: "course-18",
+    phase: "merge" as Phase,
+    track: "merged" as Track,
     title: "에이전트를 해부한다 — 누구에게 보내고, 어떻게 잇나 (라우팅과 오케스트레이션)",
     subtitle: "전체 강의(초급·중급 합반) · 순강의 150분, 실습 없음. 바이브코딩에서 '에이전트'가 무엇인지 다섯 단어(프로그램·LLM·에이전트·앱·서비스)를 두 축으로 갈라 정리하고, 여럿으로 나눴을 때 생기는 두 문제 — 누구에게 보내나(라우팅)·어떻게 잇나(오케스트레이션) — 를 바닥부터 해부한다. 오늘은 만들지 않는다. 해부하고, 이름을 붙인다",
     duration: "150분 (강의 128 + 클로징 12 + 휴식 10 · 실습 없음)",
@@ -1030,6 +1140,8 @@ export const courses = [
   },
   {
     id: "extra-1",
+    phase: "extra" as Phase,
+    track: "extra" as Track,
     label: "외전 1",
     title: "요청이 들어와서 결과가 나가기까지 — 라우팅과 오케스트레이션 설계 워크숍",
     subtitle: "외전 · 독립 워크숍. 이전 강의를 듣지 않았어도 이 하루로 완결. 공항 비유 하나로 에이전트 설계를 바닥부터 — 들어온 요청을 누구에게 보내나(라우팅), 여럿을 어떤 순서로 잇고 누가 책임지나(오케스트레이션) — 를 배우고, 마지막 110분에 설계도 4장을 자연어 서식으로 쓰고 작업대(Claude Code)에 올려 요청 12건을 돌려 보고 한 줄 고친다",
@@ -1301,63 +1413,72 @@ export const frameworks = [
 
 export const usps = [
   {
+    title: "진단이 있다",
+    description: "10차 제출물로 수준을 보고 반을 나눕니다. 같은 강의를 모두에게 하지 않습니다",
+  },
+  {
+    title: "코딩 경험 불필요",
+    description: "앱·서비스·자동화 강의 전부 '코딩 무경험 OK'. 코드는 강의당 한 장만 보여줍니다",
+  },
+  {
+    title: "실제로 돌아가는 걸 해부한다",
+    description: "영상 자동화 공장, 채점기 앱 — 강사가 만들어 쓰는 것을 교보재로 펼칩니다",
+  },
+  {
     title: "공식이 있다",
-    description: "R-PCCO, I-MRKO, I/O 계약. 외워서 평생 쓸 수 있는 프레임워크"
+    description: "강의마다 외워서 평생 쓰는 프레임워크 하나 — R-PCCO부터 PILOT, 설계 질문 5까지 15개",
   },
   {
-    title: "즉시 실습",
-    description: "강의 30분이 실습. 듣기만 하지 않고 직접 만들어 간다"
+    title: "플랫폼 독립",
+    description: "Claude·ChatGPT·Gemini 어디든. Claude Code·GitHub·Supabase까지 실제 도구로",
   },
   {
-    title: "킬러 인사이트",
-    description: "예시의 함정, 지침 체인 설계 등 다른 강의에서 잘 안 다루는 주제"
+    title: "세 번째 재료에서 증명",
+    description: "한 번 듣고 끝이 아니라 재제출·재실행으로 굳힙니다. 실력은 두 번째 실행에서 늡니다",
   },
-  {
-    title: "플랫폼 독립적",
-    description: "Claude, ChatGPT, Gemini 어디든 적용. 심지어 코딩(CLAUDE.md)까지"
-  },
-  {
-    title: "시리즈 구조",
-    description: "1차(프롬프트) → 2차(지침)로 단계적 심화"
-  }
 ];
 
 export const faqs = [
   {
-    question: "프롬프트가 너무 길어지는데?",
-    answer: "결과가 좋으면 OK. 템플릿으로 저장해두면 됩니다. 그리고 2차 강의에서 배우는 '지침'을 활용하면 매번 길게 쓸 필요가 없어집니다."
+    question: "코딩을 한 번도 안 해봤는데요?",
+    answer: "괜찮습니다. 4차부터 9차까지 앱·서비스를 만드는 강의가 전부 코딩 무경험 기준입니다. 코드는 한 강의에 한 장만 봅니다.",
   },
   {
-    question: "ChatGPT vs Claude vs Gemini 차이?",
-    answer: "원리는 같습니다. Claude는 긴 문서/분석, ChatGPT는 창의, Gemini는 검색 연동에 강점이 있습니다. 이 강의의 R-PCCO, I-MRKO 공식은 모든 플랫폼에서 동일하게 작동합니다."
+    question: "초급반·중급반은 어떻게 정해지나요?",
+    answer: "10차에서 완성된 프로그램을 써보고 재현 프롬프트를 제출합니다. 제출물과 본인 희망을 합쳐 배정합니다.",
   },
   {
-    question: "회사 기밀 넣어도 되나요?",
-    answer: "절대 금지입니다. 기업용 보안 버전(Enterprise)에서만 사용하세요. 일반 버전은 학습 데이터로 사용될 수 있습니다."
+    question: "중간에 합류할 수 있나요?",
+    answer: "시작점이 세 곳입니다: 1차, 10차 진단, 외전. 외전은 이전 강의를 전제하지 않습니다.",
   },
   {
-    question: "지침이 너무 길어지는데요?",
-    answer: "섹션 헤더(## 정체성, ## 규칙)로 쪼개세요. 지식은 파일로 분리할 수 있습니다. 2차 강의에서 '4층 레이어링' 기법을 배웁니다."
+    question: "무엇을 들고 와야 하나요?",
+    answer: "1~10차는 노트북(폰으로도 가능), 17차부터는 Claude Code가 깔린 노트북. 18차는 노트북 불필요.",
   },
   {
-    question: "1차 강의만 들어도 되나요?",
-    answer: "물론입니다. 1차 강의만으로도 AI 활용 능력이 크게 향상됩니다. 하지만 같은 프롬프트를 반복해서 쓰고 계신다면 2차 강의에서 배우는 '지침 설계'가 필수입니다."
+    question: "강의 자료는 받을 수 있나요?",
+    answer: "자료실에서 전 차수 슬라이드와 워크시트를 바로 받습니다. 강사용 자료는 제외됩니다.",
   },
   {
-    question: "AI가 거짓말할 때 막을 수 있나요?",
-    answer: "일부 가능합니다. '불확실하면 모른다고 답해'라는 제약을 추가하세요. 하지만 최종 검증은 사람이 해야 합니다."
-  }
+    question: "Claude만 다루나요?",
+    answer: "원리는 플랫폼과 무관합니다. 실습 도구로 Claude·Claude Code를 쓰고, 프레임워크는 ChatGPT·Gemini에서 그대로 작동합니다.",
+  },
 ];
 
+/** 관통 메시지 — 단계 순서대로. "AI는 능력이 아니라 설계의 문제다 — 시키는 대상만 커진다" */
 export const quotes = [
-  "프롬프트는 AI의 능력이 아니라, 내 사고력의 증폭기다",
-  "AI가 잘못한 게 아닙니다. 프롬프트가 잘못한 겁니다",
-  "지침은 AI를 범용에서 전용으로 바꾸는 설정이다",
-  "지침은 규칙, 예시는 족쇄",
-  "체인의 성패는 지침이 아니라 지침 사이의 '접점'에 달렸다",
-  "뭐든 다 해주는 AI는 결국 뭐 하나 제대로 못 하는 AI다",
-  "생각을 구조화하는 사람이 AI를 지배한다"
+  { courseId: "course-1", text: "프롬프트는 AI의 능력이 아니라, 내 사고력의 증폭기다" },
+  { courseId: "course-5", text: "AI가 못하는 게 아니라, 전달이 부족한 겁니다" },
+  { courseId: "course-8", text: "자동화는 코드가 아니라 설계다" },
+  { courseId: "course-11", text: "그릴 수 없으면 시킬 수 없다" },
+  { courseId: "course-17", text: "AI는 화면을 만들고, 사용감은 사람이 시킨다" },
+  { courseId: "extra-1", text: "에이전트 설계는 코드가 아니라, 보내는 규칙과 잇는 규칙을 글로 쓰는 일이다" },
 ];
+
+/** phase(+track) 에 속한 강의 — 지도·필터·목록이 이걸로 그린다 */
+export function getPhaseCourses(phase: Phase, track?: Track) {
+  return courses.filter((c) => c.phase === phase && (track ? c.track === track : true));
+}
 
 // 강의 상세 내용
 export const courseDetails = [
