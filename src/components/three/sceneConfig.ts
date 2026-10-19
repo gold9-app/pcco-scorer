@@ -40,25 +40,26 @@ export const TETRIS = {
   tilt: 1,
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.92,
-  /** 유리 */
-  opacity: 0.82,
-  transmission: 0.35,
+  /** 유리 — 투명 캔버스 위라 transmission 대신 opacity 로 뒤(페이지)를 비춘다 */
+  opacity: 0.62,
+  transmission: 0,
   thickness: 0.4,
-  roughness: 0.18,
+  roughness: 0.1,
 };
 
 export const LIGHTS = {
-  ambient: 0.7,
-  key: 2.2,
-  fill: 0.9,
-  rim: 1.4,
+  ambient: 0.8,
+  key: 1.3,
+  fill: 0.6,
+  rim: 1.0,
 };
 
 export const MATERIAL = {
-  /** 노트북 유리 — three 내장 physical. Step 3 에서 MeshTransmissionMaterial 로 교체 */
-  transmission: 1,
+  /** 노트북 유리 — 투명 캔버스 위라 transmission 은 뿌옇게 날아간다 → opacity 로 비추고 clearcoat 로 반짝임 */
+  opacity: 0.4,
+  transmission: 0,
   thickness: 0.6,
-  roughness: 0.12,
+  roughness: 0.06,
   ior: 1.45,
   clearcoat: 1,
 };
@@ -66,6 +67,6 @@ export const MATERIAL = {
 export const RENDER = {
   dpr: [1, 1.5] as [number, number],
   shadows: true,
-  envPreset: "studio" as const,
-  envIntensity: 1.0,
+  envPreset: "city" as const,
+  envIntensity: 0.9,
 };

@@ -36,7 +36,7 @@ const TWO_O: Proto[] = [
 ];
 
 /** 청량한 유리 틴트 — 아이스블루 · 민트 · 라일락 · 살구 */
-export const TINTS = ["#bfe3f7", "#c6efe6", "#d8d6f5", "#ffd6be"];
+export const TINTS = ["#8fcdf2", "#9fe3d2", "#bdb6f0", "#ffbf9b"];
 
 /**
  * cols 열 × rows 행(4의 배수로 올림)을 채우는 조각 목록.

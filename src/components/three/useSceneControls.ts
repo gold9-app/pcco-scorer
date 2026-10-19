@@ -40,6 +40,7 @@ export function useSceneControls() {
   });
 
   const material = useControls("노트북 유리", {
+    opacity: { value: MATERIAL.opacity, min: 0.05, max: 1, step: 0.01 },
     transmission: { value: MATERIAL.transmission, min: 0, max: 1, step: 0.01 },
     thickness: { value: MATERIAL.thickness, min: 0, max: 3, step: 0.05 },
     roughness: { value: MATERIAL.roughness, min: 0, max: 1, step: 0.01 },

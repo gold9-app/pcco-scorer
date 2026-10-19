@@ -25,7 +25,10 @@ export default function Home() {
       <HashRedirect />
       <GlassStage />
       <HeroSection />
-      <EntryPoints />
+      {/* 화면이 다 차오르는 순간 첫 패널이 바로 따라 올라오도록 히어로 끝과 겹친다 */}
+      <div className="-mt-[42svh]">
+        <EntryPoints />
+      </div>
       <SeriesMap />
       <ThroughLine />
       <CourseIndex />

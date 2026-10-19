@@ -68,9 +68,11 @@ function GlassPiece({ piece, layout, scroll, controls }: { piece: Piece; layout:
   useFrame((_, dt) => {
     const g = group.current;
     if (!g) return;
-    // 조각 i 는 content 진행도 [i/N, (i+1)/N] 동안 떨어진다 (overlap 만큼 다음 조각과 겹쳐서 흐름이 끊기지 않게)
-    const p = scroll.current.content * N;
-    const target = THREE.MathUtils.clamp((p - piece.index) / (1 + tetris.overlap) + tetris.overlap * 0.5, 0, 1);
+    // 조각 i 는 content 진행도 start_i 에서 떨어지기 시작해 d 만큼 지나 착지한다.
+    // 첫 조각은 content 0 에서 출발, 마지막 조각은 content 1 에서 정확히 착지. overlap 이 클수록 여러 조각이 동시에 떨어진다.
+    const d = (1 + tetris.overlap) / N;
+    const start = N > 1 ? (piece.index * (1 - d)) / (N - 1) : 0;
+    const target = THREE.MathUtils.clamp((scroll.current.content - start) / d, 0, 1);
     t.current += (target - t.current) * (1 - Math.exp(-dt * tetris.follow));
     const k = easeOutCubic(t.current);
     g.position.set(cx, cy + layout.startAbove * (1 - k), 0);
@@ -94,9 +96,9 @@ function GlassPiece({ piece, layout, scroll, controls }: { piece: Piece; layout:
             roughness={tetris.roughness}
             ior={1.4}
             clearcoat={1}
-            clearcoatRoughness={0.15}
-            attenuationColor={piece.tint}
-            attenuationDistance={2}
+            clearcoatRoughness={0.12}
+            envMapIntensity={1.1}
+            depthWrite={false}
           />
         </RoundedBox>
       ))}
