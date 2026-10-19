@@ -6,11 +6,11 @@
 
 export const CAMERA = {
   /** 카메라-원점 거리 */
-  distance: 6.2,
-  /** 위에서 내려다보는 각도 (deg). 0 = 정면, 90 = 바로 위 */
-  elevation: 18,
+  distance: 6.4,
+  /** 위에서 내려다보는 각도 (deg). 0 = 정면, 90 = 바로 위. 테트리스 기둥이 서 있게 보이려면 낮게 */
+  elevation: 12,
   /** 좌우 회전 (deg) */
-  azimuth: -22,
+  azimuth: -14,
   fov: 32,
 };
 
@@ -28,8 +28,6 @@ export const LAPTOP = {
   liftHeight: 0.18,
   /** 열렸을 때 본체 기울기 (deg, x축) */
   liftTilt: -4,
-  /** 페이지 로드 후 자동으로 열리기까지 지연 (ms) */
-  autoOpenDelay: 900,
   /** 본체 치수 */
   width: 3.0,
   depth: 2.05,
@@ -72,4 +70,17 @@ export const RENDER = {
   /** drei Environment preset — 로컬 HDR 이 생기면 files 로 교체 */
   envPreset: "studio" as const,
   envIntensity: 1.0,
+};
+
+export const TETRIS = {
+  /** 칸 크기 배율 (기본 칸은 뷰포트 여백에 맞춰 자동 계산) */
+  cellScale: 1,
+  /** 스크롤 스크럽을 따라가는 속도 — 클수록 즉각적 */
+  follow: 7,
+  /** 떨어질 때 기우는 정도 배율 */
+  tilt: 1,
+  /** 유리 */
+  transmission: 0.95,
+  thickness: 0.5,
+  roughness: 0.14,
 };

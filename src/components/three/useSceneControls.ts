@@ -1,7 +1,7 @@
 "use client";
 
 import { useControls, folder } from "leva";
-import { CAMERA, SPRING, LAPTOP, CONTROLS, LIGHTS, MATERIAL, RENDER } from "./sceneConfig";
+import { CAMERA, SPRING, LAPTOP, CONTROLS, LIGHTS, MATERIAL, RENDER, TETRIS } from "./sceneConfig";
 
 /**
  * leva 패널 — sceneConfig 의 기본치를 초기값으로 노출.
@@ -53,7 +53,16 @@ export function useSceneControls() {
     clearcoat: { value: MATERIAL.clearcoat, min: 0, max: 1, step: 0.05 },
   });
 
-  return { camera, laptop, spring, controls, lights, material };
+  const tetris = useControls("테트리스", {
+    cellScale: { value: TETRIS.cellScale, min: 0.6, max: 1.6, step: 0.05 },
+    follow: { value: TETRIS.follow, min: 2, max: 20, step: 0.5 },
+    tilt: { value: TETRIS.tilt, min: 0, max: 3, step: 0.1 },
+    transmission: { value: TETRIS.transmission, min: 0, max: 1, step: 0.01 },
+    thickness: { value: TETRIS.thickness, min: 0, max: 2, step: 0.05 },
+    roughness: { value: TETRIS.roughness, min: 0, max: 1, step: 0.01 },
+  });
+
+  return { camera, laptop, spring, controls, lights, material, tetris };
 }
 
 export type SceneControls = ReturnType<typeof useSceneControls>;

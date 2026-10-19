@@ -60,3 +60,6 @@ next-env.d.ts
 /개인강의/
 # wrangler 로컬 캐시
 .wrangler/
+
+# dev server log
+dev.log
