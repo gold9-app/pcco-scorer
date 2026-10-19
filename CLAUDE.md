@@ -1,7 +1,17 @@
-# AI 채점기 (R-PCCO & I-MRKO Scorer)
+# AI 활용 실전 시리즈 — 강의 랜딩·자료실·실습서
+
+> ## ⚠️ 2026-10-19 — 채점기 제거 · Cloudflare 정적 이관 (현재 상태)
+> - **채점기(`/practice`·`/host`·`/play`·`/api/score/*`)는 제거됨.** Claude API·Supabase·rateLimit·세션·리더보드 코드 전부 삭제.
+>   마지막 상태는 git 태그 **`scorer-last`** (커밋 `803a724`). 복구: `git checkout scorer-last`
+> - 남은 것: 랜딩(`/`) · 자료실(`/downloads`) · 실습서(`/workbook`) · PWA. **외부 API·DB·환경 변수 없음.**
+> - 배포: **Cloudflare Workers (Static Assets)** — `next build` (`output: "export"`) → `out/` → `npx wrangler deploy`.
+>   GitHub `gold9-app/pcco-scorer` `master` 푸시 = 자동 배포. URL `https://pcco-landing.kumgoo0913.workers.dev`
+> - 아래 문서의 채점기·Railway·Supabase 관련 서술은 **히스토리**다. "채점 모드 추가 시 영향 받는 파일" 체크리스트 등은 `scorer-last` 기준.
+> - 상세: 아래 「Cloudflare 이관 + 채점기 제거 (2026-10-19)」 절, `docs/DEPLOY.md`
 
 ## 프로젝트 개요
-AI 프롬프트 강의용 자동 채점 PWA + 강의 소개 랜딩 페이지.
+AI 프롬프트 강의 시리즈의 강의 소개 랜딩 + 복습 섹션 + 자료실 + 실습서 (정적 사이트, PWA).
+(2026-10-19 이전: 자동 채점 PWA + 랜딩 — 아래 히스토리 참고)
 
 ### 주요 기능
 1. **강의 소개 랜딩 페이지** (`/`)
@@ -38,10 +48,9 @@ Claude Sonnet 4.6 모델을 활용한 실시간 채점과 리더보드를 제공
 ## 기술 스택
 - **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS 4, shadcn/ui
 - **Animation**: Framer Motion (랜딩 페이지)
-- **AI**: Anthropic SDK (Claude Sonnet 4.6 - `claude-sonnet-4-6`)
-- **Backend**: Supabase (Database & Realtime)
-- **Deployment**: Railway
-- **PWA**: Service Worker (수동 구현, 자동 업데이트 지원)
+- **AI / Backend**: ~~Anthropic SDK · Supabase~~ — 2026-10-19 제거 (`scorer-last` 참고)
+- **Deployment**: Cloudflare Workers — Static Assets 모드 (`wrangler.jsonc`, `output: "export"`). ~~Railway~~
+- **PWA**: Service Worker (수동 구현, 자동 업데이트 지원 — 버전 주입은 `postbuild` 가 `out/sw.js` 에만)
 
 ## 폴더 구조
 ```
@@ -494,6 +503,19 @@ public/                    # 정적 파일
    - 수강생용만: `slides.pdf` · `screen-worksheet.docx`(화면도) · `screen-glossary.docx`(화면 용어사전). **courseId는 `course-12`**, label "14차". 12차 그룹(c12)은 2026-08-21에 이미 있었고 이제 랜딩 course-12가 생겨 "복습 보기" 링크가 살아남
    - 러닝시트·강사원본·인수인계·기획안은 배포 금지 원칙 그대로
 
+### Cloudflare 이관 + 채점기 제거 (2026-10-19)
+
+1. **결정** — 채점기(1~4·10차 채점 모드, 세션·리더보드)를 더 이상 쓰지 않기로 확정. 랜딩·자료실·실습서만 남기고 **정적 사이트**로 전환 → 서버·API·DB·환경 변수 0. Railway → **Cloudflare Workers (Static Assets)**. 디자인·UX 빌드업은 이관 완료 후 별도 작업으로.
+2. **안전장치** — 채점기 포함 마지막 커밋 `803a724` 에 태그 **`scorer-last`** (gold9-app·thenext0202 양쪽 푸시). `.gitignore` 에 실습서 암호 없는 원본(`강의자료/*.html`)·비번 메모(`강의자료/*비번*.txt`)·`/개인강의/`·`.wrangler/` 추가
+3. **삭제 (34파일)** — `src/app/api`·`practice`·`host`·`play` / `*Scorer`·`*ScoreResult` 컴포넌트 10개 + `ui/sonner` / `lib` 의 `*ScoringPrompt`·`scoreSchema`·`mockScore`·`rateLimit`·`sessionApi`·`supabase`·`env` / `types/score`·`session` / `.env.local.example`·`railway.json`. 패키지 제거: `@anthropic-ai/sdk`·`@supabase/supabase-js`·`qrcode.react`·`zod`·`sonner`. `docs/` 의 루브릭·스키마·OPERATIONS 는 히스토리로 보존
+4. **참조 정리** — `page.tsx` 푸터 "실습 앱 사용하기" 링크 제거, `layout.tsx` Toaster 제거, PWA 명칭 "AI 채점기 / R-PCCO Scorer" → **"AI 활용 실전 시리즈"** (manifest·offline·install·InstallPrompt). `themeColor`/`viewport` 를 `metadata` 에서 `viewport` export 로 이동 (빌드 경고 0)
+5. **정적 export** — `next.config.ts`: `output: "export"` + `images.unoptimized`, `rewrites()` 제거. 실습서 주소는 **`public/_redirects`** 로 대체: `/workbook/:slug  /workbooks/:slug  200`. ★ 목적지에 `.html` 을 붙이면 Cloudflare 확장자 제거 규칙과 충돌해 **308** 이 난다 — 확장자 없이 쓸 것
+6. **Cloudflare 설정** — `wrangler.jsonc` (`name: pcco-landing`, `assets.directory: ./out`, `html_handling: auto-trailing-slash`, `not_found_handling: 404-page`). 대시보드: 저장소 `gold9-app/pcco-scorer`, 프로덕션 브랜치 `master`, 빌드 `npm run build`, 배포 `npx wrangler deploy`, `NODE_VERSION=22`. Pages 가 아니라 **Workers Git 연동**(계정의 다른 프로젝트와 동일 방식). 로컬 검증은 `npx wrangler dev` (`_redirects` 포함 실제 런타임)
+7. **★ sw.js 버전 주입 버그 수정** — 기존 `prebuild` 가 `public/sw.js` **원본**의 플레이스홀더를 덮어써 커밋돼 있었음 → CI 에서 "주입 완료" 로그가 찍혀도 실제론 5월 타임스탬프 고정 → 배포해도 PWA 캐시 이름 불변. **`postbuild` 로 바꿔 `out/sw.js` 에만 주입**, 원본은 `BUILD_TIMESTAMP_PLACEHOLDER` 유지 (플레이스홀더 없으면 스크립트가 실패하도록 가드)
+8. **원격 정리** — gold9-app 이 메인: `origin` = `gold9-app/pcco-scorer`, `personal` = `thenext0202/pcco-scorer` (더 이상 푸시 안 함). 이관 중 임시로 쓴 `cloudflare` 브랜치는 프로덕션 브랜치를 `master` 로 전환한 뒤 삭제
+9. **보류** — Railway 서비스는 삭제 못 함(워크스페이스 Admin 계정 불일치로 버튼 비활성). 옛 주소에서 채점기가 API 키와 함께 계속 동작 중 — 필요 시 Railway `Variables` 에서 `ANTHROPIC_API_KEY` 삭제로 차단 가능. 서브도메인(`kumgoo0913`)·프로젝트명 변경은 다른 PWA 가 설치돼 있어 **하지 않기로** 결정
+10. **문서** — README·`docs/DEPLOY.md` 를 Cloudflare 기준으로 전면 재작성. CLAUDE.md 는 상단 배너 + 이 절 + 기술스택·환경변수·배포정보만 갱신 (차수별 히스토리는 그대로)
+
 ## 코딩 규칙
 - TypeScript strict mode 사용
 - 함수형 컴포넌트 사용
@@ -638,7 +660,7 @@ Conventional Commits 준수:
 
 **⚠️ 중요**: 이 프로젝트는 **지속적으로 강의가 추가되는 플랫폼**입니다.
 - 현재: R-PCCO(1차), I-MRKO(2차), SSDHR(3차), 바이브 코딩(4차), AI 자동화 이해(5차), Claude Code 실전(6차), PWA(7차), 자동화 설계 PILOT(8차), 진짜 서비스 만들기(9차), 프롬프트 역설계(10차), 그린다·레이어 4겹(11차 초급반 1강), 개발 지도 3층(12차 중급반 1강), 쓴다·변환표 4줄(13차 초급반 2강 — course-11 Part 5로 랜딩 반영), 화면 해부 4단(14차 중급반 2강 — 12차와 함께 course-12로 랜딩 반영), 굳힌다·I-MRKO 지침(15차 초급반 3강 — course-11 Part 6으로 랜딩 반영), 창고 해부 4단(16차 중급반 3강 — course-16 카드로 랜딩 반영), 설계 질문 5(17차 전체 강의·합반·OT — UX + github.io PWA — course-17 카드로 랜딩 반영) — 강의 자료 17개
-- 채점 모드는 5종: 1~4차(prompt·instruction·image·vibe) + 10차(reverse). 5~9·11차는 랜딩만 (11차는 채점 미사용이 설계 의도 — 워크시트+상호리뷰)
+- ~~채점 모드는 5종~~ **→ 2026-10-19 채점기 전체 제거 (`scorer-last`)**. 이하 "채점 모드" 서술은 히스토리: 1~4차(prompt·instruction·image·vibe) + 10차(reverse). 5~9·11차는 랜딩만 (11차는 채점 미사용이 설계 의도 — 워크시트+상호리뷰)
 - 11차부터 초급반(11·13·15차)/중급반(12·14·16차) 격주 교차 체계. 랜딩은 **매 차수 = 카드 1개(course-N)** (2026-09-10 확정 — 이전 "반별로 course 하나에 Part로 묶기" 방식은 폐기, 13·14·15차 분리 완료). 중급반은 채점 미사용(강의+숙제: 구조도·화면도·데이터도). **13차는 채점 미사용으로 확정**(claude.ai Artifacts 직접 실행, 2026-08-25) — 재제출 루프는 플랫폼에 남아 있어 이후 회차 재활용 가능. **15차도 채점 미사용으로 확정**(2026-09-09 — claude.ai 프로젝트 지침 등록 + 재료 3개 시험). 초급반 3회 모두 플랫폼 채점 없이 진행됨 — 새 채점 모드 불필요. **17차(2026-10-01)부터 합반·새 형식**(실습 절반·강의 절반·과제 선택, 도구 = Claude Code + GitHub Pages, 템플릿 없이 자유도 + 서포트, 매 강의가 수강생의 '작업실' 폴더·저장소에서 시작) — 채점 미사용, 제출은 슬랙 링크. 다음 강의 예고 = '창고 연결'(일정 미정)
 - 앞으로 새로운 강의가 계속 추가될 예정
 - 확장 가능한 구조로 설계 필요
@@ -861,12 +883,13 @@ className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
 - 24시간 후 자동 만료
 
 ## 환경 변수
-`.env.local` 파일에 다음 변수 설정 필요:
-- `ANTHROPIC_API_KEY`: Claude API 키
-- `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key
+**없음** (2026-10-19~). 정적 사이트라 런타임 환경 변수가 필요 없다.
+Cloudflare 빌드 설정에 `NODE_VERSION=22` 하나만 등록되어 있다 (빌드 도구 버전 지정용).
+~~`ANTHROPIC_API_KEY` · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY`~~ — 채점기 제거로 불필요
 
 ## 배포 정보
-- **플랫폼**: Railway
-- **URL**: https://pcco-scorer-production.up.railway.app/
-- **Git**: 자동 배포 (main 브랜치 push 시)
+- **플랫폼**: Cloudflare Workers (Static Assets) — 프로젝트 `pcco-landing`
+- **URL**: https://pcco-landing.kumgoo0913.workers.dev
+- **Git**: `gold9-app/pcco-scorer` (`origin`) `master` 푸시 시 자동 빌드·배포. 다른 브랜치 푸시 = 미리보기 URL
+- **빌드**: `npm run build` (→ `out/`) → `npx wrangler deploy`. 상세 `docs/DEPLOY.md`
+- ~~Railway `pcco-scorer-production.up.railway.app` — thenext0202 저장소(`personal` 원격)의 `803a724` 를 서빙 중. 삭제 보류(워크스페이스 권한 문제). 더 이상 푸시하지 않음~~
