@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "tsx scripts/inject-sw-version.ts",
     "build": "next build",
+    "postbuild": "tsx scripts/inject-sw-version.ts",
     "start": "next start",
     "lint": "eslint",
     "gen:icons": "tsx scripts/generate-icons.ts",

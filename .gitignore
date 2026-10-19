@@ -58,3 +58,5 @@ next-env.d.ts
 
 # 개인 강의 자료 (공개 리포에 미포함)
 /개인강의/
+# wrangler 로컬 캐시
+.wrangler/
