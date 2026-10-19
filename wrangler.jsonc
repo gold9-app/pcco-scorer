@@ -1,0 +1,15 @@
+// Cloudflare Workers 설정 — 정적 자산(Static Assets) 모드
+// next build (output: "export") 결과물 out/ 을 그대로 서빙한다. Worker 코드 없음.
+// public/_redirects · public/_headers 는 out/ 으로 복사되어 그대로 적용된다.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pcco-landing",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./out",
+    // /foo 요청 → foo.html, /foo/ → foo/index.html 자동 매핑 (Pages 와 동일 동작)
+    "html_handling": "auto-trailing-slash",
+    // 없는 주소는 out/404.html 로 응답
+    "not_found_handling": "404-page"
+  }
+}
