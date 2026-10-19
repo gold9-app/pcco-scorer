@@ -1,6 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
@@ -15,20 +14,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#3b82f6",
+};
+
 export const metadata: Metadata = {
   title: "AI 활용 실전 시리즈 강의 - 정금구",
-  description: "프롬프트(R-PCCO)와 지침(I-MRKO)을 AI로 자동 채점합니다.",
+  description: "AI 활용 실전 시리즈 — 강의 소개·복습·자료실·실습서.",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    viewportFit: "cover",
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AI채점기",
+    title: "AI 실전 강의",
   },
   icons: {
     icon: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "AI 활용 실전 시리즈 강의 - 정금구",
-    description: "프롬프트(R-PCCO)와 지침(I-MRKO)을 AI로 자동 채점받기",
+    description: "AI 활용 실전 시리즈 — 강의 소개·복습·자료실·실습서",
     type: "website",
     locale: "ko_KR",
   },
@@ -59,7 +59,6 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <Toaster />
         <ServiceWorkerRegister />
         <InstallPrompt />
       </body>

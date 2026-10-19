@@ -71,16 +71,6 @@ export default function Home() {
         <p className="text-sm sm:text-base text-text-muted mt-2">이전 강의를 듣지 않았어도 들을 수 있습니다.</p>
       </div>
       <CourseDetail courseId="extra-1" />
-
-      {/* Footer — 실습 앱 링크 (작게) */}
-      <footer className="py-10 px-6 text-center">
-        <a
-          href="/practice"
-          className="text-xs text-text-muted/60 hover:text-accent-primary underline underline-offset-4 transition-colors"
-        >
-          실습 앱 사용하기
-        </a>
-      </footer>
     </main>
   );
 }

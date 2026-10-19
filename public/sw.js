@@ -1,4 +1,4 @@
-// R-PCCO Scorer Service Worker
+// AI 활용 실전 시리즈 Service Worker
 // 수동 구현, 최소 기능만 포함
 
 // 빌드 시마다 자동으로 변경되는 버전 (타임스탬프 기반)

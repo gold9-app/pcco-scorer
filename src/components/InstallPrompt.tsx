@@ -87,7 +87,7 @@ export default function InstallPrompt() {
               📱 앱으로 설치하기
             </h3>
             <p className="text-sm text-slate-600">
-              R-PCCO Scorer를 홈 화면에 추가하고 언제든 빠르게 접속하세요!
+              AI 활용 실전 시리즈를 홈 화면에 추가하고 언제든 빠르게 접속하세요!
             </p>
           </div>
           <div className="flex gap-2">

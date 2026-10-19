@@ -12,7 +12,7 @@ export default function InstallPage() {
             📱 앱 설치 가이드
           </h1>
           <p className="text-slate-600">
-            R-PCCO Scorer를 홈 화면에 추가하고 편하게 사용하세요
+            AI 활용 실전 시리즈를 홈 화면에 추가하고 편하게 사용하세요
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export default function InstallPage() {
           <CardContent className="space-y-4">
             <ol className="space-y-3 list-decimal list-inside text-slate-700">
               <li>
-                Safari에서 R-PCCO Scorer 웹사이트를 엽니다
+                Safari에서 AI 활용 실전 시리즈 웹사이트를 엽니다
               </li>
               <li>
                 화면 하단의 <strong>공유 버튼</strong> (
@@ -66,7 +66,7 @@ export default function InstallPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ol className="space-y-3 list-decimal list-inside text-slate-700">
-              <li>Chrome 브라우저에서 R-PCCO Scorer를 엽니다</li>
+              <li>Chrome 브라우저에서 AI 활용 실전 시리즈를 엽니다</li>
               <li>
                 화면 상단 주소창 옆의 <strong>메뉴 버튼</strong> (⋮)을
                 탭합니다
@@ -99,7 +99,7 @@ export default function InstallPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ol className="space-y-3 list-decimal list-inside text-slate-700">
-              <li>Chrome 또는 Edge 브라우저에서 R-PCCO Scorer를 엽니다</li>
+              <li>Chrome 또는 Edge 브라우저에서 AI 활용 실전 시리즈를 엽니다</li>
               <li>
                 주소창 오른쪽의 <strong>설치 아이콘</strong> (
                 <span className="inline-block px-2 py-1 bg-slate-200 rounded text-sm">
@@ -108,7 +108,7 @@ export default function InstallPage() {
                 )을 클릭합니다
               </li>
               <li>
-                또는 주소창 오른쪽 메뉴(⋮) → "R-PCCO Scorer 설치..."를
+                또는 주소창 오른쪽 메뉴(⋮) → "AI 활용 실전 시리즈 설치..."를
                 선택합니다
               </li>
               <li>설치 확인 대화상자에서 "설치"를 클릭합니다</li>

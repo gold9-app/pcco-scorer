@@ -1,7 +1,7 @@
 {
-  "name": "AI 채점기 - 프롬프트 & 지침",
-  "short_name": "AI채점기",
-  "description": "프롬프트(R-PCCO)와 지침(I-MRKO)을 AI로 자동 채점받기",
+  "name": "AI 활용 실전 시리즈 강의",
+  "short_name": "AI 실전 강의",
+  "description": "강의 소개·복습·자료실·실습서",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
