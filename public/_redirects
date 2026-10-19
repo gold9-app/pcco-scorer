@@ -1,4 +1,6 @@
-# Cloudflare Pages 라우팅 규칙
-# 상태코드 200 = rewrite (주소창은 그대로, 내용만 바꿔치기)
-# 실습서: /workbook/{slug} → public/workbooks/{slug}.html
-/workbook/:slug  /workbooks/:slug.html  200
+# Cloudflare Pages routing rules
+# 200 = rewrite (URL stays, content is swapped)
+# workbook: /workbook/{slug} -> public/workbooks/{slug}.html
+# NOTE: do NOT append .html to the target - Pages' extension-stripping rule turns it into a 308.
+#       Without the extension Pages resolves workbooks/{slug}.html by itself.
+/workbook/:slug  /workbooks/:slug  200
