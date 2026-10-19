@@ -1,9 +1,10 @@
 /**
- * 유리 테트리스 — 뷰포트 전체를 우물로 쓴다.
+ * 유리 테트리스 — 블록은 정확히 20개 (강의 19회 + 마지막 한 칸 "당신의 자리").
  *
- * 4열 묶음은 I·O·J·L 네 조각으로 4×4 를 빈틈없이 채우는 배치(PACK4)와 그 좌우 반전을 번갈아 쓰고,
- * 남는 2열은 O 두 개로 채운다. 열 수 4·6·8 어디서나 "딱 맞게" 채워진다.
- * 좌표: col 왼→오, row 아래→위. 조각 순서 = 낙하 순서 (아래 조각이 먼저).
+ * 20 조각 × 4 칸 = 80 칸. 화면 비율에 맞춰 80칸 우물(20×4 · 16×5 · 10×8 · 8×10 · 4×20)을 고르고,
+ * 칸 크기는 우물이 뷰포트 안에 들어오는 최대값. 아래부터 쌓여 마지막 조각이 맨 위를 "딱" 채운다.
+ *
+ * 좌표: col 왼→오, row 아래→위. 조각 순서 = 낙하 순서 (아래 띠가 먼저, 띠 안에서는 묶음을 번갈아).
  */
 
 export type Cell = [col: number, row: number];
@@ -22,7 +23,7 @@ interface Proto {
   cells: Cell[];
 }
 
-// 4×4 완전 채움 (아래→위 낙하 가능 순서)
+/** 4×4 완전 채움 — 아래→위 낙하 가능 순서 */
 const PACK4: Proto[] = [
   { name: "I", cells: [[0, 0], [0, 1], [0, 2], [0, 3]] },
   { name: "O", cells: [[1, 0], [2, 0], [1, 1], [2, 1]] },
@@ -30,29 +31,69 @@ const PACK4: Proto[] = [
   { name: "L", cells: [[1, 2], [1, 3], [2, 3], [3, 3]] },
 ];
 const MIRROR4: Proto[] = PACK4.map((p) => ({ name: p.name, cells: p.cells.map(([c, r]) => [3 - c, r] as Cell) }));
+/** 2열×4행 — O 둘 */
 const TWO_O: Proto[] = [
   { name: "O", cells: [[0, 0], [1, 0], [0, 1], [1, 1]] },
   { name: "O", cells: [[0, 2], [1, 2], [0, 3], [1, 3]] },
 ];
+/** 2열×2행 — O 하나 */
+const ONE_O: Proto = { name: "O", cells: [[0, 0], [1, 0], [0, 1], [1, 1]] };
+/** 4열×1행 — I 가로 */
+const FLAT_I: Proto = { name: "I", cells: [[0, 0], [1, 0], [2, 0], [3, 0]] };
 
-/** 청량한 유리 틴트 — 아이스블루 · 민트 · 라일락 · 살구 */
+/** 청량한 유리 틴트 */
 export const TINTS = ["#8fcdf2", "#9fe3d2", "#bdb6f0", "#ffbf9b"];
 
+export const PIECE_COUNT = 20;
+export const WELLS: [cols: number, rows: number][] = [
+  [20, 4],
+  [16, 5],
+  [10, 8],
+  [8, 10],
+  [4, 20],
+];
+
+/** 뷰포트 비율(h/w)에 가장 가까운 80칸 우물 */
+export function pickWell(vw: number, vh: number): [cols: number, rows: number] {
+  const target = Math.log(vh / vw);
+  let best = WELLS[2];
+  let bestD = Infinity;
+  for (const w of WELLS) {
+    const d = Math.abs(Math.log(w[1] / w[0]) - target);
+    if (d < bestD) {
+      bestD = d;
+      best = w;
+    }
+  }
+  return best;
+}
+
 /**
- * cols 열 × rows 행(4의 배수로 올림)을 채우는 조각 목록.
- * 띠(4행)마다 4열 묶음의 배치를 번갈아 반전시켜 같은 무늬가 반복되지 않게 한다.
+ * cols × rows 를 채우는 조각 목록. rows = 4의 배수 + (0 | 1 | 2).
+ * 4행 띠는 PACK4/MIRROR4 묶음(+남는 2열은 O 둘), 2행 띠는 O, 1행 띠는 I 가로 (cols 가 4의 배수일 때).
  */
 export function buildWell(cols: number, rows: number): Piece[] {
-  const bands = Math.ceil(rows / 4);
-  const groups4 = Math.floor(cols / 4);
-  const rest = cols - groups4 * 4; // 0 또는 2 (cols 는 짝수 전제)
   const pieces: Piece[] = [];
   let idx = 0;
+  const push = (p: Proto, x0: number, r0: number, band: number) => {
+    pieces.push({
+      index: idx,
+      name: p.name,
+      cells: p.cells.map(([c, r]) => [c + x0, r + r0] as Cell),
+      tint: TINTS[(idx * 7 + band) % TINTS.length],
+      tilt: (idx % 2 === 0 ? 1 : -1) * (0.04 + (idx % 3) * 0.015),
+    });
+    idx++;
+  };
 
-  for (let b = 0; b < bands; b++) {
+  const fullBands = Math.floor(rows / 4);
+  const remainder = rows - fullBands * 4;
+  const groups4 = Math.floor(cols / 4);
+  const rest = cols - groups4 * 4; // 0 | 2
+
+  for (let b = 0; b < fullBands; b++) {
     const r0 = b * 4;
     const slots: { x0: number; protos: Proto[] }[] = [];
-    // 띠마다 2열 O 묶음의 위치를 좌/우로 바꿔 무늬를 깬다
     const restLeft = rest === 2 && b % 2 === 1;
     let x = restLeft ? 2 : 0;
     if (restLeft) slots.push({ x0: 0, protos: TWO_O });
@@ -61,36 +102,27 @@ export function buildWell(cols: number, rows: number): Piece[] {
       x += 4;
     }
     if (rest === 2 && !restLeft) slots.push({ x0: x, protos: TWO_O });
-
-    // 같은 띠 안에서는 낙하 순서를 섞어 좌→우로만 쌓이지 않게 한다 (각 묶음의 k번째 조각끼리 번갈아)
     const maxLen = Math.max(...slots.map((s) => s.protos.length));
-    for (let k = 0; k < maxLen; k++) {
-      for (const s of slots) {
-        const p = s.protos[k];
-        if (!p) continue;
-        pieces.push({
-          index: idx,
-          name: p.name,
-          cells: p.cells.map(([c, r]) => [c + s.x0, r + r0] as Cell),
-          tint: TINTS[(idx * 7 + b) % TINTS.length],
-          tilt: (idx % 2 === 0 ? 1 : -1) * (0.04 + (idx % 3) * 0.015),
-        });
-        idx++;
-      }
-    }
+    for (let k = 0; k < maxLen; k++) for (const s of slots) if (s.protos[k]) push(s.protos[k], s.x0, r0, b);
   }
+
+  const r0 = fullBands * 4;
+  if (remainder === 2) for (let x = 0; x < cols; x += 2) push(ONE_O, x, r0, fullBands);
+  if (remainder === 1) for (let x = 0; x < cols; x += 4) push(FLAT_I, x, r0, fullBands);
+
   return pieces;
 }
 
-/** 검증 — 모든 칸이 한 번씩만 채워지는지 */
-export function validateWell(cols: number, rows: number): boolean {
+/** 검증 — 모든 칸이 한 번씩, 조각 수가 맞는지 */
+export function validateWell(cols: number, rows: number): { ok: boolean; pieces: number; cells: number } {
   const pieces = buildWell(cols, rows);
   const seen = new Set<string>();
+  let ok = true;
   for (const p of pieces)
     for (const [c, r] of p.cells) {
       const k = `${c},${r}`;
-      if (seen.has(k) || c < 0 || c >= cols || r < 0) return false;
+      if (seen.has(k) || c < 0 || c >= cols || r < 0 || r >= rows) ok = false;
       seen.add(k);
     }
-  return seen.size === cols * Math.ceil(rows / 4) * 4;
+  return { ok: ok && seen.size === cols * rows, pieces: pieces.length, cells: seen.size };
 }

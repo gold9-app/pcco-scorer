@@ -15,19 +15,17 @@ export function useSceneControls() {
     restY: { value: LAPTOP.restY, min: -2.5, max: 1, step: 0.05 },
     restTiltX: { value: LAPTOP.restTiltX, min: -10, max: 45, step: 1 },
     restTiltY: { value: LAPTOP.restTiltY, min: -60, max: 60, step: 1 },
-    fillOverscan: { value: LAPTOP.fillOverscan, min: 0.9, max: 1.4, step: 0.01 },
+    introDelay: { value: LAPTOP.introDelay, min: 0, max: 3, step: 0.1 },
+    introDuration: { value: LAPTOP.introDuration, min: 0.4, max: 4, step: 0.1 },
   });
 
   const tetris = useControls("테트리스", {
     cellScale: { value: TETRIS.cellScale, min: 0.6, max: 1.4, step: 0.05 },
     depth: { value: TETRIS.depth, min: -4, max: 0.5, step: 0.1 },
     follow: { value: TETRIS.follow, min: 2, max: 20, step: 0.5 },
-    overlap: { value: TETRIS.overlap, min: 0, max: 1.5, step: 0.05 },
     tilt: { value: TETRIS.tilt, min: 0, max: 3, step: 0.1 },
     gap: { value: TETRIS.gap, min: 0.7, max: 1, step: 0.01 },
     opacity: { value: TETRIS.opacity, min: 0.2, max: 1, step: 0.02 },
-    transmission: { value: TETRIS.transmission, min: 0, max: 1, step: 0.01 },
-    thickness: { value: TETRIS.thickness, min: 0, max: 2, step: 0.05 },
     roughness: { value: TETRIS.roughness, min: 0, max: 1, step: 0.01 },
   });
 
@@ -41,8 +39,6 @@ export function useSceneControls() {
 
   const material = useControls("노트북 유리", {
     opacity: { value: MATERIAL.opacity, min: 0.05, max: 1, step: 0.01 },
-    transmission: { value: MATERIAL.transmission, min: 0, max: 1, step: 0.01 },
-    thickness: { value: MATERIAL.thickness, min: 0, max: 3, step: 0.05 },
     roughness: { value: MATERIAL.roughness, min: 0, max: 1, step: 0.01 },
     ior: { value: MATERIAL.ior, min: 1, max: 2.33, step: 0.01 },
     clearcoat: { value: MATERIAL.clearcoat, min: 0, max: 1, step: 0.05 },

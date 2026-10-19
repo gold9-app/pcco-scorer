@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { heroContent } from "@/data/content";
 
-/** 마지막 — 양옆·뒤의 유리가 다 찬 자리. 버튼 둘, 그 아래 작은 푸터 */
+/** 마지막 비트 — 20번째 블록이 떨어져 우물이 완성되는 자리. 그 한 칸이 당신 자리 */
 export default function Cta() {
   return (
-    <section id="go" className="px-4 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <section id="go" data-beat className="px-4 sm:px-6 pt-[14svh] pb-16 sm:pb-24">
       <div className="panel mx-auto max-w-3xl p-6 sm:p-10 md:p-12">
         <h2 className="text-2xl sm:text-3xl md:text-[2.15rem] font-extrabold tracking-[-0.02em] leading-[1.2] text-ink break-keep">
-          시작점을 고르셨나요
+          마지막 한 칸은 당신 자리입니다
         </h2>
-        <p className="mt-3 max-w-[40ch] text-base sm:text-lg leading-relaxed text-ink-2 break-keep">
-          한 줄에서 시작해도, 진단에서 시작해도, 외전 하루로 시작해도 됩니다.
+        <p className="mt-3 max-w-[42ch] text-base sm:text-lg leading-relaxed text-ink-2 break-keep">
+          강의 19회가 쌓여 화면이 거의 찼습니다. 남은 한 칸에 들어오면 딱 맞습니다. 한 줄에서 시작해도, 중간에서 시작해도 됩니다.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Link href="/downloads" className="btn-primary">강의 자료 받기</Link>

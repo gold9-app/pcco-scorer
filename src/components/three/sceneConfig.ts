@@ -12,13 +12,14 @@ export const CAMERA = {
 
 export const LAPTOP = {
   /** 열렸을 때 뚜껑 각도 (deg) */
-  openAngle: 110,
-  /** 휴식 자세 — 화면 아래쪽에 살짝 내려다보이게 */
-  restY: -0.95,
-  restTiltX: 16,
-  restTiltY: -18,
-  /** 화면이 뷰포트를 덮을 때 여유 배율 (1 = 딱 맞게, 1.08 = 8% 넘치게) */
-  fillOverscan: 1.08,
+  openAngle: 108,
+  /** 휴식 자세 — 화면 가운데 살짝 아래, 내려다보이게 */
+  restY: -0.8,
+  restTiltX: 14,
+  restTiltY: -16,
+  /** 등장 — 기다렸다가(초) 열리는 데 걸리는 시간(초) */
+  introDelay: 0.6,
+  introDuration: 1.4,
   /** 본체 치수 */
   width: 3.0,
   depth: 2.05,
@@ -34,8 +35,6 @@ export const TETRIS = {
   depth: -1.2,
   /** 스크롤 스크럽 추종 속도 */
   follow: 7,
-  /** 조각 사이 낙하 겹침 (0 = 하나 끝나고 다음, 0.6 = 꽤 겹침) */
-  overlap: 0.5,
   /** 떨어질 때 기우는 정도 */
   tilt: 1,
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
