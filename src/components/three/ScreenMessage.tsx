@@ -68,12 +68,18 @@ export default function ScreenMessage() {
     <div ref={el} aria-hidden style={{ position: "fixed", top: 0, left: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1, visibility: "hidden" }}>
       <div ref={outer} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", transformStyle: "preserve-3d" }}>
         <div ref={inner} style={{ position: "absolute", transformStyle: "preserve-3d", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}>
-          <div ref={msg} style={{ width: 560, padding: "28px 36px", color: "#0f1720", opacity: 0, fontFamily: "inherit" }}>
-            <p style={{ fontSize: 14, fontWeight: 600, opacity: 0.6, marginBottom: 12 }}>{heroContent.title}</p>
-            <p style={{ fontSize: 40, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-0.02em", wordBreak: "keep-all", maxWidth: 480 }}>
+          <div ref={msg} style={{ width: 480, padding: "22px 32px 28px", color: "#0f1720", opacity: 0, fontFamily: "inherit" }}>
+            {/* 창 꾸밈 — 화면이라는 느낌 */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 22 }} aria-hidden>
+              {["#ff8a7a", "#ffcf5c", "#5fd0a8"].map((c) => (
+                <span key={c} style={{ width: 9, height: 9, borderRadius: 999, background: c, display: "inline-block" }} />
+              ))}
+            </div>
+            <p style={{ fontSize: 13, fontWeight: 600, opacity: 0.6, marginBottom: 10 }}>{heroContent.title}</p>
+            <p style={{ fontSize: 38, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-0.02em", wordBreak: "keep-all" }}>
               {heroContent.subtitle}
             </p>
-            <p style={{ fontSize: 16, lineHeight: 1.65, opacity: 0.78, marginTop: 18, wordBreak: "keep-all", maxWidth: 440 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.65, opacity: 0.78, marginTop: 16, wordBreak: "keep-all" }}>
               {heroContent.tagline}
             </p>
           </div>

@@ -12,7 +12,9 @@ export function useSceneControls() {
 
   const laptop = useControls("노트북", {
     openAngle: { value: LAPTOP.openAngle, min: 60, max: 150, step: 1 },
-    restY: { value: LAPTOP.restY, min: -2.5, max: 1, step: 0.05 },
+    fillW: { value: LAPTOP.fillW, min: 0.3, max: 1.2, step: 0.01 },
+    fillH: { value: LAPTOP.fillH, min: 0.3, max: 1.2, step: 0.01 },
+    restY: { value: LAPTOP.restY, min: -1.5, max: 0.5, step: 0.01 },
     restTiltX: { value: LAPTOP.restTiltX, min: -10, max: 45, step: 1 },
     restTiltY: { value: LAPTOP.restTiltY, min: -60, max: 60, step: 1 },
     introDelay: { value: LAPTOP.introDelay, min: 0, max: 3, step: 0.1 },
