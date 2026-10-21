@@ -232,7 +232,8 @@ export default function TetrisWell({ scroll, controls }: { scroll: React.RefObje
     const pr = prog.current;
     const follow = 1 - Math.exp(-dt * tetris.follow);
     for (let i = 0; i < count; i++) {
-      const target = beatProgress(info, i, count);
+      // 표지가 떠 있는 동안은 떨어지지 않는다
+      const target = info.entered ? beatProgress(info, i, count) : 0;
       pr[i] += (target - pr[i]) * follow;
     }
     // 피날레: 마지막 조각이 들어가면 흩어진다 (되돌리면 다시 모인다)
