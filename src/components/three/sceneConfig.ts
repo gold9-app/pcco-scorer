@@ -75,8 +75,8 @@ export const TETRIS = {
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.9,
   /** 입자 블록 — 점 크기 · 밝기 */
-  size: 3.6,
-  alpha: 0.75,
+  size: 4.4,
+  alpha: 0.95,
 };
 
 export const POST = {
