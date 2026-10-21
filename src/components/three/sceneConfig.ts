@@ -15,7 +15,7 @@ export const LAPTOP = {
   openAngle: 108,
   /** 크기 — 뷰포트 너비의 몇 %를 채울지 (가로/세로 화면 따로), 높이 상한은 몇 % (둘 중 작은 쪽) */
   fillW: 0.66,
-  fillWPortrait: 0.96,
+  fillWPortrait: 0.8,
   fillH: 0.6,
   /** 휴식 자세 — 열린 실루엣을 가운데 맞춘 뒤 더하는 오프셋 (월드 단위) */
   restY: 0.12,
