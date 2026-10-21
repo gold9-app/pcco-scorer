@@ -1,11 +1,11 @@
 {
-  "name": "AI 활용 실전 시리즈 강의",
-  "short_name": "AI 실전 강의",
-  "description": "강의 소개·복습·자료실·실습서",
+  "name": "G9",
+  "short_name": "G9",
+  "description": "G9 — AI 활용 실전 시리즈. 강의 소개·복습·자료실·실습서",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#3b82f6",
+  "background_color": "#070a0f",
+  "theme_color": "#070a0f",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -31,5 +31,8 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["education", "productivity"]
+  "categories": [
+    "education",
+    "productivity"
+  ]
 }

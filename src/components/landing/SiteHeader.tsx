@@ -15,7 +15,7 @@ const NAV = [
 ] as const;
 
 /**
- * 고정 헤더 — 표지가 걷힌 뒤 나타난다. G9 마크 · 섹션 앵커 · 연락하기.
+ * 고정 헤더 — 표지가 걷힌 뒤 나타난다. G9 마크 · 섹션 앵커 · 연락하기 · 복습 · 자료실(수강생 비밀번호).
  * 아래 진행선 + "블록 n / 20" — 뒤에서 쌓이는 블록이 "읽은 만큼 채워진다"는 뜻이 되게 (TetrisWell 과 같은 식).
  */
 export default function SiteHeader() {
@@ -64,6 +64,7 @@ export default function SiteHeader() {
           <span className="hidden sm:inline-flex"><a href="#contact" className="btn-primary min-h-[38px] px-4 text-sm">연락하기</a></span>
           <span className="sm:hidden"><a href={contact.tel} className="btn-primary min-h-[38px] px-4 text-sm">전화</a></span>
           <span className="hidden lg:inline-flex"><Link href="/course" className="btn-ghost min-h-[38px] px-4 text-sm">복습</Link></span>
+          <span className="hidden lg:inline-flex"><Link href="/downloads" className="btn-ghost min-h-[38px] px-4 text-sm">자료실</Link></span>
         </div>
       </div>
       <div className="site-progress" style={{ transform: `scaleX(${prog})` }} aria-hidden />

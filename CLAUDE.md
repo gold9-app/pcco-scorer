@@ -552,6 +552,12 @@ public/                    # 정적 파일
 
 7. **삭제** `Hero/CourseSection/Framework/FAQ/CTA`(옛 랜딩 — `CourseDetail.tsx` 는 `/course` 복습 페이지가 계속 쓴다), `Panel.tsx`, `CourseBeats.tsx`, `Lights.tsx`, `HeroSection.tsx`, `leva`. 추가 패키지: `three`·`@react-three/fiber`·`@react-three/drei`·`@react-three/postprocessing`·`postprocessing`.
 
+### 수강생 잠금 · 헤더 자료실 · G9 앱 아이콘 (2026-10-21)
+
+1. **비밀번호 잠금** — `src/components/PasswordGate.tsx` 를 `src/app/course/layout.tsx`·`src/app/downloads/layout.tsx` 가 감싼다 → `/course`, `/course/[id]`, `/downloads` 전부. 비밀번호는 **SHA-256 해시(`HASH`)로만** 코드에 있다 (현재 비밀번호는 강사만 안다 — 바꾸려면 `printf '새비번' | sha256sum` 값을 `HASH` 에). 맞으면 localStorage `g9-gate` 에 30일 기억. **정적 사이트라 안내문 수준의 잠금**이다 — 소스·`public/downloads/` 직접 링크는 막히지 않는다. 진짜 보호가 필요한 건 실습서처럼 파일 자체를 암호화.
+2. **헤더** `SiteHeader` lg 이상: 연락하기 · 복습 · 자료실. 폰은 전화 버튼만 (복습·자료실은 마무리 카드 링크로).
+3. **PWA 이름·아이콘** — `manifest.json` name/short_name **"G9"**, theme/background `#070a0f`, `appleWebApp.title` "G9". 아이콘은 `public/g9-logo.png` 에서 생성 (남색 G 는 어두운 배경에서 안 보여 **쿨톤 `#dfe8f5` 로 바꿔** 금색 9 와 함께 배치, 배경 `#070a0f`; maskable 은 56% 크기). 다시 만들려면 이 절의 커밋에 있는 PIL 스크립트 방식 그대로. `InstallPrompt` 카드도 다크 패널 + 아이콘으로 교체.
+
 ## 코딩 규칙
 - TypeScript strict mode 사용
 - 함수형 컴포넌트 사용

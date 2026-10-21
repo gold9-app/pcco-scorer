@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
 const DISMISS_KEY = "r-pcco-install-dismissed";
 const VISIT_COUNT_KEY = "r-pcco-visit-count";
 
+/** Chromium 전용 이벤트 — 표준 타입이 없어 직접 적는다 */
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 export default function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -20,7 +24,7 @@ export default function InstallPrompt() {
     // 이미 설치된 경우
     if (
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
     ) {
       return;
     }
@@ -28,7 +32,7 @@ export default function InstallPrompt() {
     // beforeinstallprompt 이벤트 캐치
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -42,14 +46,17 @@ export default function InstallPrompt() {
     localStorage.setItem(VISIT_COUNT_KEY, newVisitCount.toString());
 
     // 3번째 방문 또는 첫 방문 후 30초 후 표시
+    // (효과 안에서 바로 setState 하지 않도록 한 틱 미룬다)
+    let t: number | undefined;
     if (newVisitCount >= 3) {
-      setShowPrompt(true);
+      t = window.setTimeout(() => setShowPrompt(true), 0);
     } else if (newVisitCount === 1) {
-      setTimeout(() => setShowPrompt(true), 30000);
+      t = window.setTimeout(() => setShowPrompt(true), 30000);
     }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      if (t) window.clearTimeout(t);
     };
   }, []);
 
@@ -79,32 +86,23 @@ export default function InstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm animate-in slide-in-from-bottom-4">
-      <Card className="border-blue-200 bg-blue-50 shadow-lg">
-        <CardContent className="pt-4 space-y-3">
-          <div>
-            <h3 className="font-semibold text-slate-900 mb-1">
-              📱 앱으로 설치하기
-            </h3>
-            <p className="text-sm text-slate-600">
-              AI 활용 실전 시리즈를 홈 화면에 추가하고 언제든 빠르게 접속하세요!
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleInstall} className="flex-1" size="sm">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:max-w-sm animate-in slide-in-from-bottom-4">
+      <div className="panel p-4 flex items-center gap-4" role="dialog" aria-label="앱으로 설치">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/icon-192.png" alt="" width={56} height={56} className="rounded-2xl shrink-0" style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-ink">G9 를 홈 화면에</p>
+          <p className="cap mt-0.5 break-keep">앱처럼 바로 열립니다 — 복습·자료실·실습서</p>
+          <div className="flex gap-2 mt-3">
+            <button type="button" onClick={handleInstall} className="btn-primary min-h-[40px] px-4 text-sm">
               설치
-            </Button>
-            <Button
-              onClick={handleDismiss}
-              variant="ghost"
-              size="sm"
-              className="flex-1"
-            >
+            </button>
+            <button type="button" onClick={handleDismiss} className="btn-ghost min-h-[40px] px-4 text-sm">
               나중에
-            </Button>
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

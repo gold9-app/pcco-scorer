@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "AI 실전 강의",
+    title: "G9",
   },
   icons: {
     icon: [
