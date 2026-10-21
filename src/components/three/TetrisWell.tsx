@@ -76,13 +76,15 @@ function GlassPiece({ piece, layout, scroll, controls }: { piece: Piece; layout:
 
   const size = cell * tetris.gap;
   // 마지막 블록 = 당신의 자리 — 틸 포인트
-  const color = piece.index === layout.pieces.length - 1 ? "#5fd0d6" : piece.tint;
+  const color = piece.index === layout.pieces.length - 1 ? "#ffffff" : piece.tint;
   return (
     <group ref={group}>
       {offsets.map(([dx, dy], i) => (
-        <RoundedBox key={i} args={[size, size, size * 0.55]} radius={cell * 0.12} smoothness={3} position={[dx, dy, 0]} castShadow>
+        <RoundedBox key={i} args={[size, size, size * 0.55]} radius={cell * 0.12} smoothness={3} position={[dx, dy, 0]}>
           <meshPhysicalMaterial
             color={color}
+            emissive={color}
+            emissiveIntensity={tetris.emissive}
             transparent
             opacity={tetris.opacity}
             roughness={tetris.roughness}

@@ -14,22 +14,43 @@ export const LAPTOP = {
   /** 열렸을 때 뚜껑 각도 (deg) */
   openAngle: 108,
   /** 크기 — 뷰포트 너비의 몇 %를 채울지 (가로/세로 화면 따로), 높이 상한은 몇 % (둘 중 작은 쪽) */
-  fillW: 0.66,
+  fillW: 0.62,
   fillWPortrait: 0.8,
   fillH: 0.6,
   /** 휴식 자세 — 열린 실루엣을 가운데 맞춘 뒤 더하는 오프셋 (월드 단위) */
   restY: 0.12,
   restTiltX: 14,
   restTiltY: -16,
-  /** 등장 — 기다렸다가(초) 열리는 데 걸리는 시간(초) */
-  introDelay: 0.35,
-  introDuration: 1.2,
-  /** 본체 치수 */
+  /** 등장 — 입자가 모이기 시작(초) → 모이는 데(초) → 뚜껑이 열리기 시작(초) → 여는 데(초) */
+  formDelay: 0.4,
+  formDuration: 2.4,
+  introDelay: 1.9,
+  introDuration: 1.3,
+  /** 본체 치수 (입자 실루엣의 기준) */
   width: 3.0,
   depth: 2.05,
   baseThickness: 0.14,
   lidThickness: 0.09,
   cornerRadius: 0.08,
+};
+
+export const PARTICLES = {
+  /** 입자 수 (폰은 절반) */
+  count: 36000,
+  /** 점 크기 (px, dpr 1 기준) */
+  size: 3.2,
+  /** 전체 밝기 */
+  alpha: 0.55,
+  /** 흐름 상태 — 어트랙터 크기(뷰포트 긴 변 대비) · 회전 속도 */
+  flowScale: 0.27,
+  flowSpin: 0.05,
+  /** 빛 꼬리 — 시간차 복제 수(0 = 없음) · 간격(초) */
+  trailSteps: 3,
+  trailGap: 0.045,
+  /** 색 — 차가운 둘 + 뜨거운 하이라이트 */
+  colorA: "#2fd4c4",
+  colorB: "#4f9dff",
+  colorHot: "#ffffff",
 };
 
 export const TETRIS = {
@@ -43,33 +64,27 @@ export const TETRIS = {
   tilt: 1,
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.92,
-  /** 유리 — 투명 캔버스 위라 transmission 대신 opacity 로 뒤(페이지)를 비춘다 */
-  opacity: 0.55,
-  transmission: 0,
-  thickness: 0.4,
-  roughness: 0.08,
+  /** 어두운 유리 — 투명도 · 자체 발광(블룸이 집는다) */
+  opacity: 0.5,
+  emissive: 0.45,
+  roughness: 0.12,
 };
 
 export const LIGHTS = {
-  ambient: 0.8,
-  key: 1.3,
-  fill: 0.6,
-  rim: 1.0,
+  ambient: 0.35,
+  key: 1.2,
+  fill: 0.5,
+  rim: 1.6,
+  envIntensity: 0.8,
 };
 
-export const MATERIAL = {
-  /** 노트북 유리 — 투명 캔버스 위라 transmission 은 뿌옇게 날아간다 → opacity 로 비추고 clearcoat 로 반짝임 */
-  opacity: 0.4,
-  transmission: 0,
-  thickness: 0.6,
-  roughness: 0.06,
-  ior: 1.45,
-  clearcoat: 1,
+export const POST = {
+  bloomIntensity: 1.1,
+  bloomThreshold: 0.55,
+  bloomRadius: 0.7,
 };
 
 export const RENDER = {
   dpr: [1, 1.5] as [number, number],
-  shadows: true,
-  /** 환경광 세기 (Stage 의 Lightformer 스튜디오) */
-  envIntensity: 1.0,
+  background: "#070a0f",
 };
