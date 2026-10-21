@@ -61,12 +61,13 @@ export default function Laptop({ scroll, controls }: Props) {
     if (d.ready) clock.current += Math.min(dt, 0.1); // 로고 샘플이 준비된 뒤부터 인트로가 흐른다
     const c = clock.current;
 
-    // 타임라인: 글자 → 머묾 → 노트북 → 열기
+    // 타임라인: 글자 → 머묾 → 노트북 → 열기 (폰은 25% 빠르게)
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-    const textT = clamp01((c - laptop.textDelay) / laptop.textDuration);
-    const morphStart = laptop.textDelay + laptop.textDuration + laptop.textHold;
-    const formT = clamp01((c - morphStart) / laptop.morphDuration);
-    const openT = clamp01((c - (morphStart + laptop.morphDuration * laptop.openAt)) / laptop.introDuration);
+    const tk = size.width < 768 ? 0.75 : 1;
+    const textT = clamp01((c - laptop.textDelay * tk) / (laptop.textDuration * tk));
+    const morphStart = (laptop.textDelay + laptop.textDuration + laptop.textHold) * tk;
+    const formT = clamp01((c - morphStart) / (laptop.morphDuration * tk));
+    const openT = clamp01((c - (morphStart + laptop.morphDuration * tk * laptop.openAt)) / (laptop.introDuration * tk));
     const openIntro = 1 - Math.pow(1 - openT, 3);
 
     // 메시지까지 다 뜨면 표지에 "들어가기" 버튼을 띄우라고 알린다

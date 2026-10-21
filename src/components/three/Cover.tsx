@@ -17,7 +17,18 @@ export default function Cover() {
   useEffect(() => {
     const onReady = () => setReady(true);
     window.addEventListener("hero:ready", onReady);
-    return () => window.removeEventListener("hero:ready", onReady);
+    // 움직임 줄이기 설정이면 표지를 건너뛴다 (하이드레이션 뒤 한 틱 늦게)
+    let skip: number | undefined;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      skip = window.setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("hero:enter"));
+        setPhase("gone");
+      }, 0);
+    }
+    return () => {
+      window.removeEventListener("hero:ready", onReady);
+      if (skip) window.clearTimeout(skip);
+    };
   }, []);
 
   useEffect(() => {

@@ -1,11 +1,12 @@
 "use client";
 
 import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 
 import Laptop from "./Laptop";
+import PerfGuard from "./PerfGuard";
 import TetrisWell from "./TetrisWell";
 import { RENDER } from "./sceneConfig";
 import { useScrollProgress } from "./useScrollProgress";
@@ -21,9 +22,12 @@ function StageContent() {
   const controls = useSceneControls();
   const scroll = useScrollProgress();
   const { camera, post } = controls;
+  // 폰은 블룸을 절반 해상도로 (뿌옇기는 거의 같고 비용은 1/4)
+  const narrow = useThree((s) => s.size.width < 768);
 
   return (
     <>
+      <PerfGuard />
       <color attach="background" args={[RENDER.background]} />
       <PerspectiveCamera makeDefault position={[0, 0, camera.distance]} fov={camera.fov} near={0.1} far={60} />
 
@@ -31,7 +35,7 @@ function StageContent() {
       <TetrisWell scroll={scroll} controls={controls} />
 
       <EffectComposer multisampling={0}>
-        <Bloom intensity={post.bloomIntensity} luminanceThreshold={post.bloomThreshold} luminanceSmoothing={0.25} radius={post.bloomRadius} mipmapBlur />
+        <Bloom intensity={post.bloomIntensity} luminanceThreshold={post.bloomThreshold} luminanceSmoothing={0.25} radius={post.bloomRadius} mipmapBlur resolutionScale={narrow ? 0.5 : 1} />
       </EffectComposer>
     </>
   );

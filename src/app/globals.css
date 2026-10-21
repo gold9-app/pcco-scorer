@@ -753,6 +753,7 @@ body {
 }
 .faq-mark::after { transform: translate(-50%, -50%) rotate(90deg); }
 .faq[open] .faq-mark::after { transform: translate(-50%, -50%) rotate(0deg); }
+.faq > summary { min-height: 44px; }
 
 /* 히어로 스크롤 안내 점 */
 .scroll-dot {
@@ -832,11 +833,67 @@ body[data-cover] .stage-vignette { opacity: 0; transition: none; }
   .stage-vignette { background: linear-gradient(90deg, rgba(7, 10, 15, 0.5), rgba(7, 10, 15, 0.8) 30%, rgba(7, 10, 15, 0.8) 70%, rgba(7, 10, 15, 0.5)); }
 }
 
-/* 접기 — 공식 칩 · 더 보기 */
-.more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent); font-weight: 600; font-size: 0.9375rem; }
+/* 접기 — 공식 칩 · 더 보기 (터치 타깃 44px) */
+.more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; padding-right: 0.5rem; color: var(--accent); font-weight: 600; font-size: 0.9375rem; -webkit-tap-highlight-color: transparent; }
 .more > summary::-webkit-details-marker { display: none; }
 .more > summary::after { content: "+"; font-weight: 700; }
 .more[open] > summary::after { content: "−"; }
+
+/* ── 도형 — 틸(이 시리즈) · 금(당신의 자리) · 회색(기타). 섹션이 보이면 그려진다 ── */
+.draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+[data-in="true"] .draw { animation: draw 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes lit { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* 계단 (HTML) */
+.stairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; align-items: end; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
+.stair { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.9rem 0.9rem; border-radius: 14px; background: rgba(53, 217, 200, 0.08); border: 1.5px solid rgba(53, 217, 200, 0.5); opacity: 0; }
+.stair-top { background: rgba(53, 217, 200, 0.16); border-color: var(--accent); box-shadow: 0 0 40px -16px rgba(53, 217, 200, 0.7); }
+[data-in="true"] .stair { animation: lit 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.stair-name { font-size: clamp(1.0625rem, 0.9rem + 0.8vw, 1.375rem); font-weight: 800; color: var(--ink); line-height: 1.2; word-break: keep-all; }
+.stair-keep { margin-top: auto; font-size: 0.875rem; color: var(--ink-2); word-break: keep-all; }
+@media (max-width: 480px) { .stair { padding: 0.7rem 0.6rem; } .stair-keep { font-size: 0.8125rem; } }
+
+/* 루프 */
+.loop text { font-family: var(--font-sans); }
+.loop-arc { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.9; }
+.loop-node { opacity: 0; }
+[data-in="true"] .loop-node { animation: pop 0.6s ease forwards; }
+.loop-dot { fill: #0d121a; stroke: var(--accent); stroke-width: 1.5; }
+.loop-label { font-size: 17px; font-weight: 800; fill: var(--ink); }
+.loop-center { font-size: 14px; fill: var(--ink-2); }
+.loop-center-b { font-size: 22px; font-weight: 800; fill: var(--ink); }
+
+/* 성장 곡선 (선은 SVG, 글자는 HTML) */
+.curve-axis { stroke: rgba(255, 255, 255, 0.14); }
+.curve-line { fill: none; stroke: var(--accent); stroke-width: 2.5; filter: drop-shadow(0 0 8px rgba(53, 217, 200, 0.5)); }
+.curve-pt { opacity: 0; }
+[data-in="true"] .curve-pt { animation: pop 0.5s ease forwards; }
+.curve-dot { fill: #0d121a; stroke: var(--accent); stroke-width: 2.5; }
+.curve-cap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0.25rem; }
+.curve-stage { text-align: center; font-size: 0.9375rem; font-weight: 700; color: var(--ink); }
+
+/* 블록 막대 */
+.blockbar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin-top: 0.6rem; }
+.blockbar-cell { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); opacity: 0; box-shadow: 0 0 6px rgba(53, 217, 200, 0.5); }
+[data-in="true"] .blockbar-cell { animation: pop 0.35s ease forwards; }
+.blockbar-empty { background: transparent; border: 1px dashed rgba(255, 255, 255, 0.35); box-shadow: none; }
+.blockbar-unit { font-size: 0.75rem; color: var(--ink-3); margin-left: 0.4rem; }
+
+/* 4분면 — 직장인 큰 칸 */
+.quad { display: grid; gap: 1px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; }
+.quad-cell { background: #0d121a; padding: 1.25rem; }
+.quad-main { background: rgba(53, 217, 200, 0.06); }
+.quad-icon { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 12px; background: rgba(255, 255, 255, 0.05); }
+@media (min-width: 640px) {
+  .quad { grid-template-columns: 1fr 1fr; }
+  .quad-main { grid-column: 1 / -1; padding: 1.75rem; }
+}
+@media (min-width: 1024px) {
+  .quad { grid-template-columns: 1.35fr 1fr; }
+  .quad-main { grid-column: 1; grid-row: 1 / span 3; }
+}
 
 /* 빛나는 글자 — 강사명 */
 .glow-text { text-shadow: 0 0 24px rgba(53, 217, 200, 0.35), 0 0 80px rgba(53, 217, 200, 0.18); }
@@ -870,7 +927,11 @@ body[data-cover] .landing-body { opacity: 0; transform: translateY(24px); transi
 .mobile-bar { opacity: 0; transform: translateY(110%); transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; }
 .mobile-bar-in { opacity: 1; transform: none; pointer-events: auto; }
 .mobile-bar .panel { border-radius: 18px; }
-@media (max-width: 639px) { .landing-body { padding-bottom: 84px; } }
+@media (max-width: 639px) {
+  .landing-body { padding-bottom: 84px; }
+  .btn-primary, .btn-ghost { min-height: 48px; }
+  .cover-enter { min-height: 56px; width: min(100%, 22rem); font-size: 1.0625rem; }
+}
 
 /* 연락 패널 — 틸 테두리 빛 */
 .contact-wrap .panel, .contact-panel { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(53, 217, 200, 0.22), 0 0 70px -24px rgba(53, 217, 200, 0.45), 0 40px 100px -40px rgba(0, 0, 0, 0.9); }
@@ -885,25 +946,11 @@ body[data-cover] [data-reveal] { transition: none; }
 .quote-line-in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
+  .draw { stroke-dashoffset: 0; animation: none; }
+  .stair, .loop-node, .curve-pt, .blockbar-cell { opacity: 1; animation: none; }
   [data-reveal] { opacity: 1; transform: none; transition: none; }
   .quote-line { transition: none; }
   .site-header, .mobile-bar { transition: none; }
-}
-
-/* 지금 → 끝나면 플립 카드 (호버·포커스·터치) */
-.flip { position: relative; cursor: default; transition: border-color 0.25s ease, background-color 0.25s ease; }
-.flip-after { display: none; }
-.flip-tag { transition: color 0.25s ease; }
-.flip:hover, .flip:focus-visible, .flip:active { border-color: rgba(53, 217, 200, 0.5); background: rgba(53, 217, 200, 0.06); }
-.flip:hover .flip-now, .flip:focus-visible .flip-now, .flip:active .flip-now { display: none; }
-.flip:hover .flip-after, .flip:focus-visible .flip-after, .flip:active .flip-after { display: block; }
-.flip:hover .flip-tag, .flip:focus-visible .flip-tag, .flip:active .flip-tag { color: var(--accent); }
-.flip:hover .flip-tag::after, .flip:focus-visible .flip-tag::after, .flip:active .flip-tag::after { content: " → 끝나면"; }
-@media (hover: none) {
-  /* 터치: 항상 둘 다 보여준다 (지금은 흐리게, 끝나면은 또렷하게) */
-  .flip .flip-now { display: block; opacity: 0.55; font-size: 0.95rem; }
-  .flip .flip-after { display: block; }
-  .flip .flip-tag::after { content: " → 끝나면"; }
 }
 
 /* 여정 타임라인 */

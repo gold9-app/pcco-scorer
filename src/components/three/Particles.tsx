@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 
 import { LAPTOP, PARTICLES } from "./sceneConfig";
+import { perf } from "./perf";
 import type { SceneControls } from "./useSceneControls";
 
 /**
@@ -467,7 +468,13 @@ export default function Particles({ driver, controls }: Props) {
       (u.uLogoCool.value as THREE.Color).set(p.logoCool);
       (u.uLogoWarm.value as THREE.Color).set(p.logoWarm);
     });
-    if (group.current) group.current.visible = d.burst < 0.999;
+    if (group.current) {
+      group.current.visible = d.burst < 0.999;
+      // 저사양: 꼬리 복제는 끈다 (첫 번째만 그린다)
+      group.current.children.forEach((c, i) => {
+        c.visible = i === 0 || !perf.low;
+      });
+    }
   });
 
   return (
