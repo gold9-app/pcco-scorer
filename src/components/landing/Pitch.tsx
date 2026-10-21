@@ -32,7 +32,7 @@ export default function Pitch() {
             AI는 능력이 아니라, <em>설계</em>의 문제입니다
           </>
         }
-        lead="지금 하는 말이, 끝나면 하는 일로 바뀝니다. 세 단계를 지나며 혼자 할 수 있는 일의 범위가 넓어집니다."
+        lead={"지금 하는 말이, 끝나면 하는 일로 바뀝니다.\n세 단계를 지나며 혼자 할 수 있는 일의 범위가 넓어집니다."}
       >
         <Curve points={points} />
         <ol className="rows mt-6">

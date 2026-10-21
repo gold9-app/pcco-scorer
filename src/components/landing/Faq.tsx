@@ -12,7 +12,7 @@ export default function Faq() {
           묻기 전에, <em>답부터</em>
         </>
       }
-      lead="자주 묻는 여섯 가지. 한 줄 답을 먼저, 자세한 건 펼쳐서."
+      lead={"자주 묻는 여섯 가지.\n한 줄 답을 먼저, 자세한 건 펼쳐서."}
     >
       <div className="rows">
         {faqs.map((f) => (

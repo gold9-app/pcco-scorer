@@ -79,7 +79,7 @@ export default function ScreenMessage() {
             <p style={{ fontSize: 38, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-0.02em", wordBreak: "keep-all" }}>
               {heroContent.subtitle}
             </p>
-            <p style={{ fontSize: 15, lineHeight: 1.65, opacity: 0.78, marginTop: 16, wordBreak: "keep-all" }}>
+            <p style={{ fontSize: 15, lineHeight: 1.65, opacity: 0.78, marginTop: 16, wordBreak: "keep-all", whiteSpace: "pre-line" }}>
               {heroContent.tagline}
             </p>
           </div>

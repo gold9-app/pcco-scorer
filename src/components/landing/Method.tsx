@@ -13,7 +13,7 @@ export default function Method() {
           강의가 아니라, <em>훈련</em>입니다
         </>
       }
-      lead="공식 하나를 배우고, 내 재료로 실행하고, 결과를 보고 고칩니다. 그 바퀴를 수업 안에서 돌립니다."
+      lead={"공식 하나를 배우고, 내 재료로 실행하고, 결과를 보고 고칩니다.\n그 바퀴를 수업 안에서 돌립니다."}
     >
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
         <Loop nodes={["공식", "실행", "고치기"]} center="는다" />

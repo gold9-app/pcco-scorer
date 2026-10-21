@@ -789,7 +789,15 @@ body {
   word-break: keep-all;
   max-width: 15ch;
 }
-.sec-h2 em { font-style: normal; color: var(--accent); }
+.sec-h2 em { font-style: normal; color: var(--accent); white-space: nowrap; }
+/* 문단 나눔 — 글은 \n 으로 끊은 자리에서만 줄이 바뀐다 (pre-line). 폰에서 칸이 모자라면 keep-all 로 어절 단위 */
+.sec-h2 { text-wrap: balance; white-space: pre-line; }
+.h3 { text-wrap: balance; }
+.lead, .body, .h3, .quote-line, .quad-cell p { white-space: pre-line; text-wrap: pretty; }
+@media (max-width: 480px) {
+  /* 아주 좁은 화면: 강제 줄바꿈이 짧은 줄을 만들면 더 불편 — 자연 줄바꿈으로 */
+  .lead, .body, .h3, .quad-cell p { white-space: normal; }
+}
 .lead {
   font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem); /* 17 → 18px */
   line-height: 1.7;

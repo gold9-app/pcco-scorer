@@ -20,7 +20,7 @@ export default function Difference() {
           요령이 아니라, <em>공식</em>입니다
         </>
       }
-      lead="흔한 AI 강의와 나란히 놓으면 차이가 보입니다."
+      lead={"흔한 AI 강의와 나란히 놓으면\n차이가 보입니다."}
     >
       <div className="compare" role="table" aria-label="흔한 AI 강의와 이 시리즈 비교">
         <div className="compare-head" role="row">

@@ -15,10 +15,10 @@ export default function ForWhom() {
       label="For whom"
       title={
         <>
-          같은 공식, <em>내 일</em>에 맞춘 예제
+          같은 공식,{"\n"}<em>내 일</em>에 맞춘 예제
         </>
       }
-      lead="직장인을 기준으로 설계했고, 프리랜서·주부·학생은 같은 공식을 각자의 일로 연습합니다. 처음 보는 분을 기준으로 진행합니다."
+      lead={"직장인을 기준으로 설계했고,\n프리랜서·주부·학생은 같은 공식을 각자의 일로 연습합니다.\n처음 보는 분을 기준으로 진행합니다."}
     >
       <ul className="quad">
         {audiences.map((a) => {
