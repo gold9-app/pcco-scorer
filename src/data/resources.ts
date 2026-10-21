@@ -488,7 +488,7 @@ export const resourceGroups: ResourceGroup[] = [
   },
   {
     courseId: "extra-1",
-    label: "외전 1",
+    label: "개인 맞춤 1",
     title: "요청이 들어와서 결과가 나가기까지 — 라우팅과 오케스트레이션 설계 워크숍",
     framework: "공항 대응표 + 설계도 4장",
     items: [

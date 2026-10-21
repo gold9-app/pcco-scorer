@@ -14,15 +14,21 @@ export default function ContactCta({ compact = false, className = "" }: { compac
     );
   }
   return (
-    <div className={`flex flex-col sm:flex-row gap-3 ${className}`}>
-      <a href={contact.tel} className="btn-primary px-6 gap-3">
-        <span className="mono-label" style={{ color: "rgba(6, 17, 15, 0.7)" }}>Tel</span>
-        <span className="tabular-nums tracking-wide">{contact.phone}</span>
-      </a>
-      <a href={contact.mailto} className="btn-ghost px-6 gap-3">
-        <span className="mono-label">Mail</span>
-        <span className="tracking-wide">{contact.email}</span>
-      </a>
+    <div className={`grid gap-3 sm:grid-cols-2 ${className}`}>
+      <div>
+        <a href={contact.tel} className="btn-primary w-full px-6 gap-3">
+          <span className="mono-label" style={{ color: "rgba(6, 17, 15, 0.7)" }}>Tel</span>
+          <span className="tabular-nums tracking-wide">{contact.phone}</span>
+        </a>
+        <p className="mt-2 text-xs text-ink-3 break-keep">{contact.telNote}</p>
+      </div>
+      <div>
+        <a href={contact.mailto} className="btn-ghost w-full px-6 gap-3">
+          <span className="mono-label">Mail</span>
+          <span className="tracking-wide">{contact.email}</span>
+        </a>
+        <p className="mt-2 text-xs text-ink-3 break-keep">{contact.mailNote}</p>
+      </div>
     </div>
   );
 }

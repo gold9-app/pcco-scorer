@@ -1,18 +1,22 @@
-import { usps } from "@/data/content";
+import { comparison as c } from "@/data/content";
 import Panel from "./Panel";
 
-/** 이 강의가 다른 점 — 정의 목록 */
+/** 다른 점 — 대비표. 왼쪽(흔한 강의)은 흐리게, 오른쪽(이 시리즈)은 틸 포인트 */
 export default function Difference() {
   return (
-    <Panel id="why" label="Difference" title="다른 AI 강의와 다른 점" wide>
-      <dl className="grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
-        {usps.map((u) => (
-          <div key={u.title}>
-            <dt className="text-base sm:text-lg font-bold text-ink break-keep">{u.title}</dt>
-            <dd className="mt-1.5 text-sm sm:text-base text-ink-2 leading-relaxed break-keep">{u.description}</dd>
+    <Panel id="why" label="Difference" title={c.headline} wide>
+      <div className="compare" role="table" aria-label="흔한 AI 강의와 이 시리즈 비교">
+        <div className="compare-head" role="row">
+          <span role="columnheader" className="mono-label">{c.left}</span>
+          <span role="columnheader" className="mono-label text-accent">{c.right}</span>
+        </div>
+        {c.rows.map((r) => (
+          <div key={r.ours} className="compare-row" role="row">
+            <span role="cell" className="compare-l break-keep">{r.common}</span>
+            <span role="cell" className="compare-r break-keep">{r.ours}</span>
           </div>
         ))}
-      </dl>
+      </div>
     </Panel>
   );
 }

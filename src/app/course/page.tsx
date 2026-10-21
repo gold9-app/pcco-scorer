@@ -6,7 +6,7 @@ import { courses, phases, getPhaseCourses } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "강의 복습 | AI 활용 실전 시리즈",
-  description: "차수별 복습 페이지 목록 — 1차부터 외전까지",
+  description: "차수별 복습 페이지 목록 — 1차부터 개인 맞춤 강의까지",
 };
 
 /**
@@ -34,7 +34,7 @@ export default function CourseIndexPage() {
           강의 복습
         </h1>
         <p className="text-base sm:text-lg text-text-muted mb-10 sm:mb-14 break-keep">
-          들은 강의를 다시 펼칩니다. 단계 순서대로 — 1차부터 외전까지.
+          들은 강의를 다시 펼칩니다. 단계 순서대로 — 1차부터 개인 맞춤 강의까지.
         </p>
 
         <div className="space-y-10 sm:space-y-14">

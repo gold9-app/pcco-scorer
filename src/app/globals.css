@@ -832,6 +832,45 @@ body[data-cover] [data-reveal] { transition: none; }
   .site-header, .mobile-bar { transition: none; }
 }
 
+/* 지금 → 끝나면 플립 카드 (호버·포커스·터치) */
+.flip { position: relative; cursor: default; transition: border-color 0.25s ease, background-color 0.25s ease; }
+.flip-after { display: none; }
+.flip-tag { transition: color 0.25s ease; }
+.flip:hover, .flip:focus-visible, .flip:active { border-color: rgba(53, 217, 200, 0.5); background: rgba(53, 217, 200, 0.06); }
+.flip:hover .flip-now, .flip:focus-visible .flip-now, .flip:active .flip-now { display: none; }
+.flip:hover .flip-after, .flip:focus-visible .flip-after, .flip:active .flip-after { display: block; }
+.flip:hover .flip-tag, .flip:focus-visible .flip-tag, .flip:active .flip-tag { color: var(--accent); }
+.flip:hover .flip-tag::after, .flip:focus-visible .flip-tag::after, .flip:active .flip-tag::after { content: " → 끝나면"; }
+@media (hover: none) {
+  /* 터치: 항상 둘 다 보여준다 (지금은 흐리게, 끝나면은 또렷하게) */
+  .flip .flip-now { display: block; opacity: 0.55; font-size: 0.95rem; }
+  .flip .flip-after { display: block; }
+  .flip .flip-tag::after { content: " → 끝나면"; }
+}
+
+/* 여정 타임라인 */
+.journey { position: relative; display: grid; gap: 1.75rem; padding-left: 1.75rem; }
+.journey::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(to bottom, rgba(53, 217, 200, 0.6), rgba(255, 255, 255, 0.08)); }
+.journey-step { position: relative; }
+.journey-dot { position: absolute; left: -1.75rem; top: 4px; width: 15px; height: 15px; border-radius: 999px; background: #0b1016; border: 1.5px solid var(--accent); box-shadow: 0 0 12px rgba(53, 217, 200, 0.45); }
+.journey-dot-branch { background: var(--accent); box-shadow: 0 0 22px rgba(53, 217, 200, 0.8); }
+.journey-branch { padding-bottom: 0.5rem; }
+
+/* 대비표 */
+.compare { display: grid; gap: 0.5rem; }
+.compare-head, .compare-row { display: grid; grid-template-columns: 1fr 1.3fr; gap: 1rem; align-items: center; }
+.compare-head { padding: 0 1.25rem; }
+.compare-row { padding: 1rem 1.25rem; border-radius: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: border-color 0.2s ease, background-color 0.2s ease; }
+.compare-row:hover { border-color: rgba(53, 217, 200, 0.4); background: rgba(53, 217, 200, 0.05); }
+.compare-l { color: var(--ink-3); font-size: 0.95rem; text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.25); }
+.compare-r { color: var(--ink); font-weight: 700; font-size: 1rem; }
+@media (min-width: 640px) { .compare-r { font-size: 1.1rem; } }
+@media (max-width: 480px) {
+  .compare-head { display: none; }
+  .compare-row { grid-template-columns: 1fr; gap: 0.35rem; }
+  .compare-l::before { content: "흔한 강의 · "; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; display: inline-block; margin-right: 0.25rem; }
+}
+
 /* 마무리 카드 — 마지막 블록이 들어가면 떠오른다 */
 .finale { opacity: 0; transform: translateY(28px) scale(0.98); transition: opacity 0.9s ease 0.35s, transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s; }
 .finale[data-shown="true"] { opacity: 1; transform: none; }

@@ -14,7 +14,7 @@ export default function Cta() {
             마지막 한 칸은 당신 자리입니다
           </h2>
           <p className="mt-3 max-w-[42ch] text-base sm:text-lg leading-relaxed text-ink-2 break-keep">
-            방금 들어간 한 칸처럼, 딱 맞는 자리에서 시작합니다. 전화든 메일이든 한 줄이면 됩니다 — 지금 쓰는 AI 수준과 하고 싶은 일.
+            방금 들어간 한 칸처럼, 딱 맞는 자리에서 시작합니다. 전화는 10분, 메일은 세 칸 — 지금 쓰는 AI 수준과 하고 싶은 일이면 충분합니다.
           </p>
           <ContactCta className="mt-8" />
           <p className="mt-4 text-xs text-ink-3">
