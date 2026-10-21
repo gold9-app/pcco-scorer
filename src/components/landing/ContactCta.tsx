@@ -85,18 +85,21 @@ export default function ContactCta({ compact = false, className = "" }: { compac
         <p className="mt-2 cap break-keep">{isPointer ? "누르면 번호가 복사됩니다 · " : ""}{contact.telNote}</p>
       </div>
       <div>
-        <div className="flex gap-2">
-          <a href={contact.mailto} className="btn-ghost flex-1 px-5 gap-3 min-w-0">
-            <span className="mono-label">Mail</span>
-            <span className="tracking-wide truncate">{contact.email}</span>
-          </a>
+        <a href={contact.mailto} className="btn-ghost w-full px-6 gap-3">
+          <span className="mono-label">Mail</span>
+          <span className="tracking-wide">{contact.email}</span>
+        </a>
+        <p className="mt-2 cap break-keep">
+          {contact.mailNote}
           {isPointer && (
-            <button type="button" onClick={() => copy(contact.email, "이메일 주소")} className="btn-ghost px-4 shrink-0" title="주소 복사" aria-label="이메일 주소 복사">
-              복사
-            </button>
+            <>
+              {" · "}
+              <button type="button" onClick={() => copy(contact.email, "이메일 주소")} className="copy-link">
+                주소 복사
+              </button>
+            </>
           )}
-        </div>
-        <p className="mt-2 cap break-keep">{contact.mailNote}</p>
+        </p>
       </div>
       <Toast msg={msg} />
     </div>
