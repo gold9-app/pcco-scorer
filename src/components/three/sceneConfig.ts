@@ -18,8 +18,8 @@ export const LAPTOP = {
   restTiltX: 14,
   restTiltY: -16,
   /** 등장 — 기다렸다가(초) 열리는 데 걸리는 시간(초) */
-  introDelay: 0.6,
-  introDuration: 1.4,
+  introDelay: 0.35,
+  introDuration: 1.2,
   /** 본체 치수 */
   width: 3.0,
   depth: 2.05,
@@ -40,10 +40,10 @@ export const TETRIS = {
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.92,
   /** 유리 — 투명 캔버스 위라 transmission 대신 opacity 로 뒤(페이지)를 비춘다 */
-  opacity: 0.62,
+  opacity: 0.55,
   transmission: 0,
   thickness: 0.4,
-  roughness: 0.1,
+  roughness: 0.08,
 };
 
 export const LIGHTS = {
@@ -66,6 +66,6 @@ export const MATERIAL = {
 export const RENDER = {
   dpr: [1, 1.5] as [number, number],
   shadows: true,
-  envPreset: "city" as const,
-  envIntensity: 0.9,
+  /** 환경광 세기 (Stage 의 Lightformer 스튜디오) */
+  envIntensity: 1.0,
 };

@@ -18,7 +18,7 @@ export default function Cta() {
         </div>
       </div>
 
-      <footer className="mx-auto max-w-3xl mt-10 sm:mt-14 px-2 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-3">
+      <footer className="panel mx-auto max-w-3xl mt-8 sm:mt-10 px-5 py-4 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-2">
         <p>{heroContent.title} — 강사 {heroContent.instructor}</p>
         <nav className="flex gap-4">
           <Link href="/downloads" className="hover:text-ink">자료실</Link>

@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import { Environment, PerspectiveCamera } from "@react-three/drei";
+import { Environment, Lightformer, PerspectiveCamera } from "@react-three/drei";
 
 import Laptop from "./Laptop";
 import Lights from "./Lights";
@@ -26,8 +26,14 @@ function StageContent() {
     <>
       <PerspectiveCamera makeDefault position={[0, 0, camera.distance]} fov={camera.fov} near={0.1} far={60} />
       <Lights controls={controls} />
+      {/* 환경광 — 네트워크 HDR 대신 스튜디오 조명판 4장을 즉석에서 굽는다 (외부 요청 0, 첫 프레임부터 반사) */}
       <Suspense fallback={null}>
-        <Environment preset={RENDER.envPreset} environmentIntensity={lights.envIntensity} />
+        <Environment resolution={256} environmentIntensity={lights.envIntensity}>
+          <Lightformer form="rect" intensity={2.2} color="#ffffff" position={[0, 5, -2]} rotation-x={Math.PI / 2} scale={[10, 4, 1]} />
+          <Lightformer form="rect" intensity={1.4} color="#e4f3ff" position={[-6, 2, 2]} rotation-y={Math.PI / 2} scale={[6, 5, 1]} />
+          <Lightformer form="rect" intensity={1.4} color="#ffffff" position={[6, 1, 2]} rotation-y={-Math.PI / 2} scale={[6, 5, 1]} />
+          <Lightformer form="ring" intensity={0.8} color="#bff0e6" position={[0, -5, 1]} rotation-x={-Math.PI / 2} scale={5} />
+        </Environment>
       </Suspense>
 
       <Laptop scroll={scroll} controls={controls} />

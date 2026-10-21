@@ -41,8 +41,8 @@ const ONE_O: Proto = { name: "O", cells: [[0, 0], [1, 0], [0, 1], [1, 1]] };
 /** 4열×1행 — I 가로 */
 const FLAT_I: Proto = { name: "I", cells: [[0, 0], [1, 0], [2, 0], [3, 0]] };
 
-/** 청량한 유리 틴트 */
-export const TINTS = ["#8fcdf2", "#9fe3d2", "#bdb6f0", "#ffbf9b"];
+/** 블록 색 — 흰 패널과 대비가 서도록 파스텔보다 한 단계 진하게 */
+export const TINTS = ["#72bdea", "#7fd8c0", "#a79ee9", "#ffaa80"];
 
 export const PIECE_COUNT = 20;
 export const WELLS: [cols: number, rows: number][] = [
