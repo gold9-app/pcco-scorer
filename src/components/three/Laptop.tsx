@@ -115,11 +115,14 @@ export default function Laptop({ scroll, controls }: Props) {
     const closeT = smoothstep(h, 0.0, 0.55);
     hg.rotation.x = -deg(laptop.openAngle) * openIntro * (1 - closeT);
 
-    // 크기: 뷰포트 너비의 fillW, 단 높이는 fillH 를 넘지 않게 (열린 뚜껑 높이 ≈ D)
-    const k = Math.min((viewport.width * laptop.fillW) / W, (viewport.height * laptop.fillH) / (D * 1.05));
+    // 크기: 뷰포트 너비의 fillW(세로 화면은 fillWPortrait), 단 높이는 fillH 를 넘지 않게 (열린 뚜껑 높이 ≈ D)
+    const portrait = viewport.width < viewport.height;
+    const fw = portrait ? laptop.fillWPortrait : laptop.fillW;
+    const k = Math.min((viewport.width * fw) / W, (viewport.height * laptop.fillH) / (D * 1.05));
     const exitT = smoothstep(h, 0.45, 1);
     g.scale.setScalar(k * (1 - 0.25 * exitT));
-    g.position.set(0, laptop.restY * viewport.height * 0.5 + exitT * (viewport.height * 0.95), 0);
+    // 열린 실루엣(높이 ≈ D·k)의 가운데가 화면 가운데 오도록 내린 뒤 restY 만큼 보정
+    g.position.set(0, -D * k * 0.5 + laptop.restY + exitT * (viewport.height * 0.95), 0);
     euler.set(
       deg(laptop.restTiltX) + info.pointer.y * 0.03 + exitT * deg(18),
       deg(laptop.restTiltY) + info.pointer.x * 0.05,
@@ -132,8 +135,7 @@ export default function Laptop({ scroll, controls }: Props) {
     if (anchor.current) {
       g.updateMatrixWorld(true);
       const show = smoothstep(introT, 0.55, 0.95) * (1 - smoothstep(h, 0.0, 0.25));
-      const aspect = viewport.width / viewport.height;
-      screenOverlay.update(camera, anchor.current, size, { show, width: 480 * Math.min(1, aspect * 1.5), distanceFactor: 2.2 });
+      screenOverlay.update(camera, anchor.current, size, { show, width: 480, distanceFactor: 2.2 });
     }
   });
 
@@ -197,7 +199,7 @@ export default function Laptop({ scroll, controls }: Props) {
         ))}
 
         {/* 접지 그림자 — 투명 캔버스 위에서 바닥에 붙은 느낌 */}
-        <ContactShadows position={[0, -0.002, 0.1]} scale={[W * 1.7, D * 1.9]} blur={2.4} opacity={0.38} far={1.4} resolution={512} frames={Infinity} />
+        <ContactShadows position={[0, -0.002, 0.1]} scale={[W * 1.7, D * 1.9]} blur={2.6} opacity={0.26} far={1.4} resolution={512} frames={Infinity} />
       </group>
 
       {/* 힌지 원통 */}
