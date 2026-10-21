@@ -8,6 +8,12 @@
 >   GitHub `gold9-app/pcco-scorer` `master` 푸시 = 자동 배포. URL `https://pcco-landing.kumgoo0913.workers.dev`
 > - 아래 문서의 채점기·Railway·Supabase 관련 서술은 **히스토리**다. "채점 모드 추가 시 영향 받는 파일" 체크리스트 등은 `scorer-last` 기준.
 > - 상세: 아래 「Cloudflare 이관 + 채점기 제거 (2026-10-19)」 절, `docs/DEPLOY.md`
+>
+> ## 2026-10-21 — 랜딩 전면 리뉴얼 (다크 · 입자 3D · 강의 상세 페이지) 배포
+> - 메인(`/`)은 **처음 보는 사람을 위한 강의 상세·판매 페이지**다. 차수(N차)·초급/중급 표현은 메인에 쓰지 않는다 — 대상별(직장인 메인 · 프리랜서 · 주부 · 학생).
+>   커리큘럼·차수별 복습은 `/course`, 자료는 `/downloads`, 실습서는 `/workbook`.
+> - 표지(로고 입자 → 노트북 → 클릭) + 입자 테트리스 + 편집형 본문. 구조·이벤트·작업 방식은 아래 「랜딩 리뉴얼 (2026-10-21)」 절.
+> - 위 "주요 기능 1. 강의 소개 랜딩 페이지"의 Framer Motion·블랙 배경·복습 섹션 서술은 **히스토리**다.
 
 ## 프로젝트 개요
 AI 프롬프트 강의 시리즈의 강의 소개 랜딩 + 복습 섹션 + 자료실 + 실습서 (정적 사이트, PWA).
@@ -515,6 +521,36 @@ public/                    # 정적 파일
 8. **원격 정리** — gold9-app 이 메인: `origin` = `gold9-app/pcco-scorer`, `personal` = `thenext0202/pcco-scorer` (더 이상 푸시 안 함). 이관 중 임시로 쓴 `cloudflare` 브랜치는 프로덕션 브랜치를 `master` 로 전환한 뒤 삭제
 9. **보류** — Railway 서비스는 삭제 못 함(워크스페이스 Admin 계정 불일치로 버튼 비활성). 옛 주소에서 채점기가 API 키와 함께 계속 동작 중 — 필요 시 Railway `Variables` 에서 `ANTHROPIC_API_KEY` 삭제로 차단 가능. 서브도메인(`kumgoo0913`)·프로젝트명 변경은 다른 PWA 가 설치돼 있어 **하지 않기로** 결정
 10. **문서** — README·`docs/DEPLOY.md` 를 Cloudflare 기준으로 전면 재작성. CLAUDE.md 는 상단 배너 + 이 절 + 기술스택·환경변수·배포정보만 갱신 (차수별 히스토리는 그대로)
+
+### 랜딩 리뉴얼 (2026-10-21) — 다크 · 입자 3D · 강의 상세 페이지
+
+브랜치 `design-3d` 29커밋을 `master` 에 fast-forward 병합해 배포. 레퍼런스 품질 기준은 adame.ai (입자·빛·여백).
+
+1. **페이지 구조** (`src/app/page.tsx`)
+   `GlassStage`(3D 무대, fixed) → `Cover`(표지) → `SiteHeader` → `.landing-body`(Pitch · ForWhom · Journey · ContactBlock · Method · Difference · Instructor · Quotes · Faq · Cta) → `MobileBar`.
+   본문 카피는 전부 `src/data/content.ts` (`heroContent`·`contact`·`pitch`·`audiences`·`learn`·`method`·`instructorProfile`·`comparison`·`faqs`·`quotes`). 문장 안의 `\n` 은 의도한 줄바꿈(`white-space: pre-line`) — 읽다 끊기는 자리에서만 넣는다.
+   사실 수치: **27회 운영 · 2,400분 · 공식 15개** · 외전 → "개인 맞춤 강의" (`extra-1` label "개인 맞춤 1").
+
+2. **3D 무대** (`src/components/three/`) — 전부 점(Points) 셰이더, 조명·모델 없음
+   - `Stage.tsx` Canvas(bg `#070a0f`) + `PerfGuard`(탭 숨김 → frameloop 정지, 3초간 30fps 미만 → `perf.low` → 꼬리 복제 끔) + Bloom(좁은 화면은 해상도 ½)
+   - `Particles.tsx` 흐름(Clifford 어트랙터) → 로고(`public/g9-logo.png` 픽셀 샘플, 따뜻/차가운 두 색) → 노트북 실루엣(뚜껑은 셰이더에서 `uOpen` 회전) → 흩어짐. 단계는 `Laptop.tsx` 의 driver `{text, form, burst, open, model, ready, pointer}` 가 매 프레임 밀어 넣는다
+   - `Laptop.tsx` 타임라인(초) = `sceneConfig.LAPTOP` textDelay/textDuration/textHold/morphDuration/openAt/introDuration (폰은 ×0.75). 메시지가 다 뜨면 `hero:ready` 발신
+   - `ScreenMessage.tsx` 노트북 화면 글 — drei `Html` 대신 CSS3D 수학을 직접 구현한 DOM 오버레이 (React 19 dev 에서 `Html` 이 비는 문제)
+   - `TetrisWell.tsx` + `tetris.ts` 블록 20개, 본문 스크롤에 따라 아래부터 낙하(`beatProgress`), 마지막 조각 = 한가운데 금빛 → 들어맞으면 흩어지며 `well:complete` (되돌리면 `well:reset`) → `Finale`가 마무리 카드 띄움
+   - `Cover.tsx` 표지: `body[data-cover]` 로 스크롤 잠금·본문 숨김 → `hero:ready` 후 버튼 → 클릭 `hero:enter`(1.6초 흩어짐) → `cover:gone`. 움직임 줄이기 설정이면 표지 생략
+   - **조절값은 `sceneConfig.ts` 하나** (leva 패널은 2026-10-21 제거). 숫자를 고치면 바로 반영
+   - 규칙: `useFrame` 안에서 React state 금지(ref 만), `useMemo` 값 변경은 바깥 헬퍼 함수로(React Compiler lint), 효과 안 동기 setState 금지(`setTimeout 0`)
+
+3. **가독성 시스템** (`globals.css`) — 층위 3개만: `.sec-h2`(48→32px, `text-wrap: balance`, `em` 강조는 `nowrap`) · `.lead/.body`(18px, 행간 1.7, 최대 40ch) · `.cap`(14px). `Editorial` 2단(왼쪽 고정 제목 / 오른쪽 내용), 패널은 불투명 `#0d121a`, 중앙 기둥 뒤는 `.stage-vignette` 로 어둡게. 글 대신 도형: `diagrams/{Curve,Stairs,Loop,BlockBar,Icons}`. **`.landing-body { position: relative; z-index: 1 }`** 가 없으면 본문이 fixed canvas 아래로 깔린다.
+   Tailwind 4 주의: 레이어 없는 커스텀 CSS(`.btn-*` display)가 유틸리티(`hidden`)를 이긴다 → 반응형 숨김은 `<span>` 으로 감싼다.
+
+4. **연락(1차 전환)** `ContactCta.tsx` — 터치 기기는 `tel:`/`mailto:`, 포인터 기기(`(hover: hover) and (pointer: fine)`)는 전화 버튼이 번호 복사 + 알림, 메일은 설명줄에 "주소 복사". 번호·메일·안내문은 `contact` 데이터.
+
+5. **모바일** 입자 수 ½ · 노트북 타임라인 ×0.75 · 터치 타깃 ≥44px · 하단 `MobileBar`(연락) · ≤480px 는 자연 줄바꿈.
+
+6. **작업 방식(원격)** 클라우드 클론에서 수정 → `tsc`·`eslint`·`build` → 커밋 → `git format-patch` → 컴퓨터로 전송 → `git am --3way` → 컴퓨터에서 푸시(클라우드는 gold9-app 푸시 불가). **한글 파일은 PowerShell `Get-Content/Set-Content` 로 만지지 말 것**(인코딩 깨짐). CSS 를 바꾼 뒤엔 dev 서버 재시작. 열어 둔 탭이 재접속하며 옛 CSS 를 물면 깨져 보인다 — dev 전용 현상, 새로고침. 실제 모양 확인은 `npm run build` 뒤 `npx serve -l 5173 out`.
+
+7. **삭제** `Hero/CourseSection/Framework/FAQ/CTA`(옛 랜딩 — `CourseDetail.tsx` 는 `/course` 복습 페이지가 계속 쓴다), `Panel.tsx`, `CourseBeats.tsx`, `Lights.tsx`, `HeroSection.tsx`, `leva`. 추가 패키지: `three`·`@react-three/fiber`·`@react-three/drei`·`@react-three/postprocessing`·`postprocessing`.
 
 ## 코딩 규칙
 - TypeScript strict mode 사용
