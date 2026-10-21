@@ -31,18 +31,21 @@ export default function Cover() {
     };
   }, [phase]);
 
+  // 떠나는 중 → 1.1초 뒤 완전히 걷힌다 (타이머는 이 단계에서만 산다)
   useEffect(() => {
+    if (phase === "leaving") {
+      timer.current = window.setTimeout(() => setPhase("gone"), 1100);
+      return () => {
+        if (timer.current) window.clearTimeout(timer.current);
+      };
+    }
     if (phase === "gone") delete document.body.dataset.cover;
-    return () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    };
   }, [phase]);
 
   const enter = () => {
     if (!ready || phase !== "cover") return;
     setPhase("leaving");
     window.dispatchEvent(new CustomEvent("hero:enter"));
-    timer.current = window.setTimeout(() => setPhase("gone"), 1100);
   };
 
   if (phase === "gone") return null;
