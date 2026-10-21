@@ -8,7 +8,7 @@ import { PIECE_COUNT } from "@/components/three/tetris";
 const NAV = [
   ["#about", "소개"],
   ["#for", "대상"],
-  ["#journey", "여정"],
+  ["#journey", "배우는 것"],
   ["#method", "방식"],
   ["#instructor", "강사"],
   ["#faq", "FAQ"],
