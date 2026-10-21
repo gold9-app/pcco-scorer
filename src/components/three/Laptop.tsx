@@ -93,6 +93,7 @@ export default function Laptop({ scroll, controls }: Props) {
 
     d.text = textT;
     d.form = formT;
+    d.pointer.set(info.pointer.x, info.pointer.y);
     d.open = -hg.rotation.x;
     d.burst = burst;
     d.model.copy(g.matrixWorld);

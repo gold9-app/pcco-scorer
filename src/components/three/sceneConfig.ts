@@ -23,8 +23,8 @@ export const LAPTOP = {
   restTiltY: -16,
   /** 등장 타임라인(초) — 흐름 → "G9" 모임 → 머묾 → 흩어졌다 노트북 → 뚜껑 열림 (각 단계 길이) */
   textDelay: 0.3,
-  textDuration: 1.5,
-  textHold: 1.4,
+  textDuration: 2.0,
+  textHold: 1.6,
   morphDuration: 1.9,
   /** 뚜껑은 노트북이 이 비율만큼 모였을 때부터 열리기 시작 */
   openAt: 0.7,
@@ -43,8 +43,8 @@ export const PARTICLES = {
   /** 인트로 로고 (public/ 경로) · 크기(뷰포트 너비 대비 반폭, 세로 화면은 ×1.9) · 로고 두 색 (G 와 9) */
   logo: "/g9-logo.png",
   textScale: 0.1,
-  logoCool: "#cfe0ff",
-  logoWarm: "#f0c892",
+  logoCool: "#d9e6ff",
+  logoWarm: "#e9bd7c",
   /** 테트리스 — 칸당 점 수 (폰은 절반) */
   perCell: 220,
   /** 점 크기 (px, dpr 1 기준) */

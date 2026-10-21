@@ -30,10 +30,12 @@ export interface ParticleDriver {
   model: THREE.Matrix4;
   /** 로고 샘플이 준비됐나 — 준비 전엔 인트로 타임라인이 멈춰 있다 (흐름만 보인다) */
   ready: boolean;
+  /** 포인터 (-1~1) — 로고가 살짝 기운다 */
+  pointer: THREE.Vector2;
 }
 
 export function createDriver(): ParticleDriver {
-  return { open: 0, text: 0, form: 0, burst: 0, model: new THREE.Matrix4(), ready: false };
+  return { open: 0, text: 0, form: 0, burst: 0, model: new THREE.Matrix4(), ready: false, pointer: new THREE.Vector2() };
 }
 
 const { width: W, depth: D, baseThickness: BT } = LAPTOP;
@@ -184,13 +186,14 @@ export function buildLogo(n: number, rnd: () => number, img: HTMLImageElement) {
   const pos = new Float32Array(n * 3);
   const bright = new Float32Array(n);
   const warm = new Float32Array(n);
+  const order = new Float32Array(n);
   const cw = 512;
   const ch = Math.round((cw * img.naturalHeight) / Math.max(1, img.naturalWidth));
   const cv = document.createElement("canvas");
   cv.width = cw;
   cv.height = ch;
   const ctx = cv.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return { pos, bright, warm };
+  if (!ctx) return { pos, bright, warm, order };
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, cw, ch);
   ctx.drawImage(img, 0, 0, cw, ch);
@@ -212,32 +215,47 @@ export function buildLogo(n: number, rnd: () => number, img: HTMLImageElement) {
       hot.push(d[o] > d[o + 2] + 25 ? 1 : 0);
     }
   const m = cand.length / 2;
-  if (m === 0) return { pos, bright, warm };
+  if (m === 0) return { pos, bright, warm, order };
   const edgeIdx: number[] = [];
   const innerIdx: number[] = [];
   for (let k = 0; k < m; k++) (edge[k] ? edgeIdx : innerIdx).push(k);
+  // 획 순서 — 로고 중심 기준 각도로 시계 방향 스윕. 차가운 획(G) 먼저, 금빛 획(9) 이어서
+  let sx = 0;
+  let sy = 0;
+  for (let k = 0; k < m; k++) {
+    sx += cand[k * 2];
+    sy += cand[k * 2 + 1];
+  }
+  sx /= m;
+  sy /= m;
   for (let i = 0; i < n; i++) {
-    const pool = rnd() < 0.55 && edgeIdx.length ? edgeIdx : innerIdx.length ? innerIdx : edgeIdx;
+    // 윤곽 70% · 속 30% — 라인아트처럼 가늘게
+    const pool = rnd() < 0.7 && edgeIdx.length ? edgeIdx : innerIdx.length ? innerIdx : edgeIdx;
     const k = pool[Math.floor(rnd() * pool.length)];
     const x = cand[k * 2] + (rnd() - 0.5) * 2;
     const y = cand[k * 2 + 1] + (rnd() - 0.5) * 2;
     pos[i * 3] = (x / cw - 0.5) * 2;
     pos[i * 3 + 1] = -(y / ch - 0.5) * 2 * (ch / cw);
-    pos[i * 3 + 2] = (rnd() - 0.5) * 0.12;
-    bright[i] = edge[k] ? 1 : 0.3;
+    pos[i * 3 + 2] = (rnd() - 0.5) * 0.08;
+    bright[i] = edge[k] ? 1 : 0.18;
     warm[i] = hot[k];
+    const ang = (Math.atan2(y - sy, x - sx) + Math.PI * 1.5) % (Math.PI * 2); // 12시부터 시계 방향
+    const sweep = ang / (Math.PI * 2);
+    order[i] = hot[k] ? 0.5 + sweep * 0.5 : sweep * 0.55;
   }
-  return { pos, bright, warm };
+  return { pos, bright, warm, order };
 }
 
 const vertex = /* glsl */ `
   uniform float uTime, uTimeOffset, uText, uForm, uOpen, uBurst, uSize, uPixelRatio, uAlpha, uFlowScale, uFlowSpin, uTextScale, uIsTrail;
   uniform mat4 uModel;
   uniform vec3 uHinge;
+  uniform vec2 uPointer;
   attribute vec3 aFlow;
   attribute vec3 aText;
   attribute float aTextB;
   attribute float aTextW;
+  attribute float aTextO;
   attribute vec3 aForm;
   attribute float aPart;
   attribute float aRand;
@@ -261,13 +279,18 @@ const vertex = /* glsl */ `
       form = vec3(form.x, c * form.y - s * form.z, s * form.y + c * form.z) + uHinge;
     }
     vec3 formW = (uModel * vec4(form, 1.0)).xyz;
-    // 글자 "G9" — 가운데, 살짝 떨린다
-    vec3 text = vec3(aText.xy * uTextScale, aText.z);
-    text += 0.012 * vec3(sin(t * 1.3 + aRand * 9.0), cos(t * 1.1 + aRand * 5.0), 0.0);
+    // 로고 — 가운데. 숨 쉬듯 아주 천천히 커졌다 작아지고, 포인터 쪽으로 살짝 기운다
+    float breathe = 1.0 + 0.012 * sin(t * 0.8);
+    vec3 text = vec3(aText.xy * uTextScale * breathe, aText.z);
+    float tx = uPointer.y * 0.18, ty = uPointer.x * 0.22;
+    text.yz = mat2(cos(tx), -sin(tx), sin(tx), cos(tx)) * text.yz;
+    text.xz = mat2(cos(ty), -sin(ty), sin(ty), cos(ty)) * text.xz;
+    text += 0.004 * vec3(sin(t * 1.3 + aRand * 9.0), cos(t * 1.1 + aRand * 5.0), 0.0);
     vec3 dir = normalize(vec3(aRand - 0.5, fract(aRand * 7.31) - 0.25, fract(aRand * 13.7) - 0.5));
-    // 1) 흐름 → 글자 (입자마다 시차)
-    float ft = smoothstep(0.0, 1.0, clamp((uText - aRand * 0.45) / 0.55, 0.0, 1.0));
+    // 1) 흐름 → 로고. 획 순서(aTextO)대로 그려지듯 — G 먼저, 9 이어서. 오는 길은 살짝 휘어서
+    float ft = smoothstep(0.0, 1.0, clamp((uText - aTextO * 0.62 - aRand * 0.08) / 0.3, 0.0, 1.0));
     vec3 p = mix(flow, text, ft);
+    p += dir * sin(3.14159 * ft) * 0.25 * (0.5 + aRand);
     // 2) 글자 → 노트북. 중간에 사방으로 흩어졌다가 모인다 (detour)
     float fm = smoothstep(0.0, 1.0, clamp((uForm - aRand * 0.45) / 0.55, 0.0, 1.0));
     p = mix(p, formW, fm);
@@ -279,6 +302,9 @@ const vertex = /* glsl */ `
     float formed = max(ft * (1.0 - fm), fm) * (1.0 - sin(3.14159 * fm));
     float bright = aTextB * ft * (1.0 - fm) + aBright * fm;
     vAlpha = uAlpha * (1.0 - b) * mix(1.0, 0.5 + bright * 0.5, formed);
+    // 로고 윤곽은 잔잔히 반짝인다
+    float logoNow = ft * (1.0 - fm);
+    vAlpha *= mix(1.0, 0.72 + 0.28 * sin(t * 2.6 + aRand * 40.0), logoNow * aTextB);
     // 꼬리는 형태가 잡히면 사라진다 (같은 자리에 겹쳐 밝아지는 것 방지)
     vAlpha *= mix(1.0, 1.0 - formed, uIsTrail);
     vBright = bright * formed;
@@ -287,7 +313,9 @@ const vertex = /* glsl */ `
     vWarm = aTextW;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * mix(1.0, 0.5 + bright * 0.8, formed) * (6.0 / -mv.z);
+    // 로고 상태에선 더 가늘게 (라인아트)
+    float sz = mix(1.0, 0.5 + bright * 0.8, formed) * mix(1.0, 0.7, logoNow);
+    gl_PointSize = uSize * uPixelRatio * sz * (6.0 / -mv.z);
   }
 `;
 
@@ -307,8 +335,10 @@ const fragment = /* glsl */ `
     vec3 col = mix(uColorA, uColorB, vRand);
     // 로고 상태에선 로고 색 (G 차가운 빛 · 9 금빛), 윤곽은 흰빛으로
     col = mix(col, mix(uLogoCool, uLogoWarm, vWarm), vLogo);
-    col = mix(col, uColorHot, vBright * mix(0.85, 0.5, vLogo));
-    gl_FragColor = vec4(col * (0.55 + vBright * 1.7), a * vAlpha);
+    // 로고는 흰빛으로 덜 덮고, 덜 타오르게 — 두 색이 살아 있게
+    col = mix(col, uColorHot, vBright * mix(0.85, 0.28, vLogo));
+    float gain = mix(0.55 + vBright * 1.7, 0.75 + vBright * 0.75, vLogo);
+    gl_FragColor = vec4(col * gain, a * vAlpha);
   }
 `;
 
@@ -334,6 +364,7 @@ export default function Particles({ driver, controls }: Props) {
     g.setAttribute("aText", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
     g.setAttribute("aTextB", new THREE.BufferAttribute(new Float32Array(count), 1));
     g.setAttribute("aTextW", new THREE.BufferAttribute(new Float32Array(count), 1));
+    g.setAttribute("aTextO", new THREE.BufferAttribute(new Float32Array(count), 1));
     g.setAttribute("aForm", new THREE.BufferAttribute(form.pos, 3));
     g.setAttribute("aPart", new THREE.BufferAttribute(form.part, 1));
     g.setAttribute("aBright", new THREE.BufferAttribute(form.bright, 1));
@@ -352,6 +383,7 @@ export default function Particles({ driver, controls }: Props) {
       (geometry.getAttribute("aText") as THREE.BufferAttribute).copyArray(logo.pos).needsUpdate = true;
       (geometry.getAttribute("aTextB") as THREE.BufferAttribute).copyArray(logo.bright).needsUpdate = true;
       (geometry.getAttribute("aTextW") as THREE.BufferAttribute).copyArray(logo.warm).needsUpdate = true;
+      (geometry.getAttribute("aTextO") as THREE.BufferAttribute).copyArray(logo.order).needsUpdate = true;
       driver.current.ready = true;
     };
     img.onerror = () => {
@@ -381,6 +413,7 @@ export default function Particles({ driver, controls }: Props) {
             uForm: { value: 0 },
             uOpen: { value: 0 },
             uTextScale: { value: 1 },
+            uPointer: { value: new THREE.Vector2() },
             uIsTrail: { value: 0 },
             uBurst: { value: 0 },
             uSize: { value: PARTICLES.size },
@@ -409,6 +442,7 @@ export default function Particles({ driver, controls }: Props) {
     const p = controls.particles;
     const flowScale = Math.max(viewport.width, viewport.height) * p.flowScale;
     const pr = gl.getPixelRatio();
+    const pointerTarget = d.pointer;
     materials.forEach((m, i) => {
       const u = m.uniforms;
       u.uTime.value = t;
@@ -418,6 +452,7 @@ export default function Particles({ driver, controls }: Props) {
       u.uOpen.value = d.open;
       u.uTextScale.value = viewport.width < viewport.height ? viewport.width * p.textScale * 1.9 : viewport.width * p.textScale;
       u.uIsTrail.value = i === 0 ? 0 : 1;
+      (u.uPointer.value as THREE.Vector2).lerp(pointerTarget, 0.05);
       u.uBurst.value = d.burst;
       u.uSize.value = p.size * (i === 0 ? 1 : 0.85);
       u.uPixelRatio.value = pr;
