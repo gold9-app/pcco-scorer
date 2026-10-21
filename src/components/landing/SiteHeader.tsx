@@ -60,9 +60,10 @@ export default function SiteHeader() {
           <span className="hidden sm:inline mono-label tabular-nums" title="읽은 만큼 블록이 쌓입니다">
             {String(blocks).padStart(2, "0")} / {PIECE_COUNT}
           </span>
-          <a href="#contact" className="hidden sm:inline-flex btn-primary min-h-[38px] px-4 text-sm">연락하기</a>
-          <a href={contact.tel} className="sm:hidden btn-primary min-h-[38px] px-4 text-sm">전화</a>
-          <Link href="/course" className="hidden lg:inline-flex btn-ghost min-h-[38px] px-4 text-sm">복습</Link>
+          {/* .btn-* 가 display 를 정하므로 반응형 숨김은 감싸는 span 에 */}
+          <span className="hidden sm:inline-flex"><a href="#contact" className="btn-primary min-h-[38px] px-4 text-sm">연락하기</a></span>
+          <span className="sm:hidden"><a href={contact.tel} className="btn-primary min-h-[38px] px-4 text-sm">전화</a></span>
+          <span className="hidden lg:inline-flex"><Link href="/course" className="btn-ghost min-h-[38px] px-4 text-sm">복습</Link></span>
         </div>
       </div>
       <div className="site-progress" style={{ transform: `scaleX(${prog})` }} aria-hidden />
