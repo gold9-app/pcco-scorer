@@ -21,11 +21,14 @@ export const LAPTOP = {
   restY: 0.12,
   restTiltX: 14,
   restTiltY: -16,
-  /** 등장 — 입자가 모이기 시작(초) → 모이는 데(초) → 뚜껑이 열리기 시작(초) → 여는 데(초) */
-  formDelay: 0.4,
-  formDuration: 2.4,
-  introDelay: 1.9,
-  introDuration: 1.3,
+  /** 등장 타임라인(초) — 흐름 → "G9" 모임 → 머묾 → 흩어졌다 노트북 → 뚜껑 열림 (각 단계 길이) */
+  textDelay: 0.3,
+  textDuration: 1.5,
+  textHold: 1.4,
+  morphDuration: 1.9,
+  /** 뚜껑은 노트북이 이 비율만큼 모였을 때부터 열리기 시작 */
+  openAt: 0.7,
+  introDuration: 1.2,
   /** 본체 치수 (입자 실루엣의 기준) */
   width: 3.0,
   depth: 2.05,
@@ -37,6 +40,9 @@ export const LAPTOP = {
 export const PARTICLES = {
   /** 입자 수 (폰은 절반) */
   count: 36000,
+  /** 인트로 글자 (강사명) · 크기(뷰포트 너비 대비 반폭) */
+  text: "G9",
+  textScale: 0.36,
   /** 점 크기 (px, dpr 1 기준) */
   size: 3.2,
   /** 전체 밝기 */

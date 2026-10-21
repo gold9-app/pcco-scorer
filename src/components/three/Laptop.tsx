@@ -14,8 +14,8 @@ import type { SceneControls } from "./useSceneControls";
  * 노트북 — 실체는 빛 입자(Particles)다. 이 컴포넌트는 자세와 타이밍을 정하고,
  * 입자 셰이더(driver)와 화면 메시지 DOM(anchor)에 같은 자세를 흘려 넣는다.
  *
- *   페이지가 열리면   흐르던 입자가 formDelay 뒤 formDuration 동안 실루엣으로 모인다
- *                     → introDelay 뒤 introDuration 동안 뚜껑이 열린다 → 화면에 메시지. 그대로 멈춘다 (읽는 시간)
+ *   페이지가 열리면   흐르던 입자가 "G9" 로 모인다 → 머문다 → 흩어졌다 노트북 실루엣으로 모인다
+ *                     → 뚜껑이 열린다 → 화면에 메시지. 그대로 멈춘다 (읽는 시간)
  *   스크롤 (hero 0→1)  0.0~0.25 메시지가 사라진다 · 0.05~0.65 입자가 사방으로 흩어진다 · 0.45~1 남은 자취가 위로
  *
  * 구조:  <root> 위치·크기(뷰포트의 fillW/fillH)·패럴랙스  — 입자 셰이더의 uModel
@@ -59,9 +59,12 @@ export default function Laptop({ scroll, controls }: Props) {
     clock.current += Math.min(dt, 0.1);
     const c = clock.current;
 
-    // 모이기 → 열기 (둘 다 ease-out)
-    const formT = Math.min(1, Math.max(0, (c - laptop.formDelay) / laptop.formDuration));
-    const openT = Math.min(1, Math.max(0, (c - laptop.introDelay) / laptop.introDuration));
+    // 타임라인: 글자 → 머묾 → 노트북 → 열기
+    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    const textT = clamp01((c - laptop.textDelay) / laptop.textDuration);
+    const morphStart = laptop.textDelay + laptop.textDuration + laptop.textHold;
+    const formT = clamp01((c - morphStart) / laptop.morphDuration);
+    const openT = clamp01((c - (morphStart + laptop.morphDuration * laptop.openAt)) / laptop.introDuration);
     const openIntro = 1 - Math.pow(1 - openT, 3);
 
     // 스크롤: 메시지 → 흩어짐 → 뚜껑도 닫히며 위로
@@ -80,13 +83,14 @@ export default function Laptop({ scroll, controls }: Props) {
     g.quaternion.setFromEuler(euler);
     g.updateMatrixWorld(true);
 
+    d.text = textT;
     d.form = formT;
     d.open = -hg.rotation.x;
     d.burst = burst;
     d.model.copy(g.matrixWorld);
 
     // 화면 판: 실루엣이 완성되며 나타나고 흩어지며 사라진다
-    if (screenMat.current) screenMat.current.opacity = 0.72 * smoothstep(formT, 0.6, 1) * (1 - burst);
+    if (screenMat.current) screenMat.current.opacity = 0.72 * smoothstep(formT, 0.75, 1) * (1 - burst);
 
     // 메시지: 뚜껑이 거의 다 열리면 나타나고, 스크롤 시작과 함께 먼저 사라진다
     if (anchor.current) {

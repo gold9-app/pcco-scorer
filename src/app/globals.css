@@ -771,6 +771,18 @@ body {
   .scroll-dot { animation: none; }
 }
 
+/* 작은 모노스페이스 라벨 — 섹션 번호·구분 (adame 식 대문자) */
+.mono-label {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+/* 빛나는 글자 — 강사명 */
+.glow-text { text-shadow: 0 0 24px rgba(53, 217, 200, 0.35), 0 0 80px rgba(53, 217, 200, 0.18); }
+
 /* 포커스 — 어두운 유리 위에서도 보이게 */
 :focus-visible {
   outline: 2px solid var(--accent);

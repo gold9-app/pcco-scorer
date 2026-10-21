@@ -18,13 +18,16 @@ export function useSceneControls() {
     restY: { value: LAPTOP.restY, min: -1.5, max: 1.5, step: 0.01 },
     restTiltX: { value: LAPTOP.restTiltX, min: -10, max: 45, step: 1 },
     restTiltY: { value: LAPTOP.restTiltY, min: -60, max: 60, step: 1 },
-    formDelay: { value: LAPTOP.formDelay, min: 0, max: 3, step: 0.1 },
-    formDuration: { value: LAPTOP.formDuration, min: 0.5, max: 6, step: 0.1 },
-    introDelay: { value: LAPTOP.introDelay, min: 0, max: 5, step: 0.1 },
+    textDelay: { value: LAPTOP.textDelay, min: 0, max: 3, step: 0.1 },
+    textDuration: { value: LAPTOP.textDuration, min: 0.3, max: 5, step: 0.1 },
+    textHold: { value: LAPTOP.textHold, min: 0, max: 5, step: 0.1 },
+    morphDuration: { value: LAPTOP.morphDuration, min: 0.5, max: 6, step: 0.1 },
+    openAt: { value: LAPTOP.openAt, min: 0, max: 1, step: 0.05 },
     introDuration: { value: LAPTOP.introDuration, min: 0.4, max: 4, step: 0.1 },
   });
 
   const particles = useControls("입자", {
+    textScale: { value: PARTICLES.textScale, min: 0.1, max: 0.8, step: 0.01 },
     size: { value: PARTICLES.size, min: 0.5, max: 10, step: 0.1 },
     alpha: { value: PARTICLES.alpha, min: 0.05, max: 1, step: 0.01 },
     flowScale: { value: PARTICLES.flowScale, min: 0.1, max: 0.6, step: 0.01 },

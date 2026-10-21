@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 
@@ -10,7 +10,8 @@ import type { SceneControls } from "./useSceneControls";
 /**
  * 빛 입자 — 한 번에 그리는 점 수만 개.
  *   흐름(flow)  : 클리포드 어트랙터 위의 점들이 천천히 돌며 떠다닌다 (adame 식 생성 곡선)
- *   형태(form)  : 노트북 실루엣(본체 윗면·외곽선·키·트랙패드·뚜껑 외곽·화면)으로 모인다. 뚜껑 점은 셰이더에서 힌지 회전
+ *   글자(text)  : 강사명 "G9" — 캔버스에 글자를 찍어 픽셀을 샘플한다 (윤곽은 뜨겁게, 속은 옅게)
+ *   형태(form)  : 글자가 흩어졌다가(detour) 노트북 실루엣(본체 윗면·외곽선·키·트랙패드·뚜껑 외곽·화면)으로 모인다. 뚜껑 점은 셰이더에서 힌지 회전
  *   폭발(burst) : 스크롤하면 사방으로 흩어지며 사라진다 → 본문의 유리 블록이 이어받는다
  *   빛 꼬리     : 같은 지오메트리를 시간차(uTimeOffset)로 몇 번 더 그린다 (흐름 상태에서 꼬리가 생긴다)
  * 모든 자세는 Laptop 이 매 프레임 driver 에 써 넣는다 (React state 없음).
@@ -19,7 +20,9 @@ import type { SceneControls } from "./useSceneControls";
 export interface ParticleDriver {
   /** 뚜껑 열림각 (rad, 양수) */
   open: number;
-  /** 흐름 → 실루엣 (0~1) */
+  /** 흐름 → "G9" 글자 (0~1) */
+  text: number;
+  /** 글자 → (흩어졌다가) 노트북 실루엣 (0~1) */
   form: number;
   /** 흩어짐 (0~1) */
   burst: number;
@@ -28,7 +31,7 @@ export interface ParticleDriver {
 }
 
 export function createDriver(): ParticleDriver {
-  return { open: 0, form: 0, burst: 0, model: new THREE.Matrix4() };
+  return { open: 0, text: 0, form: 0, burst: 0, model: new THREE.Matrix4() };
 }
 
 const { width: W, depth: D, baseThickness: BT } = LAPTOP;
@@ -170,11 +173,65 @@ function buildFlow(n: number, rnd: () => number) {
   return pos;
 }
 
+/**
+ * 글자 샘플 — 오프스크린 캔버스에 찍고 밝은 픽셀을 모은다. 좌표는 캔버스 폭 기준 [-1,1] (y 는 비율 유지), 실제 크기는 uTextScale.
+ * 윤곽(옆 픽셀이 어두운 점)은 bright 1, 속은 0.3
+ */
+export function buildText(n: number, rnd: () => number, text: string) {
+  const pos = new Float32Array(n * 3);
+  const bright = new Float32Array(n);
+  if (typeof document === "undefined") return { pos, bright };
+  const cw = 1024;
+  const ch = 512;
+  const cv = document.createElement("canvas");
+  cv.width = cw;
+  cv.height = ch;
+  const ctx = cv.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return { pos, bright };
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `900 420px "Pretendard Variable", Pretendard, "Segoe UI", "Helvetica Neue", Arial, sans-serif`;
+  ctx.fillText(text, cw / 2, ch / 2 + 16);
+  const img = ctx.getImageData(0, 0, cw, ch).data;
+  const lit = (x: number, y: number) => x >= 0 && y >= 0 && x < cw && y < ch && img[(y * cw + x) * 4] > 110;
+  const cand: number[] = [];
+  const edge: number[] = [];
+  for (let y = 0; y < ch; y += 2)
+    for (let x = 0; x < cw; x += 2) {
+      if (!lit(x, y)) continue;
+      const e = !lit(x - 5, y) || !lit(x + 5, y) || !lit(x, y - 5) || !lit(x, y + 5);
+      cand.push(x, y);
+      edge.push(e ? 1 : 0);
+    }
+  const m = cand.length / 2;
+  if (m === 0) return { pos, bright };
+  // 윤곽 점을 더 자주 고른다 (윤곽 55% · 속 45%)
+  const edgeIdx: number[] = [];
+  const innerIdx: number[] = [];
+  for (let k = 0; k < m; k++) (edge[k] ? edgeIdx : innerIdx).push(k);
+  for (let i = 0; i < n; i++) {
+    const pool = rnd() < 0.55 && edgeIdx.length ? edgeIdx : innerIdx.length ? innerIdx : edgeIdx;
+    const k = pool[Math.floor(rnd() * pool.length)];
+    const x = cand[k * 2] + (rnd() - 0.5) * 2;
+    const y = cand[k * 2 + 1] + (rnd() - 0.5) * 2;
+    pos[i * 3] = (x / cw - 0.5) * 2;
+    pos[i * 3 + 1] = -(y / ch - 0.5) * 2 * (ch / cw);
+    pos[i * 3 + 2] = (rnd() - 0.5) * 0.12;
+    bright[i] = edge[k] ? 1 : 0.3;
+  }
+  return { pos, bright };
+}
+
 const vertex = /* glsl */ `
-  uniform float uTime, uTimeOffset, uForm, uOpen, uBurst, uSize, uPixelRatio, uAlpha, uFlowScale, uFlowSpin;
+  uniform float uTime, uTimeOffset, uText, uForm, uOpen, uBurst, uSize, uPixelRatio, uAlpha, uFlowScale, uFlowSpin, uTextScale, uIsTrail;
   uniform mat4 uModel;
   uniform vec3 uHinge;
   attribute vec3 aFlow;
+  attribute vec3 aText;
+  attribute float aTextB;
   attribute vec3 aForm;
   attribute float aPart;
   attribute float aRand;
@@ -196,20 +253,31 @@ const vertex = /* glsl */ `
       form = vec3(form.x, c * form.y - s * form.z, s * form.y + c * form.z) + uHinge;
     }
     vec3 formW = (uModel * vec4(form, 1.0)).xyz;
-    // 모이기 — 입자마다 시차
-    float f = smoothstep(0.0, 1.0, clamp((uForm - aRand * 0.45) / 0.55, 0.0, 1.0));
-    vec3 p = mix(flow, formW, f);
-    // 흩어짐
+    // 글자 "G9" — 가운데, 살짝 떨린다
+    vec3 text = vec3(aText.xy * uTextScale, aText.z);
+    text += 0.012 * vec3(sin(t * 1.3 + aRand * 9.0), cos(t * 1.1 + aRand * 5.0), 0.0);
     vec3 dir = normalize(vec3(aRand - 0.5, fract(aRand * 7.31) - 0.25, fract(aRand * 13.7) - 0.5));
+    // 1) 흐름 → 글자 (입자마다 시차)
+    float ft = smoothstep(0.0, 1.0, clamp((uText - aRand * 0.45) / 0.55, 0.0, 1.0));
+    vec3 p = mix(flow, text, ft);
+    // 2) 글자 → 노트북. 중간에 사방으로 흩어졌다가 모인다 (detour)
+    float fm = smoothstep(0.0, 1.0, clamp((uForm - aRand * 0.45) / 0.55, 0.0, 1.0));
+    p = mix(p, formW, fm);
+    p += dir * sin(3.14159 * fm) * (1.2 + aRand * 1.8);
+    // 3) 스크롤 — 흩어져 사라진다
     float b = smoothstep(0.0, 1.0, clamp((uBurst - aRand * 0.3) / 0.7, 0.0, 1.0));
     p += dir * b * (2.5 + aRand * 3.5);
-    // 모이면 가늘고 옅게 — 먼지가 선을 이루듯. 밝은 점(테두리·화면)만 또렷이
-    vAlpha = uAlpha * (1.0 - b) * mix(1.0, 0.55 + aBright * 0.45, f);
-    vBright = aBright * f;
+    // 얼마나 "형태"를 이루고 있나 (글자든 노트북이든) → 모이면 가늘고 옅게, 밝은 점만 또렷이
+    float formed = max(ft * (1.0 - fm), fm) * (1.0 - sin(3.14159 * fm));
+    float bright = aTextB * ft * (1.0 - fm) + aBright * fm;
+    vAlpha = uAlpha * (1.0 - b) * mix(1.0, 0.5 + bright * 0.5, formed);
+    // 꼬리는 형태가 잡히면 사라진다 (같은 자리에 겹쳐 밝아지는 것 방지)
+    vAlpha *= mix(1.0, 1.0 - formed, uIsTrail);
+    vBright = bright * formed;
     vRand = aRand;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * mix(1.0, 0.55 + aBright * 0.75, f) * (6.0 / -mv.z);
+    gl_PointSize = uSize * uPixelRatio * mix(1.0, 0.5 + bright * 0.8, formed) * (6.0 / -mv.z);
   }
 `;
 
@@ -244,11 +312,14 @@ export default function Particles({ driver, controls }: Props) {
     const g = new THREE.BufferGeometry();
     const form = buildForm(count, rnd);
     const flow = buildFlow(count, rnd);
+    const text = buildText(count, mulberry32(9), PARTICLES.text);
     const rand = new Float32Array(count);
     for (let i = 0; i < count; i++) rand[i] = rnd();
     // position 은 쓰지 않지만 three 가 요구한다
     g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
     g.setAttribute("aFlow", new THREE.BufferAttribute(flow, 3));
+    g.setAttribute("aText", new THREE.BufferAttribute(text.pos, 3));
+    g.setAttribute("aTextB", new THREE.BufferAttribute(text.bright, 1));
     g.setAttribute("aForm", new THREE.BufferAttribute(form.pos, 3));
     g.setAttribute("aPart", new THREE.BufferAttribute(form.part, 1));
     g.setAttribute("aBright", new THREE.BufferAttribute(form.bright, 1));
@@ -256,6 +327,22 @@ export default function Particles({ driver, controls }: Props) {
     g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 50); // 절대 컬링되지 않게
     return g;
   }, [count]);
+
+  // 서체가 늦게 오면 글자를 다시 찍는다 (처음엔 대체 서체로 찍혀 있다)
+  useEffect(() => {
+    let alive = true;
+    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
+    if (!fonts) return;
+    fonts.load('900 420px "Pretendard Variable"').then(() => {
+      if (!alive) return;
+      const text = buildText(count, mulberry32(9), PARTICLES.text);
+      (geometry.getAttribute("aText") as THREE.BufferAttribute).copyArray(text.pos).needsUpdate = true;
+      (geometry.getAttribute("aTextB") as THREE.BufferAttribute).copyArray(text.bright).needsUpdate = true;
+    });
+    return () => {
+      alive = false;
+    };
+  }, [geometry, count]);
 
   const steps = PARTICLES.trailSteps + 1;
   const materials = useMemo(
@@ -271,8 +358,11 @@ export default function Particles({ driver, controls }: Props) {
           uniforms: {
             uTime: { value: 0 },
             uTimeOffset: { value: 0 },
+            uText: { value: 0 },
             uForm: { value: 0 },
             uOpen: { value: 0 },
+            uTextScale: { value: 1 },
+            uIsTrail: { value: 0 },
             uBurst: { value: 0 },
             uSize: { value: PARTICLES.size },
             uPixelRatio: { value: 1 },
@@ -302,13 +392,16 @@ export default function Particles({ driver, controls }: Props) {
       const u = m.uniforms;
       u.uTime.value = t;
       u.uTimeOffset.value = -i * p.trailGap;
+      u.uText.value = d.text;
       u.uForm.value = d.form;
       u.uOpen.value = d.open;
+      u.uTextScale.value = viewport.width < viewport.height ? viewport.width * p.textScale * 1.3 : viewport.width * p.textScale;
+      u.uIsTrail.value = i === 0 ? 0 : 1;
       u.uBurst.value = d.burst;
       u.uSize.value = p.size * (i === 0 ? 1 : 0.85);
       u.uPixelRatio.value = pr;
-      // 꼬리는 점점 옅게. 실루엣이 완성되면 꼬리는 사라진다 (같은 자리에 겹쳐 밝아지는 것 방지)
-      u.uAlpha.value = p.alpha * (i === 0 ? 1 : 0.4 / i) * (i === 0 ? 1 : 1 - d.form);
+      // 꼬리는 점점 옅게 (형태가 잡히면 셰이더에서 사라진다)
+      u.uAlpha.value = p.alpha * (i === 0 ? 1 : 0.4 / i);
       u.uFlowScale.value = flowScale;
       u.uFlowSpin.value = p.flowSpin;
       u.uModel.value.copy(d.model);

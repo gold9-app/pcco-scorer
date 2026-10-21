@@ -25,7 +25,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 flex flex-col justify-between px-5 py-5 sm:px-8 sm:py-7">
           <div>
             <p className="text-sm font-semibold text-ink">{heroContent.title}</p>
-            <p className="text-xs text-ink-3 mt-0.5">강사 {heroContent.instructor}</p>
+            <p className="text-xs text-ink-3 mt-0.5">{heroContent.handle} · {heroContent.instructor}</p>
           </div>
           <div className={`flex items-center gap-3 text-xs text-ink-3 transition-opacity duration-500 ${hint ? "opacity-100" : "opacity-0"}`}>
             <span className="scroll-dot" aria-hidden />

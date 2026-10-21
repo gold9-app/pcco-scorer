@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 
 /**
  * 스크롤 상태를 ref 로 들고 있는다 (매 프레임 읽히므로 state 가 아님).
- *  hero   0→1 : [data-hero] 구간. 노트북이 닫히며 위로 빠진다
- *  beats       : [data-beat] 섹션들의 문서 기준 top. i 번째 비트 = i 번째 블록 (강의 19 + 마지막 한 칸)
+ *  hero   0→1 : [data-hero] 구간. 입자가 흩어진다
+ *  docH        : 문서 전체 높이. 본문(heroEnd → 끝)을 내리는 동안 블록이 고르게 떨어진다 (beatProgress)
  */
 export interface ScrollInfo {
   y: number;
@@ -13,12 +13,12 @@ export interface ScrollInfo {
   vh: number;
   heroEnd: number;
   hero: number;
-  beats: number[];
+  docH: number;
   pointer: { x: number; y: number };
 }
 
 export function useScrollProgress() {
-  const info = useRef<ScrollInfo>({ y: 0, vw: 1, vh: 1, heroEnd: 1, hero: 0, beats: [], pointer: { x: 0, y: 0 } });
+  const info = useRef<ScrollInfo>({ y: 0, vw: 1, vh: 1, heroEnd: 1, hero: 0, docH: 1, pointer: { x: 0, y: 0 } });
 
   useEffect(() => {
     const i = info.current;
@@ -32,8 +32,7 @@ export function useScrollProgress() {
       i.vh = window.innerHeight;
       const hero = document.querySelector<HTMLElement>("[data-hero]");
       i.heroEnd = Math.max(1, (hero?.offsetHeight ?? i.vh * 1.8) - i.vh);
-      const y = window.scrollY;
-      i.beats = Array.from(document.querySelectorAll<HTMLElement>("[data-beat]")).map((el) => el.getBoundingClientRect().top + y);
+      i.docH = document.documentElement.scrollHeight;
       update();
     };
     const onPointer = (e: PointerEvent) => {
@@ -60,12 +59,15 @@ export function useScrollProgress() {
   return info;
 }
 
-/** i 번째 비트의 낙하 진행도 — 섹션 top 이 뷰포트 78% 지점에 닿으면 시작, 0.5vh 더 내리면 착지 */
-export function beatProgress(info: ScrollInfo, i: number): number {
-  const top = info.beats[i];
-  if (top === undefined) return 0;
-  const start = top - info.vh * 0.78;
-  return Math.min(1, Math.max(0, (info.y - start) / (info.vh * 0.5)));
+/**
+ * i/n 번째 블록의 낙하 진행도 — 본문 스크롤 범위(heroEnd → 문서 끝)를 n 등분해 차례로 떨어진다.
+ * 마지막 블록은 바닥(문서 끝)에 닿기 직전에 착지해 우물이 "딱" 완성된다.
+ */
+export function beatProgress(info: ScrollInfo, i: number, n: number): number {
+  const range = Math.max(1, info.docH - info.vh - info.heroEnd);
+  const span = info.vh * 0.45;
+  const start = info.heroEnd + (i / n) * (range - span);
+  return Math.min(1, Math.max(0, (info.y - start) / span));
 }
 
 export function smoothstep(v: number, a: number, b: number) {

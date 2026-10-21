@@ -10,8 +10,8 @@ import { beatProgress, type ScrollInfo } from "./useScrollProgress";
 import type { SceneControls } from "./useSceneControls";
 
 /**
- * 유리 테트리스 — 블록 20개. i 번째 블록은 i 번째 [data-beat] 섹션(강의 1회)이 올라올 때 떨어진다.
- * 마지막(20번째) 블록은 CTA 에서 떨어져 우물을 완성한다 — "딱 맞게".
+ * 유리 테트리스 — 블록 20개. 본문을 내리는 동안 차례로 떨어져 아래부터 쌓인다.
+ * 마지막(20번째) 블록은 문서 끝(CTA)에서 떨어져 우물을 완성한다 — "딱 맞게".
  * 우물은 80칸, 화면 비율에 맞는 모양을 고르고 뷰포트 안에 들어오는 최대 칸으로 바닥에 붙인다.
  */
 
@@ -64,7 +64,7 @@ function GlassPiece({ piece, layout, scroll, controls }: { piece: Piece; layout:
   useFrame((_, dt) => {
     const g = group.current;
     if (!g) return;
-    const target = beatProgress(scroll.current, piece.index);
+    const target = beatProgress(scroll.current, piece.index, layout.pieces.length);
     t.current += (target - t.current) * (1 - Math.exp(-dt * tetris.follow));
     const k = easeOutCubic(t.current);
     g.position.set(cx, cy + layout.startAbove * (1 - k), 0);
