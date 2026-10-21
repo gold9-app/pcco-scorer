@@ -1,7 +1,7 @@
 "use client";
 
 import { useControls } from "leva";
-import { CAMERA, LAPTOP, PARTICLES, TETRIS, LIGHTS, POST } from "./sceneConfig";
+import { CAMERA, LAPTOP, PARTICLES, TETRIS, POST } from "./sceneConfig";
 
 /** leva 패널 — sceneConfig 기본치를 노출. 마음에 드는 값은 sceneConfig.ts 에 옮겨 적는다 */
 export function useSceneControls() {
@@ -36,6 +36,8 @@ export function useSceneControls() {
     colorA: PARTICLES.colorA,
     colorB: PARTICLES.colorB,
     colorHot: PARTICLES.colorHot,
+    logoCool: PARTICLES.logoCool,
+    logoWarm: PARTICLES.logoWarm,
   });
 
   const tetris = useControls("테트리스", {
@@ -44,17 +46,8 @@ export function useSceneControls() {
     follow: { value: TETRIS.follow, min: 2, max: 20, step: 0.5 },
     tilt: { value: TETRIS.tilt, min: 0, max: 3, step: 0.1 },
     gap: { value: TETRIS.gap, min: 0.7, max: 1, step: 0.01 },
-    opacity: { value: TETRIS.opacity, min: 0.1, max: 1, step: 0.02 },
-    emissive: { value: TETRIS.emissive, min: 0, max: 2, step: 0.05 },
-    roughness: { value: TETRIS.roughness, min: 0, max: 1, step: 0.01 },
-  });
-
-  const lights = useControls("조명", {
-    ambient: { value: LIGHTS.ambient, min: 0, max: 3, step: 0.05 },
-    key: { value: LIGHTS.key, min: 0, max: 6, step: 0.1 },
-    fill: { value: LIGHTS.fill, min: 0, max: 4, step: 0.1 },
-    rim: { value: LIGHTS.rim, min: 0, max: 6, step: 0.1 },
-    envIntensity: { value: LIGHTS.envIntensity, min: 0, max: 3, step: 0.05 },
+    size: { value: TETRIS.size, min: 0.5, max: 10, step: 0.1 },
+    alpha: { value: TETRIS.alpha, min: 0.05, max: 1, step: 0.01 },
   });
 
   const post = useControls("후처리", {
@@ -63,7 +56,7 @@ export function useSceneControls() {
     bloomRadius: { value: POST.bloomRadius, min: 0, max: 1, step: 0.01 },
   });
 
-  return { camera, laptop, particles, tetris, lights, post };
+  return { camera, laptop, particles, tetris, post };
 }
 
 export type SceneControls = ReturnType<typeof useSceneControls>;

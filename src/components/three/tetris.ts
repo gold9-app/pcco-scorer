@@ -110,7 +110,39 @@ export function buildWell(cols: number, rows: number): Piece[] {
   if (remainder === 2) for (let x = 0; x < cols; x += 2) push(ONE_O, x, r0, fullBands);
   if (remainder === 1) for (let x = 0; x < cols; x += 4) push(FLAT_I, x, r0, fullBands);
 
-  return pieces;
+  return finaleOrder(pieces, cols, rows);
+}
+
+/**
+ * 피날레 순서 — 우물 한가운데에 가장 가까운 조각을 맨 마지막(당신의 자리)으로 보낸다.
+ * 나머지는 아래 행부터, 같은 행이면 왼쪽부터 떨어진다. index 는 새 순서로 다시 매긴다.
+ */
+function finaleOrder(pieces: Piece[], cols: number, rows: number): Piece[] {
+  const cx = (cols - 1) / 2;
+  const cy = (rows - 1) / 2;
+  const centroid = (p: Piece) => {
+    const c = p.cells.reduce((a, [x]) => a + x, 0) / p.cells.length;
+    const r = p.cells.reduce((a, [, y]) => a + y, 0) / p.cells.length;
+    return { c, r };
+  };
+  let last = pieces[0];
+  let bestD = Infinity;
+  for (const p of pieces) {
+    const { c, r } = centroid(p);
+    const d = Math.hypot((c - cx) / cols, (r - cy) / rows);
+    if (d < bestD) {
+      bestD = d;
+      last = p;
+    }
+  }
+  const rest = pieces
+    .filter((p) => p !== last)
+    .sort((a, b) => {
+      const A = centroid(a);
+      const B = centroid(b);
+      return A.r - B.r || A.c - B.c;
+    });
+  return [...rest, last].map((p, i) => ({ ...p, index: i, tilt: (i % 2 === 0 ? 1 : -1) * (0.04 + (i % 3) * 0.015) }));
 }
 
 /** 검증 — 모든 칸이 한 번씩, 조각 수가 맞는지 */

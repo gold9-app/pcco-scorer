@@ -10,7 +10,7 @@ import type { SceneControls } from "./useSceneControls";
 /**
  * 빛 입자 — 한 번에 그리는 점 수만 개.
  *   흐름(flow)  : 클리포드 어트랙터 위의 점들이 천천히 돌며 떠다닌다 (adame 식 생성 곡선)
- *   글자(text)  : 강사명 "G9" — 캔버스에 글자를 찍어 픽셀을 샘플한다 (윤곽은 뜨겁게, 속은 옅게)
+ *   로고(text)  : 강사 로고 "G9" 이미지의 픽셀을 샘플한다 (윤곽은 뜨겁게, 속은 옅게 · G 는 차가운 빛, 9 는 금빛)
  *   형태(form)  : 글자가 흩어졌다가(detour) 노트북 실루엣(본체 윗면·외곽선·키·트랙패드·뚜껑 외곽·화면)으로 모인다. 뚜껑 점은 셰이더에서 힌지 회전
  *   폭발(burst) : 스크롤하면 사방으로 흩어지며 사라진다 → 본문의 유리 블록이 이어받는다
  *   빛 꼬리     : 같은 지오메트리를 시간차(uTimeOffset)로 몇 번 더 그린다 (흐름 상태에서 꼬리가 생긴다)
@@ -28,10 +28,12 @@ export interface ParticleDriver {
   burst: number;
   /** 노트북 root 의 월드 행렬 */
   model: THREE.Matrix4;
+  /** 로고 샘플이 준비됐나 — 준비 전엔 인트로 타임라인이 멈춰 있다 (흐름만 보인다) */
+  ready: boolean;
 }
 
 export function createDriver(): ParticleDriver {
-  return { open: 0, text: 0, form: 0, burst: 0, model: new THREE.Matrix4() };
+  return { open: 0, text: 0, form: 0, burst: 0, model: new THREE.Matrix4(), ready: false };
 }
 
 const { width: W, depth: D, baseThickness: BT } = LAPTOP;
@@ -174,41 +176,43 @@ function buildFlow(n: number, rnd: () => number) {
 }
 
 /**
- * 글자 샘플 — 오프스크린 캔버스에 찍고 밝은 픽셀을 모은다. 좌표는 캔버스 폭 기준 [-1,1] (y 는 비율 유지), 실제 크기는 uTextScale.
- * 윤곽(옆 픽셀이 어두운 점)은 bright 1, 속은 0.3
+ * 로고 샘플 — 이미지를 캔버스에 그려 배경(흰색)이 아닌 픽셀을 모은다.
+ * 좌표는 캔버스 폭 기준 [-1,1] (y 는 비율 유지), 실제 크기는 uTextScale.
+ * 윤곽(옆 픽셀이 배경인 점)은 bright 1, 속은 0.3. warm = 따뜻한 색(9) 여부 (0|1)
  */
-export function buildText(n: number, rnd: () => number, text: string) {
+export function buildLogo(n: number, rnd: () => number, img: HTMLImageElement) {
   const pos = new Float32Array(n * 3);
   const bright = new Float32Array(n);
-  if (typeof document === "undefined") return { pos, bright };
-  const cw = 1024;
-  const ch = 512;
+  const warm = new Float32Array(n);
+  const cw = 512;
+  const ch = Math.round((cw * img.naturalHeight) / Math.max(1, img.naturalWidth));
   const cv = document.createElement("canvas");
   cv.width = cw;
   cv.height = ch;
   const ctx = cv.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return { pos, bright };
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, cw, ch);
+  if (!ctx) return { pos, bright, warm };
   ctx.fillStyle = "#fff";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `900 420px "Pretendard Variable", Pretendard, "Segoe UI", "Helvetica Neue", Arial, sans-serif`;
-  ctx.fillText(text, cw / 2, ch / 2 + 16);
-  const img = ctx.getImageData(0, 0, cw, ch).data;
-  const lit = (x: number, y: number) => x >= 0 && y >= 0 && x < cw && y < ch && img[(y * cw + x) * 4] > 110;
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.drawImage(img, 0, 0, cw, ch);
+  const d = ctx.getImageData(0, 0, cw, ch).data;
+  const ink = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= cw || y >= ch) return false;
+    const o = (y * cw + x) * 4;
+    return d[o + 3] > 60 && !(d[o] > 222 && d[o + 1] > 222 && d[o + 2] > 222);
+  };
   const cand: number[] = [];
   const edge: number[] = [];
+  const hot: number[] = [];
   for (let y = 0; y < ch; y += 2)
     for (let x = 0; x < cw; x += 2) {
-      if (!lit(x, y)) continue;
-      const e = !lit(x - 5, y) || !lit(x + 5, y) || !lit(x, y - 5) || !lit(x, y + 5);
+      if (!ink(x, y)) continue;
+      const o = (y * cw + x) * 4;
       cand.push(x, y);
-      edge.push(e ? 1 : 0);
+      edge.push(!ink(x - 4, y) || !ink(x + 4, y) || !ink(x, y - 4) || !ink(x, y + 4) ? 1 : 0);
+      hot.push(d[o] > d[o + 2] + 25 ? 1 : 0);
     }
   const m = cand.length / 2;
-  if (m === 0) return { pos, bright };
-  // 윤곽 점을 더 자주 고른다 (윤곽 55% · 속 45%)
+  if (m === 0) return { pos, bright, warm };
   const edgeIdx: number[] = [];
   const innerIdx: number[] = [];
   for (let k = 0; k < m; k++) (edge[k] ? edgeIdx : innerIdx).push(k);
@@ -221,8 +225,9 @@ export function buildText(n: number, rnd: () => number, text: string) {
     pos[i * 3 + 1] = -(y / ch - 0.5) * 2 * (ch / cw);
     pos[i * 3 + 2] = (rnd() - 0.5) * 0.12;
     bright[i] = edge[k] ? 1 : 0.3;
+    warm[i] = hot[k];
   }
-  return { pos, bright };
+  return { pos, bright, warm };
 }
 
 const vertex = /* glsl */ `
@@ -232,6 +237,7 @@ const vertex = /* glsl */ `
   attribute vec3 aFlow;
   attribute vec3 aText;
   attribute float aTextB;
+  attribute float aTextW;
   attribute vec3 aForm;
   attribute float aPart;
   attribute float aRand;
@@ -239,6 +245,8 @@ const vertex = /* glsl */ `
   varying float vAlpha;
   varying float vBright;
   varying float vRand;
+  varying float vLogo;
+  varying float vWarm;
   mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
   void main() {
     float t = uTime + uTimeOffset;
@@ -275,6 +283,8 @@ const vertex = /* glsl */ `
     vAlpha *= mix(1.0, 1.0 - formed, uIsTrail);
     vBright = bright * formed;
     vRand = aRand;
+    vLogo = ft * (1.0 - fm);
+    vWarm = aTextW;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * uPixelRatio * mix(1.0, 0.5 + bright * 0.8, formed) * (6.0 / -mv.z);
@@ -282,10 +292,12 @@ const vertex = /* glsl */ `
 `;
 
 const fragment = /* glsl */ `
-  uniform vec3 uColorA, uColorB, uColorHot;
+  uniform vec3 uColorA, uColorB, uColorHot, uLogoCool, uLogoWarm;
   varying float vAlpha;
   varying float vBright;
   varying float vRand;
+  varying float vLogo;
+  varying float vWarm;
   void main() {
     vec2 d = gl_PointCoord - 0.5;
     float r = length(d);
@@ -293,7 +305,9 @@ const fragment = /* glsl */ `
     float a = smoothstep(0.5, 0.08, r);
     a *= a;
     vec3 col = mix(uColorA, uColorB, vRand);
-    col = mix(col, uColorHot, vBright * 0.85);
+    // 로고 상태에선 로고 색 (G 차가운 빛 · 9 금빛), 윤곽은 흰빛으로
+    col = mix(col, mix(uLogoCool, uLogoWarm, vWarm), vLogo);
+    col = mix(col, uColorHot, vBright * mix(0.85, 0.5, vLogo));
     gl_FragColor = vec4(col * (0.55 + vBright * 1.7), a * vAlpha);
   }
 `;
@@ -312,14 +326,14 @@ export default function Particles({ driver, controls }: Props) {
     const g = new THREE.BufferGeometry();
     const form = buildForm(count, rnd);
     const flow = buildFlow(count, rnd);
-    const text = buildText(count, mulberry32(9), PARTICLES.text);
     const rand = new Float32Array(count);
     for (let i = 0; i < count; i++) rand[i] = rnd();
     // position 은 쓰지 않지만 three 가 요구한다
     g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
     g.setAttribute("aFlow", new THREE.BufferAttribute(flow, 3));
-    g.setAttribute("aText", new THREE.BufferAttribute(text.pos, 3));
-    g.setAttribute("aTextB", new THREE.BufferAttribute(text.bright, 1));
+    g.setAttribute("aText", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+    g.setAttribute("aTextB", new THREE.BufferAttribute(new Float32Array(count), 1));
+    g.setAttribute("aTextW", new THREE.BufferAttribute(new Float32Array(count), 1));
     g.setAttribute("aForm", new THREE.BufferAttribute(form.pos, 3));
     g.setAttribute("aPart", new THREE.BufferAttribute(form.part, 1));
     g.setAttribute("aBright", new THREE.BufferAttribute(form.bright, 1));
@@ -328,21 +342,26 @@ export default function Particles({ driver, controls }: Props) {
     return g;
   }, [count]);
 
-  // 서체가 늦게 오면 글자를 다시 찍는다 (처음엔 대체 서체로 찍혀 있다)
+  // 로고 이미지를 받아 샘플한다 — 준비되면 driver.ready → 인트로 시작
   useEffect(() => {
     let alive = true;
-    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
-    if (!fonts) return;
-    fonts.load('900 420px "Pretendard Variable"').then(() => {
+    const img = new Image();
+    img.onload = () => {
       if (!alive) return;
-      const text = buildText(count, mulberry32(9), PARTICLES.text);
-      (geometry.getAttribute("aText") as THREE.BufferAttribute).copyArray(text.pos).needsUpdate = true;
-      (geometry.getAttribute("aTextB") as THREE.BufferAttribute).copyArray(text.bright).needsUpdate = true;
-    });
+      const logo = buildLogo(count, mulberry32(9), img);
+      (geometry.getAttribute("aText") as THREE.BufferAttribute).copyArray(logo.pos).needsUpdate = true;
+      (geometry.getAttribute("aTextB") as THREE.BufferAttribute).copyArray(logo.bright).needsUpdate = true;
+      (geometry.getAttribute("aTextW") as THREE.BufferAttribute).copyArray(logo.warm).needsUpdate = true;
+      driver.current.ready = true;
+    };
+    img.onerror = () => {
+      if (alive) driver.current.ready = true; // 로고가 없어도 멈추지 않는다 (글자 단계는 비어 지나간다)
+    };
+    img.src = PARTICLES.logo;
     return () => {
       alive = false;
     };
-  }, [geometry, count]);
+  }, [geometry, count, driver]);
 
   const steps = PARTICLES.trailSteps + 1;
   const materials = useMemo(
@@ -374,6 +393,8 @@ export default function Particles({ driver, controls }: Props) {
             uColorA: { value: new THREE.Color(PARTICLES.colorA) },
             uColorB: { value: new THREE.Color(PARTICLES.colorB) },
             uColorHot: { value: new THREE.Color(PARTICLES.colorHot) },
+            uLogoCool: { value: new THREE.Color(PARTICLES.logoCool) },
+            uLogoWarm: { value: new THREE.Color(PARTICLES.logoWarm) },
           },
         });
       }),
@@ -395,7 +416,7 @@ export default function Particles({ driver, controls }: Props) {
       u.uText.value = d.text;
       u.uForm.value = d.form;
       u.uOpen.value = d.open;
-      u.uTextScale.value = viewport.width < viewport.height ? viewport.width * p.textScale * 1.3 : viewport.width * p.textScale;
+      u.uTextScale.value = viewport.width < viewport.height ? viewport.width * p.textScale * 1.9 : viewport.width * p.textScale;
       u.uIsTrail.value = i === 0 ? 0 : 1;
       u.uBurst.value = d.burst;
       u.uSize.value = p.size * (i === 0 ? 1 : 0.85);
@@ -408,6 +429,8 @@ export default function Particles({ driver, controls }: Props) {
       (u.uColorA.value as THREE.Color).set(p.colorA);
       (u.uColorB.value as THREE.Color).set(p.colorB);
       (u.uColorHot.value as THREE.Color).set(p.colorHot);
+      (u.uLogoCool.value as THREE.Color).set(p.logoCool);
+      (u.uLogoWarm.value as THREE.Color).set(p.logoWarm);
     });
     if (group.current) group.current.visible = d.burst < 0.999;
   });

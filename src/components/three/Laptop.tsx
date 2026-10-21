@@ -56,7 +56,7 @@ export default function Laptop({ scroll, controls }: Props) {
 
     hs.current += (info.hero - hs.current) * (1 - Math.exp(-dt * 7));
     const h = hs.current;
-    clock.current += Math.min(dt, 0.1);
+    if (d.ready) clock.current += Math.min(dt, 0.1); // 로고 샘플이 준비된 뒤부터 인트로가 흐른다
     const c = clock.current;
 
     // 타임라인: 글자 → 머묾 → 노트북 → 열기

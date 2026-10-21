@@ -40,9 +40,13 @@ export const LAPTOP = {
 export const PARTICLES = {
   /** 입자 수 (폰은 절반) */
   count: 36000,
-  /** 인트로 글자 (강사명) · 크기(뷰포트 너비 대비 반폭) */
-  text: "G9",
-  textScale: 0.36,
+  /** 인트로 로고 (public/ 경로) · 크기(뷰포트 너비 대비 반폭, 세로 화면은 ×1.9) · 로고 두 색 (G 와 9) */
+  logo: "/g9-logo.png",
+  textScale: 0.2,
+  logoCool: "#cfe0ff",
+  logoWarm: "#f0c892",
+  /** 테트리스 — 칸당 점 수 (폰은 절반) */
+  perCell: 220,
   /** 점 크기 (px, dpr 1 기준) */
   size: 3.2,
   /** 전체 밝기 */
@@ -69,19 +73,10 @@ export const TETRIS = {
   /** 떨어질 때 기우는 정도 */
   tilt: 1,
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
-  gap: 0.92,
-  /** 어두운 유리 — 투명도 · 자체 발광(블룸이 집는다) */
-  opacity: 0.42,
-  emissive: 0.28,
-  roughness: 0.12,
-};
-
-export const LIGHTS = {
-  ambient: 0.35,
-  key: 1.2,
-  fill: 0.5,
-  rim: 1.6,
-  envIntensity: 0.8,
+  gap: 0.9,
+  /** 입자 블록 — 점 크기 · 밝기 */
+  size: 3.6,
+  alpha: 0.75,
 };
 
 export const POST = {
