@@ -42,7 +42,7 @@ export const PARTICLES = {
   count: 36000,
   /** 인트로 로고 (public/ 경로) · 크기(뷰포트 너비 대비 반폭, 세로 화면은 ×1.9) · 로고 두 색 (G 와 9) */
   logo: "/g9-logo.png",
-  textScale: 0.2,
+  textScale: 0.1,
   logoCool: "#cfe0ff",
   logoWarm: "#f0c892",
   /** 테트리스 — 칸당 점 수 (폰은 절반) */

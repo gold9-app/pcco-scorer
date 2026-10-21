@@ -16,7 +16,7 @@ import type { SceneControls } from "./useSceneControls";
  *
  *   페이지가 열리면   흐르던 입자가 "G9" 로 모인다 → 머문다 → 흩어졌다 노트북 실루엣으로 모인다
  *                     → 뚜껑이 열린다 → 화면에 메시지. 그대로 멈춘다 (읽는 시간)
- *   스크롤 (hero 0→1)  0.0~0.25 메시지가 사라진다 · 0.05~0.65 입자가 사방으로 흩어진다 · 0.45~1 남은 자취가 위로
+ *   들어가기 (hero 0→1, 1.6초)  0.0~0.25 메시지가 사라진다 · 0.05~0.65 입자가 사방으로 흩어진다 · 0.45~1 남은 자취가 위로
  *
  * 구조:  <root> 위치·크기(뷰포트의 fillW/fillH)·패럴랙스  — 입자 셰이더의 uModel
  *          ├ <hinge> rotation.x = 열림각
@@ -41,8 +41,9 @@ export default function Laptop({ scroll, controls }: Props) {
   const anchor = useRef<THREE.Group>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
   const driver = useRef(createDriver());
-  const hs = useRef(0); // 부드럽게 따라가는 hero 진행도
+  const hs = useRef(0); // 표지 퇴장 진행도 (들어가기 뒤 시간으로 오른다)
   const clock = useRef(0); // 등장 타이머 (초)
+  const readySent = useRef(false);
   const { viewport, size, camera } = useThree();
 
   const euler = useMemo(() => new THREE.Euler(), []);
@@ -54,7 +55,8 @@ export default function Laptop({ scroll, controls }: Props) {
     const info = scroll.current;
     const d = driver.current;
 
-    hs.current += (info.hero - hs.current) * (1 - Math.exp(-dt * 7));
+    // 들어가기: 1.6초에 걸쳐 흩어진다
+    if (info.entered) hs.current = Math.min(1, hs.current + dt / 1.6);
     const h = hs.current;
     if (d.ready) clock.current += Math.min(dt, 0.1); // 로고 샘플이 준비된 뒤부터 인트로가 흐른다
     const c = clock.current;
@@ -67,7 +69,13 @@ export default function Laptop({ scroll, controls }: Props) {
     const openT = clamp01((c - (morphStart + laptop.morphDuration * laptop.openAt)) / laptop.introDuration);
     const openIntro = 1 - Math.pow(1 - openT, 3);
 
-    // 스크롤: 메시지 → 흩어짐 → 뚜껑도 닫히며 위로
+    // 메시지까지 다 뜨면 표지에 "들어가기" 버튼을 띄우라고 알린다
+    if (!readySent.current && openT >= 0.95) {
+      readySent.current = true;
+      window.dispatchEvent(new CustomEvent("hero:ready"));
+    }
+
+    // 들어가기: 메시지 → 흩어짐 → 뚜껑도 닫히며 위로
     const burst = smoothstep(h, 0.05, 0.65);
     const closeT = smoothstep(h, 0.0, 0.55);
     hg.rotation.x = -deg(laptop.openAngle) * openIntro * (1 - closeT);
