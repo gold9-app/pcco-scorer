@@ -65,8 +65,8 @@ export const TETRIS = {
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.92,
   /** 어두운 유리 — 투명도 · 자체 발광(블룸이 집는다) */
-  opacity: 0.5,
-  emissive: 0.45,
+  opacity: 0.42,
+  emissive: 0.28,
   roughness: 0.12,
 };
 
