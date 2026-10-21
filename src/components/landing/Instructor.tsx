@@ -1,9 +1,10 @@
 import { instructorProfile as g } from "@/data/content";
+import CountUp from "./CountUp";
 
 /** 강사 — G9 */
 export default function Instructor() {
   return (
-    <section id="instructor" className="px-4 sm:px-6 py-8 sm:py-12">
+    <section id="instructor" className="px-4 sm:px-6 py-8 sm:py-12 scroll-mt-20" data-reveal>
       <div className="panel mx-auto max-w-5xl p-6 sm:p-10 md:p-14 grid gap-8 md:grid-cols-[auto_1fr] md:gap-14 items-start">
         <div>
           <p className="mono-label">Instructor</p>
@@ -21,7 +22,9 @@ export default function Instructor() {
             {g.facts.map((f) => (
               <div key={f.label}>
                 <dt className="text-xs text-ink-3">{f.label}</dt>
-                <dd className="mt-1 text-2xl font-extrabold tracking-[-0.02em] text-ink tabular-nums">{f.value}</dd>
+                <dd className="mt-1 text-2xl font-extrabold tracking-[-0.02em] text-ink tabular-nums">
+                  <CountUp value={f.value} />
+                </dd>
               </div>
             ))}
           </dl>

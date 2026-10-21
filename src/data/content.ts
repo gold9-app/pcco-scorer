@@ -25,6 +25,14 @@ export const heroContent = {
   ],
 };
 
+/** 연락처 — 1차 전환 행동 "연락하기" */
+export const contact = {
+  phone: "010-4729-6929",
+  tel: "tel:+821047296929",
+  email: "kumgoo0913@gmail.com",
+  mailto: "mailto:kumgoo0913@gmail.com?subject=" + encodeURIComponent("[AI 활용 실전 시리즈] 수강 문의"),
+};
+
 /** 강의 한 줄 요약 — 메인(상세 페이지)의 첫 문단 */
 export const pitch = {
   lead: "AI를 잘 쓰는 사람과 못 쓰는 사람의 차이는 재능이 아니라 구조입니다. 이 시리즈는 그 구조를 외워서 평생 쓰는 공식으로 만들어, 프롬프트 한 줄에서 에이전트 설계까지 내 것으로 만듭니다.",

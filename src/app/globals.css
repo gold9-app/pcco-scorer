@@ -790,6 +790,47 @@ body[data-cover] .landing-body { opacity: 0; transform: translateY(24px); transi
 .cover-leaving { opacity: 0; pointer-events: none; }
 .cover-enter { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
+/* 고정 헤더 — 표지가 걷힌 뒤 내려온다. 진행선은 아래 1px */
+.site-header {
+  background: linear-gradient(to bottom, rgba(7, 10, 15, 0.92), rgba(7, 10, 15, 0.72));
+  backdrop-filter: blur(18px) saturate(90%);
+  -webkit-backdrop-filter: blur(18px) saturate(90%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  opacity: 0; transform: translateY(-100%);
+  transition: opacity 0.6s ease 0.6s, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s;
+}
+.site-header-in { opacity: 1; transform: none; }
+.site-progress {
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: linear-gradient(90deg, var(--accent), #4f9dff);
+  transform-origin: left center;
+  box-shadow: 0 0 12px rgba(53, 217, 200, 0.6);
+}
+
+/* 폰 하단 연락 바 */
+.mobile-bar { opacity: 0; transform: translateY(110%); transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; }
+.mobile-bar-in { opacity: 1; transform: none; pointer-events: auto; }
+.mobile-bar .panel { border-radius: 18px; }
+@media (max-width: 639px) { .landing-body { padding-bottom: 84px; } }
+
+/* 연락 패널 — 틸 테두리 빛 */
+.contact-panel { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(53, 217, 200, 0.22), 0 0 70px -24px rgba(53, 217, 200, 0.45), 0 40px 100px -40px rgba(0, 0, 0, 0.9); }
+
+/* 스크롤 리빌 */
+[data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+[data-reveal][data-in="true"] { opacity: 1; transform: none; }
+body[data-cover] [data-reveal] { transition: none; }
+
+/* 관통 문장 — 한 줄씩 교차 */
+.quote-line { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; }
+.quote-line-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .quote-line { transition: none; }
+  .site-header, .mobile-bar { transition: none; }
+}
+
 /* 마무리 카드 — 마지막 블록이 들어가면 떠오른다 */
 .finale { opacity: 0; transform: translateY(28px) scale(0.98); transition: opacity 0.9s ease 0.35s, transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s; }
 .finale[data-shown="true"] { opacity: 1; transform: none; }

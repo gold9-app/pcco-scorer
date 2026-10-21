@@ -39,7 +39,10 @@ export default function Cover() {
         if (timer.current) window.clearTimeout(timer.current);
       };
     }
-    if (phase === "gone") delete document.body.dataset.cover;
+    if (phase === "gone") {
+      delete document.body.dataset.cover;
+      window.dispatchEvent(new CustomEvent("cover:gone"));
+    }
   }, [phase]);
 
   const enter = () => {

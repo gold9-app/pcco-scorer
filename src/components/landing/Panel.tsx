@@ -21,7 +21,7 @@ export default function Panel({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="px-4 sm:px-6 py-8 sm:py-12">
+    <section id={id} className="px-4 sm:px-6 py-8 sm:py-12 scroll-mt-20" data-reveal>
       <div className={`panel mx-auto ${wide ? "max-w-5xl" : "max-w-3xl"} p-6 sm:p-10 md:p-12`}>
         <header className="mb-8 sm:mb-10 max-w-[40ch]">
           {label && <p className="mono-label">{label}</p>}
