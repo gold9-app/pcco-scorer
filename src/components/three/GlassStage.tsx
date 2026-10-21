@@ -4,6 +4,8 @@ import { useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { Leva } from "leva";
 
+import ScreenMessage from "./ScreenMessage";
+
 // three.js 는 브라우저 전용 — 서버 렌더링에서 제외
 const Stage = dynamic(() => import("./Stage"), { ssr: false });
 
@@ -21,6 +23,7 @@ export default function GlassStage() {
   return (
     <>
       <Stage />
+      <ScreenMessage />
       <Leva collapsed hidden={!showLeva} titleBar={{ title: "3D 조절값", filter: false }} />
     </>
   );

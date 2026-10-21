@@ -3,11 +3,11 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Html, RoundedBox } from "@react-three/drei";
+import { RoundedBox } from "@react-three/drei";
 
 import { LAPTOP } from "./sceneConfig";
 import { smoothstep, type ScrollInfo } from "./useScrollProgress";
-import { heroContent } from "@/data/content";
+import { screenOverlay } from "./ScreenMessage";
 import type { SceneControls } from "./useSceneControls";
 
 /**
@@ -19,7 +19,7 @@ import type { SceneControls } from "./useSceneControls";
  * 구조:  <root> 위치·축소(뷰포트 폭)·패럴랙스
  *          ├ base
  *          └ <hinge> rotation.x = 열림각
- *              ├ lid · screen · <Html> 메시지
+ *              ├ lid · screen · <anchor> (메시지 DOM 의 기준점 — ScreenMessage 가 이 자세를 따라 그린다)
  */
 
 const deg = (d: number) => (d * Math.PI) / 180;
@@ -34,10 +34,10 @@ export default function Laptop({ scroll, controls }: Props) {
   const { laptop, material } = controls;
   const root = useRef<THREE.Group>(null);
   const hinge = useRef<THREE.Group>(null);
-  const msg = useRef<HTMLDivElement>(null);
+  const anchor = useRef<THREE.Group>(null);
   const hs = useRef(0); // 부드럽게 따라가는 hero 진행도
   const intro = useRef(-laptop.introDelay); // 등장 타이머 (초). 0 이 되면 열리기 시작
-  const { viewport } = useThree();
+  const { viewport, size, camera } = useThree();
 
   const { width: W, depth: D, baseThickness: BT, lidThickness: LT, cornerRadius: R } = LAPTOP;
   const euler = useMemo(() => new THREE.Euler(), []);
@@ -60,15 +60,6 @@ export default function Laptop({ scroll, controls }: Props) {
     const closeT = smoothstep(h, 0.0, 0.55);
     hg.rotation.x = -deg(laptop.openAngle) * openIntro * (1 - closeT);
 
-    // 메시지: 뚜껑이 거의 다 열리면 나타나고, 스크롤 시작과 함께 먼저 사라진다
-    if (msg.current) {
-      const show = smoothstep(introT, 0.55, 0.95) * (1 - smoothstep(h, 0.0, 0.25));
-      msg.current.style.opacity = show.toFixed(3);
-      msg.current.style.transform = `translateY(${(1 - show) * 10}px)`;
-      const aspect = viewport.width / viewport.height;
-      msg.current.style.width = `${Math.round(560 * Math.min(1, aspect * 1.5))}px`;
-    }
-
     // 자세: 뷰포트 폭에 맞춰 축소, 포인터 패럴랙스, 스크롤 후반에 위로 빠져나감
     const k = THREE.MathUtils.clamp(viewport.width / (W * 1.25), 0.38, 1);
     const exitT = smoothstep(h, 0.45, 1);
@@ -81,6 +72,14 @@ export default function Laptop({ scroll, controls }: Props) {
     );
     g.quaternion.setFromEuler(euler);
     g.visible = h < 0.995;
+
+    // 메시지: 뚜껑이 거의 다 열리면 나타나고, 스크롤 시작과 함께 먼저 사라진다. 자세가 확정된 뒤 행렬을 갱신해 DOM 에 넘긴다
+    if (anchor.current) {
+      g.updateMatrixWorld(true);
+      const show = smoothstep(introT, 0.55, 0.95) * (1 - smoothstep(h, 0.0, 0.25));
+      const aspect = viewport.width / viewport.height;
+      screenOverlay.update(camera, anchor.current, size, { show, width: 560 * Math.min(1, aspect * 1.5), distanceFactor: 2.2 });
+    }
   });
 
   const glass = (
@@ -120,23 +119,7 @@ export default function Laptop({ scroll, controls }: Props) {
           <planeGeometry args={[W * 0.9, D * 0.84]} />
           <meshStandardMaterial color={PAGE_BG} emissive={PAGE_BG} emissiveIntensity={0.55} roughness={0.5} />
         </mesh>
-        <Html
-          transform
-          position={[0, -0.006, D / 2]}
-          rotation={[Math.PI / 2, 0, 0]}
-          distanceFactor={2.2}
-          style={{ pointerEvents: "none", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
-        >
-          <div ref={msg} style={{ width: 560, padding: "28px 36px", color: "#0f1720", opacity: 0, fontFamily: "inherit" }}>
-            <p style={{ fontSize: 14, fontWeight: 600, opacity: 0.55, marginBottom: 12 }}>{heroContent.title}</p>
-            <h1 style={{ fontSize: 40, lineHeight: 1.18, fontWeight: 800, letterSpacing: "-0.02em", wordBreak: "keep-all", maxWidth: 480 }}>
-              {heroContent.subtitle}
-            </h1>
-            <p style={{ fontSize: 16, lineHeight: 1.65, opacity: 0.72, marginTop: 18, wordBreak: "keep-all", maxWidth: 440 }}>
-              {heroContent.tagline}
-            </p>
-          </div>
-        </Html>
+        <group ref={anchor} name="screen-anchor" position={[0, -0.006, D / 2]} rotation={[Math.PI / 2, 0, 0]} />
       </group>
     </group>
   );
