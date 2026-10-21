@@ -10,18 +10,15 @@ export default function Cta() {
       <Finale>
         <div className="panel finale-card mx-auto max-w-3xl p-6 sm:p-10 md:p-12">
           <p className="mono-label">Your seat</p>
-          <h2 className="mt-3 text-2xl sm:text-3xl md:text-[2.4rem] font-extrabold tracking-[-0.02em] leading-[1.2] text-ink break-keep">
-            마지막 한 칸은 당신 자리입니다
+          <h2 className="sec-h2 mt-3">
+            마지막 한 칸은 <em>당신 자리</em>입니다
           </h2>
-          <p className="mt-3 max-w-[42ch] text-base sm:text-lg leading-relaxed text-ink-2 break-keep">
+          <p className="lead mt-5">
             방금 들어간 한 칸처럼, 딱 맞는 자리에서 시작합니다. 전화는 10분, 메일은 세 칸 — 지금 쓰는 AI 수준과 하고 싶은 일이면 충분합니다.
           </p>
           <ContactCta className="mt-8" />
-          <p className="mt-4 text-xs text-ink-3">
-            {contact.phone} · {contact.email}
-          </p>
 
-          <div className="mt-10 pt-6 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <div className="mt-10 pt-6 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.9375rem]">
             <span className="text-ink-3">이미 수강 중이신가요?</span>
             <Link href="/course" className="text-ink-2 hover:text-accent underline-offset-4 hover:underline">복습 페이지</Link>
             <Link href="/downloads" className="text-ink-2 hover:text-accent underline-offset-4 hover:underline">강의 자료실</Link>
@@ -30,7 +27,7 @@ export default function Cta() {
         </div>
       </Finale>
 
-      <footer className="panel mx-auto max-w-3xl mt-8 sm:mt-10 px-5 py-4 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-2">
+      <footer className="panel mx-auto max-w-3xl mt-8 sm:mt-10 px-5 py-4 flex flex-wrap items-center justify-between gap-3 cap">
         <p>{heroContent.title} — {heroContent.handle} {heroContent.instructor}</p>
         <nav className="flex gap-4">
           <a href={contact.mailto} className="hover:text-ink">{contact.email}</a>

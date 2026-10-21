@@ -23,6 +23,8 @@ export default function GlassStage() {
   return (
     <>
       <Stage />
+      {/* 글 기둥 뒤를 어둡게 — 블록은 좌우 여백에서만 지나간다 */}
+      <div className="stage-vignette" aria-hidden />
       <ScreenMessage />
       <Leva collapsed hidden={!showLeva} titleBar={{ title: "3D 조절값", filter: false }} />
     </>

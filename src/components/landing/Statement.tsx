@@ -7,7 +7,7 @@ export default function Statement({ label, children, sub }: { label?: string; ch
         <p className="mt-4 max-w-[18ch] text-[2.2rem] sm:text-[3.4rem] md:text-[4.4rem] font-black tracking-[-0.04em] leading-[1.05] text-ink break-keep glow-text">
           {children}
         </p>
-        {sub && <p className="mt-6 max-w-[44ch] text-base sm:text-lg leading-relaxed text-ink-2 break-keep">{sub}</p>}
+        {sub && <p className="lead mt-7">{sub}</p>}
       </div>
     </section>
   );

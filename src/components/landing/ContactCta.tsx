@@ -20,14 +20,14 @@ export default function ContactCta({ compact = false, className = "" }: { compac
           <span className="mono-label" style={{ color: "rgba(6, 17, 15, 0.7)" }}>Tel</span>
           <span className="tabular-nums tracking-wide">{contact.phone}</span>
         </a>
-        <p className="mt-2 text-xs text-ink-3 break-keep">{contact.telNote}</p>
+        <p className="mt-2 cap break-keep">{contact.telNote}</p>
       </div>
       <div>
         <a href={contact.mailto} className="btn-ghost w-full px-6 gap-3">
           <span className="mono-label">Mail</span>
           <span className="tracking-wide">{contact.email}</span>
         </a>
-        <p className="mt-2 text-xs text-ink-3 break-keep">{contact.mailNote}</p>
+        <p className="mt-2 cap break-keep">{contact.mailNote}</p>
       </div>
     </div>
   );

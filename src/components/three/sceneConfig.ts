@@ -76,7 +76,7 @@ export const TETRIS = {
   gap: 0.9,
   /** 입자 블록 — 점 크기 · 밝기 (앞의 카드가 주인공 — 뒤는 은은하게) */
   size: 3.0,
-  alpha: 0.38,
+  alpha: 0.28,
 };
 
 export const POST = {
