@@ -41,8 +41,8 @@ const ONE_O: Proto = { name: "O", cells: [[0, 0], [1, 0], [0, 1], [1, 1]] };
 /** 4열×1행 — I 가로 */
 const FLAT_I: Proto = { name: "I", cells: [[0, 0], [1, 0], [2, 0], [3, 0]] };
 
-/** 블록 색 — 어둠 속의 빛 (자체 발광 + 블룸) */
-export const TINTS = ["#2fb4ff", "#35d9c8", "#8f7dff", "#ff8f6b"];
+/** 블록 색 — 채도를 눌러 앞의 글을 방해하지 않게 (마지막 한 칸만 금빛) */
+export const TINTS = ["#3f7fb0", "#3f9a92", "#6d66a6", "#a8705c"];
 
 export const PIECE_COUNT = 20;
 export const WELLS: [cols: number, rows: number][] = [

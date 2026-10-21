@@ -17,7 +17,7 @@ import type { SceneControls } from "./useSceneControls";
  *     되돌려 올리면 다시 모인다 ('well:reset')
  */
 
-const GOLD = "#f0c892";
+const GOLD = "#e0b87c";
 
 const vertex = /* glsl */ `
   #define N ${PIECE_COUNT}
@@ -66,8 +66,8 @@ const fragment = /* glsl */ `
     if (r > 0.5) discard;
     float a = smoothstep(0.5, 0.08, r);
     a *= a;
-    vec3 col = mix(vColor, vec3(1.0), vBright * 0.55);
-    gl_FragColor = vec4(col * (0.6 + vBright * 1.3), a * vAlpha);
+    vec3 col = mix(vColor, vec3(1.0), vBright * 0.35);
+    gl_FragColor = vec4(col * (0.5 + vBright * 0.7), a * vAlpha);
   }
 `;
 
@@ -155,7 +155,7 @@ function buildGeometry(layout: Layout, gap: number, perCell: number, depth: numb
         center[i * 2] = cx;
         center[i * 2 + 1] = cy;
         piece[i] = p.index;
-        bright[i] = onEdge ? 1 : 0.22;
+        bright[i] = onEdge ? 1 : 0.1;
         rand[i] = rnd();
         tilt[i] = p.tilt;
         i++;

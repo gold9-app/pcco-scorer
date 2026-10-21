@@ -74,9 +74,9 @@ export const TETRIS = {
   tilt: 1,
   /** 칸 안에서 블록이 차지하는 비율 (틈) */
   gap: 0.9,
-  /** 입자 블록 — 점 크기 · 밝기 */
-  size: 4.4,
-  alpha: 0.95,
+  /** 입자 블록 — 점 크기 · 밝기 (앞의 카드가 주인공 — 뒤는 은은하게) */
+  size: 3.0,
+  alpha: 0.38,
 };
 
 export const POST = {
