@@ -8,7 +8,7 @@ import { resourceGroups } from "@/data/resources";
 
 /**
  * 차수별 복습 페이지 — /course/{id}
- * 정적 export: generateStaticParams 가 courses[] 를 돌며 19페이지를 빌드 시 생성한다.
+ * 정적 export: generateStaticParams 가 courses[] 를 돌며 20페이지를 빌드 시 생성한다.
  * 내용은 CourseDetail(기존 컴포넌트) 그대로. 랜딩의 #course-N 앵커는 HashRedirect 가 이 주소로 보낸다.
  */
 

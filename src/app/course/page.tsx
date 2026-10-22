@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 /**
  * 복습 인덱스 — /course
- * 수강생용. 시리즈 지도 순서(phases[])대로 19개 강의를 나열한다.
+ * 수강생용. 시리즈 지도 순서(phases[])대로 20개 강의를 나열한다.
  */
 export default function CourseIndexPage() {
   const labelOf = (id: string) => {

@@ -487,6 +487,35 @@ export const resourceGroups: ResourceGroup[] = [
     ],
   },
   {
+    courseId: "course-19",
+    label: "19차",
+    title: "일꾼은 뭘 알고 일하나 — 머리에 넣는 것과 빼는 것",
+    framework: "문맥 4층 + 넣는 법 4",
+    items: [
+      {
+        file: "/downloads/c19/slides.pdf",
+        downloadName: "19강_일꾼은뭘알고일하나_슬라이드.pdf",
+        title: "슬라이드",
+        description: "수업에서 띄운 슬라이드 전체 (31장 — 복습 5 · 머리 해부도 · 문맥 4층 · 병 셋 · 넣는 법 4 · 세 장면 · 해부도)",
+        kind: "pdf",
+      },
+      {
+        file: "/downloads/c19/glossary.docx",
+        downloadName: "19강_용어사전_문맥판.docx",
+        title: "용어사전 — 문맥판",
+        description: "오프닝 배포 · 5부(지난번 말 · 머리 · 넣는 길 넷 · 병과 처방 · 이름만) — 못 외워도 됩니다",
+        kind: "docx",
+      },
+      {
+        file: "/downloads/c19/context-card.docx",
+        downloadName: "19강_설계질문5_문맥판카드.docx",
+        title: "설계 질문 5 — 문맥판 카드 (선택 과제)",
+        description: "클로징 배포 · 18차 카드의 짝 — 일꾼 한 명의 늘 알 것 · 이번에 넣을 것 · 남길 것 · 꺼낼 것 · 넣지 않을 것",
+        kind: "docx",
+      },
+    ],
+  },
+  {
     courseId: "extra-1",
     label: "개인 맞춤 1",
     title: "요청이 들어와서 결과가 나가기까지 — 라우팅과 오케스트레이션 설계 워크숍",
