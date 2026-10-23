@@ -26,7 +26,7 @@ export default function Instructor() {
           {l}
         </p>
       ))}
-      <p className="mono-label mt-8">직접 만들어 수업에 쓰는 것</p>
+      <p className="mono-label label-ko mt-8">직접 만들어 수업에 쓰는 것</p>
       <ul className="rows mt-2" aria-label="직접 만들어 수업에 쓰는 것">
         {g.evidence.map((e) => (
           <li key={e.name} className="row !py-4 grid gap-1 sm:grid-cols-[11rem_1fr]">

@@ -1,6 +1,7 @@
 import { heroContent, pitch, learn } from "@/data/content";
 import CountUp from "./CountUp";
 import Editorial from "./Editorial";
+import Phrases from "./Phrases";
 import Statement from "./Statement";
 import Curve from "./diagrams/Curve";
 import BlockBar from "./diagrams/BlockBar";
@@ -41,7 +42,7 @@ export default function Pitch() {
               <span className="mono-label text-accent pt-1">0{i + 1}</span>
               <div>
                 <p className="cap line-through decoration-white/30">“{p.now}”</p>
-                <p className="h3 mt-1 text-[1.125rem] sm:text-[1.25rem]">{p.after}</p>
+                <p className="h3 mt-1 text-[1.125rem] sm:text-[1.25rem]"><Phrases text={p.after} hard /></p>
               </div>
             </li>
           ))}

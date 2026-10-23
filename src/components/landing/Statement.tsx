@@ -1,3 +1,5 @@
+import { keepDots } from "@/lib/text";
+
 /** 풀블리드 문장 — 패널 없이 화면 가득. 섹션 사이 숨 고르기 */
 export default function Statement({ label, children, sub }: { label?: string; children: React.ReactNode; sub?: string }) {
   return (
@@ -7,7 +9,7 @@ export default function Statement({ label, children, sub }: { label?: string; ch
         <p className="mt-4 max-w-[18ch] text-[2.2rem] sm:text-[3.4rem] md:text-[4.4rem] font-black tracking-[-0.04em] leading-[1.05] text-ink break-keep glow-text">
           {children}
         </p>
-        {sub && <p className="lead mt-7">{sub}</p>}
+        {sub && <p className="lead mt-7">{typeof sub === "string" ? keepDots(sub) : sub}</p>}
       </div>
     </section>
   );

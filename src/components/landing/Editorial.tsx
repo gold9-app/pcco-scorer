@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { keepDots } from "@/lib/text";
 
 /**
  * 에디토리얼 섹션 — 한 화면, 한 문장.
@@ -29,7 +30,7 @@ export default function Editorial({
           <header className="ed-left">
             {label && <p className="mono-label">{label}</p>}
             <h2 className="sec-h2 mt-3">{title}</h2>
-            {lead && <p className="lead mt-5">{lead}</p>}
+            {lead && <p className="lead mt-5">{typeof lead === "string" ? keepDots(lead) : lead}</p>}
             {aside && <div className="mt-6">{aside}</div>}
           </header>
           <div className="ed-right min-w-0">{children}</div>

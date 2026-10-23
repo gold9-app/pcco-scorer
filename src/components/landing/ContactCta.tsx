@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { contact } from "@/data/content";
+import Phrases from "./Phrases";
 
 /**
  * 연락하기 — 1차 전환. 전화·이메일 두 버튼.
@@ -90,7 +91,7 @@ export default function ContactCta({ compact = false, className = "" }: { compac
           <span className="tracking-wide">{contact.email}</span>
         </a>
         <p className="mt-2 cap break-keep">
-          {contact.mailNote}
+          <Phrases text={contact.mailNote} />
           {isPointer && (
             <>
               {" · "}

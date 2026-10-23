@@ -699,9 +699,11 @@ body {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  padding: 0 12px;
+  padding: 0.3rem 12px;
   border-radius: 999px;
   font-size: 0.8125rem;
+  line-height: 1.35;
+  word-break: keep-all; /* 좁은 칸에서 "흐 / 름" 처럼 낱말 가운데가 끊기지 않게 */
   font-weight: 600;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.06);
@@ -794,10 +796,16 @@ body {
 .sec-h2 { text-wrap: balance; white-space: pre-line; }
 .h3 { text-wrap: balance; }
 .lead, .body, .h3, .quote-line, .quad-cell p { white-space: pre-line; text-wrap: pretty; }
-@media (max-width: 480px) {
-  /* 아주 좁은 화면: 강제 줄바꿈이 짧은 줄을 만들면 더 불편 — 자연 줄바꿈으로 */
+@media (max-width: 1023px) {
+  /* 한 단 레이아웃(폰·태블릿): 본문의 \n 은 데스크톱 2단 글 폭에 맞춰 넣은 것이라 여기선 문장 중간을 끊는다
+     ("결과를 / 보고 고칩니다") — 자연 줄바꿈 + pretty(끝줄 한 단어 방지). 2026-10-23 측정으로 480 → 1023 */
   .lead, .body, .h3, .quad-cell p { white-space: normal; }
 }
+/* 짧은 강조문 — Phrases 컴포넌트. 조각 단위로 붙거나 끊기고, 조각 안에서는 고르게 */
+.phrase { display: inline-block; max-width: 100%; text-wrap: balance; }
+@media (min-width: 1024px) { .phrase-hard { display: block; } }
+/* 한글 라벨 — mono-label 의 넓은 자간·고정폭 글꼴은 한글을 "직 접 만 들 어" 로 벌린다 */
+.label-ko { font-family: inherit; letter-spacing: 0.02em; text-transform: none; }
 .lead {
   font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem); /* 17 → 18px */
   line-height: 1.7;
@@ -861,7 +869,13 @@ body[data-cover] .stage-vignette { opacity: 0; transition: none; }
 [data-in="true"] .stair { animation: lit 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 .stair-name { font-size: clamp(1.0625rem, 0.9rem + 0.8vw, 1.375rem); font-weight: 800; color: var(--ink); line-height: 1.2; word-break: keep-all; }
 .stair-keep { margin-top: auto; font-size: 0.875rem; color: var(--ink-2); word-break: keep-all; }
-@media (max-width: 480px) { .stair { padding: 0.7rem 0.6rem; } .stair-keep { font-size: 0.8125rem; } }
+@media (max-width: 480px) {
+  /* 폰: 세로 계단 → 길어지는 가로 막대 (01 짧게 → 03 끝까지). 이름·공식 수가 한 줄에 */
+  .stairs { grid-template-columns: 1fr; align-items: start; gap: 0.5rem; padding-bottom: 0; border-bottom: 0; }
+  .stair { height: auto !important; width: calc(70% + var(--i, 0) * 15%); display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 0.75rem; row-gap: 0.15rem; padding: 0.8rem 1rem; }
+  .stair-name { font-size: 1.0625rem; white-space: nowrap; }
+  .stair-keep { grid-column: 2; margin-top: 0; font-size: 0.8125rem; }
+}
 
 /* 루프 */
 .loop text { font-family: var(--font-sans); }
@@ -978,6 +992,10 @@ body[data-cover] .landing-body { opacity: 0; transform: translateY(24px); transi
 body[data-cover] [data-reveal] { transition: none; }
 
 /* 관통 문장 — 한 줄씩 교차 */
+.quote-stack { display: grid; }
+.quote-stack > .quote-line { grid-area: 1 / 1; }
+.quote-dot { display: inline-flex; align-items: center; justify-content: center; height: 44px; min-width: 0 !important; min-height: 44px; padding: 0 5px; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+@media (max-width: 380px) { .quote-dot { padding: 0 3.5px; } }
 .quote-line { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; }
 .quote-line-in { opacity: 1; transform: none; }
 
@@ -1014,7 +1032,7 @@ body[data-cover] [data-reveal] { transition: none; }
 @media (max-width: 480px) {
   .compare-head { display: none; }
   .compare-row { grid-template-columns: 1fr; gap: 0.35rem; }
-  .compare-l::before { content: "흔한 강의 · "; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; display: inline-block; margin-right: 0.25rem; }
+  .compare-l::before { content: "흔한 강의 · "; font-size: 0.75rem; letter-spacing: 0.02em; text-decoration: none; display: inline-block; margin-right: 0.25rem; }
 }
 
 /* 마무리 카드 — 마지막 블록이 들어가면 떠오른다 */

@@ -1,5 +1,6 @@
 import { comparison as c } from "@/data/content";
 import Editorial from "./Editorial";
+import Phrases from "./Phrases";
 
 /** 다른 점 — 대비표. 처음엔 4행, 나머지는 펼쳐서 */
 export default function Difference() {
@@ -8,7 +9,7 @@ export default function Difference() {
   const Row = ({ r }: { r: (typeof c.rows)[number] }) => (
     <div className="compare-row" role="row">
       <span role="cell" className="compare-l">{r.common}</span>
-      <span role="cell" className="compare-r">{r.ours}</span>
+      <span role="cell" className="compare-r"><Phrases text={r.ours} /></span>
     </div>
   );
   return (
@@ -24,8 +25,8 @@ export default function Difference() {
     >
       <div className="compare" role="table" aria-label="흔한 AI 강의와 이 시리즈 비교">
         <div className="compare-head" role="row">
-          <span role="columnheader" className="mono-label">{c.left}</span>
-          <span role="columnheader" className="mono-label text-accent">{c.right}</span>
+          <span role="columnheader" className="mono-label label-ko">{c.left}</span>
+          <span role="columnheader" className="mono-label label-ko text-accent">{c.right}</span>
         </div>
         {first.map((r) => (
           <Row key={r.ours} r={r} />

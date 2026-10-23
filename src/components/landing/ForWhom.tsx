@@ -1,5 +1,6 @@
 import { audiences } from "@/data/content";
 import Editorial from "./Editorial";
+import Phrases from "./Phrases";
 import { IconBook, IconBriefcase, IconFreelance, IconHome } from "./diagrams/Icons";
 
 const ICONS = { worker: IconBriefcase, freelancer: IconFreelance, homemaker: IconHome, student: IconBook } as const;
@@ -31,10 +32,10 @@ export default function ForWhom() {
                 </span>
                 <p className="text-[1.0625rem] font-bold text-ink">
                   {a.name}
-                  {a.main && <span className="ml-2 mono-label text-accent">주 대상</span>}
+                  {a.main && <span className="ml-2 mono-label label-ko text-accent">주 대상</span>}
                 </p>
               </div>
-              <p className={`mt-3 font-bold text-ink break-keep leading-snug ${a.main ? "text-[1.25rem] sm:text-[1.5rem]" : "text-[1.0625rem]"}`}>“{a.quote}”</p>
+              <p className={`mt-3 font-bold text-ink break-keep leading-snug ${a.main ? "text-[1.25rem] sm:text-[1.5rem]" : "text-[1.0625rem]"}`}><Phrases text={`“${a.quote}”`} hard={a.main} /></p>
               {a.main && <p className="body mt-3 !max-w-[44ch]">{a.after}</p>}
               <details className="more mt-4">
                 <summary>{a.main ? "예제 보기" : "끝나면 · 예제"}</summary>
